@@ -2,4 +2,7 @@
 
 バイブコーディングの賜物です<br>claude,codex,geminiにやってもらいました　ありがとうございます  
 ----credits----<br>
-Fonts: Google Fonts / JSZip (MIT License)
+使用ライブラリ<br>
+JSZip（Stuart Knightley 他、MITライセンス）<br>
+使用フォント<br>
+JetBrains Mono / Noto Sans JP（Google Fonts）
