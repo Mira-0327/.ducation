@@ -183,17 +183,22 @@
     <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
         <div style="font-size:16px; font-weight:bold; margin-bottom:20px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">アップデートログ</div>
 
-        <div style="margin-bottom:16px;">
-            <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:6px;">
-                <span style="font-size:11px; font-weight:bold; color:var(--accent); letter-spacing:0.5px;">Ver.1.1.1</span>
-            </div>
-            <ul style="margin:0; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.8;">
-                <li>ライトモードを追加</li>
-                <li>線に名前を付けられるようにした</li>
-                <li>ホーム画面に「このツールはバイブコーディングによって作られています」の表示を追加</li>
-				<li>その他バグの修正</li>
-            </ul>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+            <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.1.1</span>
+            <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
         </div>
+
+        <ul id="changelog-items-list" style="margin:0 0 20px; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.8;">
+            <li>ライトモードを追加</li>
+            <li>線に名前を付けられるようにした</li>
+            <li>ホーム画面に「このツールはバイブコーディングによって作られています」の表示を追加</li>
+            <li>その他バグの修正</li>
+        </ul>
 
         <div style="display:flex; justify-content:flex-end;">
             <button onclick="homeCloseChangelogModal()" style="background:var(--accent); border:none; border-radius:0; color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
@@ -10020,9 +10025,45 @@ ${layersSVG}
             modal.style.display = 'none';
         }
     }
+    // ── アップデートログ ──
+    // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
+    const CHANGELOG_DATA = [
+        {
+            version: 'Ver.1.1.1',
+            items: [
+                'ライトモードを追加',
+                '線に名前を付けられるようにした',
+                'ホーム画面に「このツールはバイブコーディングによって作られています」の表示を追加',
+                'その他バグの修正'
+            ]
+        }
+    ];
+    let _changelogIndex = 0;
+    function renderChangelogEntry() {
+        const entry = CHANGELOG_DATA[_changelogIndex];
+        if (!entry) return;
+        const versionLabel = document.getElementById('changelog-version-label');
+        const list = document.getElementById('changelog-items-list');
+        const prevBtn = document.getElementById('changelog-prev-btn');
+        const nextBtn = document.getElementById('changelog-next-btn');
+        if (versionLabel) versionLabel.textContent = entry.version;
+        if (list) list.innerHTML = entry.items.map(it => '<li>' + it + '</li>').join('');
+        const atOldest = _changelogIndex >= CHANGELOG_DATA.length - 1;
+        const atNewest = _changelogIndex <= 0;
+        if (prevBtn) { prevBtn.disabled = atOldest; prevBtn.style.opacity = atOldest ? '0.35' : '1'; prevBtn.style.cursor = atOldest ? 'default' : 'pointer'; }
+        if (nextBtn) { nextBtn.disabled = atNewest; nextBtn.style.opacity = atNewest ? '0.35' : '1'; nextBtn.style.cursor = atNewest ? 'default' : 'pointer'; }
+    }
+    function changelogNav(dir) {
+        const next = _changelogIndex + dir;
+        if (next < 0 || next > CHANGELOG_DATA.length - 1) return;
+        _changelogIndex = next;
+        renderChangelogEntry();
+    }
     function homeShowChangelogModal() {
         const modal = document.getElementById('changelog-modal');
         if (modal) {
+            _changelogIndex = 0;
+            renderChangelogEntry();
             modal.style.display = 'flex';
         }
     }
