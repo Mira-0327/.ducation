@@ -12,40 +12,65 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
     <script>
-        // ちらつき防止: 描画前に保存済みテーマを適用
+        // ちらつき防止: 描画前に保存済みテーマ・カスタムアクセントカラーを適用
         (function(){
             try {
-                if (localStorage.getItem('ducation-theme') === 'light') {
+                var savedTheme = localStorage.getItem('ducation-theme');
+                if (savedTheme === 'light') {
                     document.documentElement.setAttribute('data-theme', 'light');
                     document.addEventListener('DOMContentLoaded', function(){
                         var m = document.querySelector('meta[name="theme-color"]');
                         if (m) m.setAttribute('content', '#ffffff');
                     });
+                } else if (savedTheme === 'midnight') {
+                    document.documentElement.setAttribute('data-theme', 'midnight');
+                    document.addEventListener('DOMContentLoaded', function(){
+                        var m = document.querySelector('meta[name="theme-color"]');
+                        if (m) m.setAttribute('content', '#0a0e1a');
+                    });
+                }
+                var customAccent = localStorage.getItem('ducation-custom-accent');
+                if (customAccent) {
+                    document.documentElement.style.setProperty('--accent', customAccent);
+                    var r = parseInt(customAccent.slice(1,3),16), g = parseInt(customAccent.slice(3,5),16), b = parseInt(customAccent.slice(5,7),16);
+                    if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+                        document.documentElement.style.setProperty('--accent-rgb', r+','+g+','+b);
+                    }
+                }
+                var savedRadius = localStorage.getItem('ducation-radius');
+                if (savedRadius === 'rounded') {
+                    document.documentElement.style.setProperty('--radius', '10px');
                 }
             } catch(e) {}
         })();
     </script>
 </head>
 <body style="margin:0; padding:10px; background:var(--c-page); box-sizing:border-box; height:100%; overflow:hidden;">
-<button id="theme-toggle-btn" onclick="toggleTheme()" title="ライト / ダーク切り替え">
-    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-</button>
 <script>
-    function toggleTheme() {
-        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    function setThemeMode(mode) {
+        if (mode !== 'light' && mode !== 'midnight') mode = 'dark';
         var meta = document.querySelector('meta[name="theme-color"]');
-        if (isLight) {
-            document.documentElement.removeAttribute('data-theme');
-            if (meta) meta.setAttribute('content', '#000000');
-            try { localStorage.setItem('ducation-theme', 'dark'); } catch(e) {}
-        } else {
+        if (mode === 'light') {
             document.documentElement.setAttribute('data-theme', 'light');
             if (meta) meta.setAttribute('content', '#ffffff');
-            try { localStorage.setItem('ducation-theme', 'light'); } catch(e) {}
+        } else if (mode === 'midnight') {
+            document.documentElement.setAttribute('data-theme', 'midnight');
+            if (meta) meta.setAttribute('content', '#0a0e1a');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            if (meta) meta.setAttribute('content', '#000000');
         }
+        try { localStorage.setItem('ducation-theme', mode); } catch(e) {}
         if (typeof refreshAccentColorCache === 'function') refreshAccentColorCache();
         if (typeof redrawAllCanvases === 'function') redrawAllCanvases();
+        if (typeof syncCustomThemeModeSwitch === 'function') syncCustomThemeModeSwitch();
+    }
+    var DUCATION_RADIUS_VALUES = { square: '0px', rounded: '10px' };
+    function setRadiusMode(mode) {
+        if (mode !== 'rounded') mode = 'square';
+        document.documentElement.style.setProperty('--radius', DUCATION_RADIUS_VALUES[mode]);
+        try { localStorage.setItem('ducation-radius', mode); } catch(e) {}
+        if (typeof syncCustomThemeRadiusSwitch === 'function') syncCustomThemeRadiusSwitch();
     }
 </script>
 <!-- ══ ホーム画面 ══ -->
@@ -75,6 +100,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                         使い方
                     </button>
+                    <button class="home-menu-item" onclick="homeCloseMenu(); homeShowCustomThemeModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+                        カスタムテーマ
+                    </button>
                     <button class="home-menu-item" onclick="homeCloseMenu(); homeShowChangelogModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
                         アップデートログ
@@ -82,6 +111,10 @@
                     <button class="home-menu-item" onclick="homeCloseMenu(); homeShowBugsModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.88 1.88M14.12 3.88L16 2M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"/><path d="M12 20v-9M6.53 9C4.6 8.8 3 7.1 3 5M6 13H2M6.53 17C4.6 17.2 3 18.9 3 21M17.47 9c1.93-.2 3.53-1.9 3.53-4M18 13h4M17.47 17c1.93.2 3.53 1.9 3.53 4"/></svg>
                         既知のバグ
+                    </button>
+                    <button class="home-menu-item" onclick="homeCloseMenu(); homeShowCreditsModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        クレジット
                     </button>
                 </div>
             </div>
@@ -91,35 +124,35 @@
         <div class="home-section-title">作品一覧</div>
         <div class="home-grid" id="home-grid"></div>
     </div>
-    <div style="position:fixed; left:54px; bottom:10px; font-size:11px; color:var(--c-555); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
-    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-555); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.1.1</div>
+    <div style="position:fixed; left:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
+    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.1.2</div>
 </div>
 <!-- 新規作成モーダル -->
 <div id="new-project-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNewProjectModal()">
-    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:28px 32px; min-width:320px; max-width:420px; width:90%; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:320px; max-width:420px; width:90%; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
         <div style="font-size:16px; font-weight:bold; margin-bottom:20px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">新規プロジェクト</div>
         <div style="margin-bottom:14px;">
             <div style="font-size:11px; color:var(--c-9a9); margin-bottom:6px; letter-spacing:0.5px;">プロジェクト名</div>
-            <input id="new-proj-name" type="text" value="新規プロジェクト" style="width:100%; box-sizing:border-box; background:var(--c-050); border:1px solid var(--c-fff); border-radius:0; color:var(--c-fff); font-size:13px; padding:8px 12px; outline:none; transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--c-fff)'">
+            <input id="new-proj-name" type="text" value="新規プロジェクト" style="width:100%; box-sizing:border-box; background:var(--c-050); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-fff); font-size:13px; padding:8px 12px; outline:none; transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--c-fff)'">
         </div>
         <div style="margin-bottom:20px;">
             <div style="font-size:11px; color:var(--c-9a9); margin-bottom:6px; letter-spacing:0.5px;">キャンバスサイズ</div>
             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                <input id="new-proj-w" type="number" value="1920" min="1" max="9999" style="width:calc(3ch + 22px); background:var(--c-050); border:1px solid var(--c-fff); border-radius:0; color:var(--c-fff); font-size:13px; padding:8px 10px; outline:none; transition:border-color 0.15s; -moz-appearance:textfield;" oninput="this.style.width='calc('+Math.max(1,this.value.length)+'ch + 22px)'" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--c-fff)'">
+                <input id="new-proj-w" type="number" value="1920" min="1" max="9999" style="width:calc(3ch + 22px); background:var(--c-050); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-fff); font-size:13px; padding:8px 10px; outline:none; transition:border-color 0.15s; -moz-appearance:textfield;" oninput="this.style.width='calc('+Math.max(1,this.value.length)+'ch + 22px)'" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--c-fff)'">
                 <span style="color:var(--c-8a8); font-size:14px;">×</span>
-                <input id="new-proj-h" type="number" value="1080" min="1" max="9999" style="width:calc(3ch + 22px); background:var(--c-050); border:1px solid var(--c-fff); border-radius:0; color:var(--c-fff); font-size:13px; padding:8px 10px; outline:none; transition:border-color 0.15s; -moz-appearance:textfield;" oninput="this.style.width='calc('+Math.max(1,this.value.length)+'ch + 22px)'" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--c-fff)'">
+                <input id="new-proj-h" type="number" value="1080" min="1" max="9999" style="width:calc(3ch + 22px); background:var(--c-050); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-fff); font-size:13px; padding:8px 10px; outline:none; transition:border-color 0.15s; -moz-appearance:textfield;" oninput="this.style.width='calc('+Math.max(1,this.value.length)+'ch + 22px)'" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--c-fff)'">
                 <span style="color:var(--c-9a9); font-size:11px;">px</span>
             </div>
             <div style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap;">
-                <button onclick="setNewProjSize(800,400)" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:11px; padding:4px 10px; cursor:pointer;">800×400</button>
-                <button onclick="setNewProjSize(1280,720)" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:11px; padding:4px 10px; cursor:pointer;">1280×720</button>
-                <button onclick="setNewProjSize(1920,1080)" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:11px; padding:4px 10px; cursor:pointer;">1920×1080</button>
-                <button onclick="setNewProjSize(1080,1080)" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:11px; padding:4px 10px; cursor:pointer;">1080×1080</button>
+                <button onclick="setNewProjSize(800,400)" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:11px; padding:4px 10px; cursor:pointer;">800×400</button>
+                <button onclick="setNewProjSize(1280,720)" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:11px; padding:4px 10px; cursor:pointer;">1280×720</button>
+                <button onclick="setNewProjSize(1920,1080)" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:11px; padding:4px 10px; cursor:pointer;">1920×1080</button>
+                <button onclick="setNewProjSize(1080,1080)" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:11px; padding:4px 10px; cursor:pointer;">1080×1080</button>
             </div>
         </div>
         <div style="display:flex; gap:10px; justify-content:flex-end;">
-            <button onclick="homeCloseNewProjectModal()" style="background:transparent; border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:13px; padding:9px 20px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
-            <button onclick="homeNewProject()" style="background:var(--accent); border:none; border-radius:0; color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">作成</button>
+            <button onclick="homeCloseNewProjectModal()" style="background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; padding:9px 20px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
+            <button onclick="homeNewProject()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">作成</button>
         </div>
     </div>
 </div>
@@ -127,7 +160,7 @@
 
 <!-- 使い方モーダル -->
 <div id="help-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseHelpModal()">
-    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
         <div style="font-size:16px; font-weight:bold; margin-bottom:20px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">使い方</div>
 
         <div style="margin-bottom:16px;">
@@ -173,22 +206,22 @@
         </div>
 
         <div style="display:flex; justify-content:flex-end;">
-            <button onclick="homeCloseHelpModal()" style="background:var(--accent); border:none; border-radius:0; color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
+            <button onclick="homeCloseHelpModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
         </div>
     </div>
 </div>
 
 <!-- アップデートログモーダル -->
 <div id="changelog-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseChangelogModal()">
-    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
         <div style="font-size:16px; font-weight:bold; margin-bottom:20px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">アップデートログ</div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
-            <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
+            <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.1.1</span>
-            <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.1.2</span>
+            <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
         </div>
@@ -197,19 +230,18 @@
             <li>ライトモードを追加</li>
             <li>線に名前を付けられるようにした</li>
             <li>ホーム画面に「このツールはバイブコーディングによって作られています」の表示を追加</li>
-            <li>使い方の文言を修正</li>
-			<li>その他バグの修正</li>
+            <li>その他バグの修正</li>
         </ul>
 
         <div style="display:flex; justify-content:flex-end;">
-            <button onclick="homeCloseChangelogModal()" style="background:var(--accent); border:none; border-radius:0; color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
+            <button onclick="homeCloseChangelogModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
         </div>
     </div>
 </div>
 
 <!-- 既知のバグ一覧モーダル -->
 <div id="bugs-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseBugsModal()">
-    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
         <div style="font-size:16px; font-weight:bold; margin-bottom:8px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">既知のバグ</div>
         <div style="font-size:11px; color:var(--c-9a9); margin-bottom:18px; line-height:1.7;">
             現在確認されている不具合の一覧です。修正までしばらくお待ちください。
@@ -220,20 +252,122 @@
         </ul>
 
         <div style="display:flex; justify-content:flex-end;">
-            <button onclick="homeCloseBugsModal()" style="background:var(--accent); border:none; border-radius:0; color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
+            <button onclick="homeCloseBugsModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
         </div>
     </div>
 </div>
 
 
-<!-- 削除確認モーダル -->
+<!-- カスタムテーマモーダル -->
+<div id="custom-theme-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseCustomThemeModal()">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:400px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+        <div style="font-size:16px; font-weight:bold; margin-bottom:6px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">カスタムテーマ</div>
+        <div style="font-size:11px; color:var(--c-9a9); margin-bottom:20px; line-height:1.7;">
+            アプリ全体の差し色（アクセントカラー）を好きな色に変更できます。
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">モード</div>
+            <div id="custom-theme-mode-group" style="display:flex; flex-direction:column; gap:10px;">
+                <label class="theme-mode-checkbox">
+                    <input type="checkbox" class="theme-mode-checkbox-input" data-mode="dark" onchange="setThemeMode('dark')">
+                    <span class="theme-mode-checkbox-box"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-9a9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <span class="theme-mode-checkbox-label">ダーク</span>
+                </label>
+                <label class="theme-mode-checkbox">
+                    <input type="checkbox" class="theme-mode-checkbox-input" data-mode="light" onchange="setThemeMode('light')">
+                    <span class="theme-mode-checkbox-box"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-9a9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <span class="theme-mode-checkbox-label">ライト</span>
+                </label>
+                <label class="theme-mode-checkbox">
+                    <input type="checkbox" class="theme-mode-checkbox-input" data-mode="midnight" onchange="setThemeMode('midnight')">
+                    <span class="theme-mode-checkbox-box"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-9a9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.5A8.5 8.5 0 1 1 11.5 4a6.5 6.5 0 0 0 8.5 8.5z"/><path d="M19 3v4M17 5h4"/></svg>
+                    <span class="theme-mode-checkbox-label">ミッドナイト</span>
+                </label>
+            </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">形状</div>
+            <div id="custom-theme-radius-group" style="display:flex; flex-direction:column; gap:10px;">
+                <label class="theme-mode-checkbox">
+                    <input type="checkbox" class="theme-radius-checkbox-input" data-radius="square" onchange="setRadiusMode('square')">
+                    <span class="theme-mode-checkbox-box"></span>
+                    <span style="width:14px; height:14px; border:2px solid var(--c-9a9); border-radius:0; flex-shrink:0; box-sizing:border-box;"></span>
+                    <span class="theme-mode-checkbox-label">四角</span>
+                </label>
+                <label class="theme-mode-checkbox">
+                    <input type="checkbox" class="theme-radius-checkbox-input" data-radius="rounded" onchange="setRadiusMode('rounded')">
+                    <span class="theme-mode-checkbox-box"></span>
+                    <span style="width:14px; height:14px; border:2px solid var(--c-9a9); border-radius:4px; flex-shrink:0; box-sizing:border-box;"></span>
+                    <span class="theme-mode-checkbox-label">角丸</span>
+                </label>
+            </div>
+        </div>
+
+        <div style="margin-bottom:18px;">
+            <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">プリセット</div>
+            <div id="custom-theme-presets" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">カラーピッカー</div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div id="custom-theme-swatch" onclick="document.getElementById('custom-theme-color-input').click()" style="width:36px; height:36px; border-radius:var(--radius); border:2px solid var(--c-fff); cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.4); background:var(--accent);"></div>
+                <input type="color" id="custom-theme-color-input" value="#d4ff3d" style="position:absolute; width:0; height:0; opacity:0; pointer-events:none;" oninput="customThemeSyncFromPicker(this.value)">
+                <input type="text" id="custom-theme-hex-input" value="#d4ff3d" maxlength="7" style="flex:1; box-sizing:border-box; background:var(--c-050); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-fff); font-size:13px; padding:8px 12px; outline:none; font-family:'JetBrains Mono', monospace;" onchange="customThemeSyncFromHex(this.value)">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button onclick="homeResetCustomTheme()" style="background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; padding:9px 18px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">デフォルトに戻す</button>
+            <button onclick="homeCloseCustomThemeModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<!-- クレジットモーダル -->
+<div id="credits-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseCreditsModal()">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:420px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+        <div style="font-size:16px; font-weight:bold; margin-bottom:20px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">クレジット</div>
+
+        <div style="margin-bottom:16px;">
+            <div style="font-size:11px; font-weight:bold; color:var(--accent); margin-bottom:6px; letter-spacing:0.5px;">.ducation について</div>
+            <div style="font-size:12px; color:var(--c-c5c); line-height:1.8;">
+                このツールはバイブコーディングによって作られています。
+            </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <div style="font-size:11px; font-weight:bold; color:var(--accent); margin-bottom:6px; letter-spacing:0.5px;">使用ライブラリ</div>
+            <div style="font-size:12px; color:var(--c-c5c); line-height:1.8;">
+                JSZip（Stuart Knightley 他、MITライセンス）
+            </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px; font-weight:bold; color:var(--accent); margin-bottom:6px; letter-spacing:0.5px;">使用フォント</div>
+            <div style="font-size:12px; color:var(--c-c5c); line-height:1.8;">
+                JetBrains Mono / Noto Sans JP（Google Fonts）
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end;">
+            <button onclick="homeCloseCreditsModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
+        </div>
+    </div>
+</div>
+
 <div id="delete-confirm-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)closeDeleteConfirmModal()">
-    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:28px 32px; min-width:280px; max-width:380px; width:90%; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:280px; max-width:380px; width:90%; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
         <div style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#f87171;">削除の確認</div>
         <div id="delete-confirm-msg" style="font-size:13px; color:var(--c-b5b); margin-bottom:24px; line-height:1.6;"></div>
         <div style="display:flex; gap:10px; justify-content:flex-end;">
-            <button onclick="closeDeleteConfirmModal()" style="background:transparent; border:1px solid var(--c-fff); border-radius:0; color:var(--c-b5b); font-size:13px; padding:9px 20px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
-            <button id="delete-confirm-btn" onclick="execDeleteProject()" style="background:#dc2626; border:none; border-radius:0; color:#fff; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(220,38,38,0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">削除</button>
+            <button onclick="closeDeleteConfirmModal()" style="background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; padding:9px 20px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
+            <button id="delete-confirm-btn" onclick="execDeleteProject()" style="background:#dc2626; border:none; border-radius:var(--radius); color:#fff; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(220,38,38,0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">削除</button>
         </div>
     </div>
 </div>
@@ -263,6 +397,7 @@
     :root {
         --accent: #d4ff3d;
         --accent-rgb: 212,255,61;
+        --radius: 0px;
         --line: var(--c-fff);
         --bg: var(--c-page);
         --panel: var(--c-0a0);
@@ -344,24 +479,46 @@
         --swatch-border-picker: rgba(0,0,0,0.18);
     }
     html[data-theme="light"] body { background: var(--c-page); }
-    #theme-toggle-btn {
-        position: fixed;
-        bottom: 10px; left: 10px;
-        z-index: 1000000;
-        width: 34px; height: 34px;
-        display: flex; align-items: center; justify-content: center;
-        background: var(--c-0a0); border: 1px solid var(--c-fff); border-radius: 0;
-        color: var(--c-f5f); cursor: pointer;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        transition: background 0.15s, transform 0.1s;
+    /* ============================================================
+       ミッドナイトモード
+       ネイビーを基調にしたダークテーマのバリエーション。
+       アクセントカラーはインディゴ系に切り替える。
+       ============================================================ */
+    html[data-theme="midnight"] {
+        --accent: #818cf8;
+        --accent-rgb: 129,140,248;
+        --c-page: #0a0e1a;
+        --c-050: #0d1220;
+        --c-0a0: #101626;
+        --c-141: #161d30;
+        --c-1a1: #1a2238;
+        --c-1c1: #1e2740;
+        --c-252: #242e4a;
+        --c-262: #283252;
+        --c-3c3: #34406a;
+        --c-555: #4a5580;
+        --c-656: #5b6690;
+        --c-777: #7078a0;
+        --c-848: #8189ab;
+        --c-8a8: #8890b0;
+        --c-9a9: #9099ba;
+        --c-b5b: #adb4cc;
+        --c-c5c: #c2c8db;
+        --c-d5d: #d3d8e8;
+        --c-e5e: #e2e6f2;
+        --c-f0f: #eceff8;
+        --c-f5f: #f2f4fa;
+        --c-fff: #eef1fa;
+        --c-fff-rgb: 238,241,250;
+        --label-amber: #fde68a;
+        --label-green: #86efac;
+        --label-red: #fca5a5;
+        --label-purple: #ddd6fe;
+        --swatch-border: rgba(255,255,255,0.07);
+        --swatch-border-hover: rgba(255,255,255,0.25);
+        --swatch-border-picker: rgba(255,255,255,0.1);
     }
-    #theme-toggle-btn:hover { background: var(--c-1c1); }
-    #theme-toggle-btn:active { transform: scale(0.9); }
-    #theme-toggle-btn svg { width: 16px; height: 16px; display: block; }
-    #theme-toggle-btn .icon-moon { display: block; }
-    #theme-toggle-btn .icon-sun { display: none; }
-    html[data-theme="light"] #theme-toggle-btn .icon-moon { display: none; }
-    html[data-theme="light"] #theme-toggle-btn .icon-sun { display: block; }
+    html[data-theme="midnight"] body { background: var(--c-page); }
     html, body, button, input, select, textarea {
         font-family: 'Noto Sans JP', 'JetBrains Mono', sans-serif;
     }
@@ -377,7 +534,7 @@
     }
     #layerList { display: flex; flex-direction: column; gap: 5px; }
     .layer-item {
-        background: var(--c-050); border-radius:0;
+        background: var(--c-050); border-radius:var(--radius);
         border: 2px solid var(--c-fff);
         transition: transform 0.1s ease, border-color 0.2s, opacity 0.18s ease;
         position: relative;
@@ -414,7 +571,7 @@
         position: absolute;
         top: -2px; left: 0; right: 0;
         height: 5px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         z-index: 10;
         pointer-events: none;
@@ -425,7 +582,7 @@
         position: absolute;
         bottom: -2px; left: 0; right: 0;
         height: 5px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         z-index: 10;
         pointer-events: none;
@@ -439,10 +596,10 @@
         display: flex; flex-direction: column; gap: 2px; width: 15px;
     }
     .grab-handle-icon div {
-        height: 2px; background: var(--c-b5b); border-radius:0;
+        height: 2px; background: var(--c-b5b); border-radius:var(--radius);
     }
     .selection-indicator {
-        width: 10px; height: 10px; border-radius:0; border: 1px solid var(--c-9a9); background: var(--c-1a1); flex-shrink: 0;
+        width: 10px; height: 10px; border-radius:var(--radius); border: 1px solid var(--c-9a9); background: var(--c-1a1); flex-shrink: 0;
     }
     .active .selection-indicator {
         background: var(--c-656);
@@ -467,11 +624,11 @@
     input[type=range]:focus { outline: none; }
     input[type=range]::-webkit-slider-runnable-track {
         width: 100%; height: 6px; cursor: pointer;
-        background: var(--c-0a0); border-radius:0;
+        background: var(--c-0a0); border-radius:var(--radius);
         border: 1px solid var(--c-page);
     }
     input[type=range]::-webkit-slider-thumb {
-        height: 20px; width: 20px; border-radius:0;
+        height: 20px; width: 20px; border-radius:var(--radius);
         background: radial-gradient(circle at 35% 35%, #4a4a4a, var(--c-1a1) 60%, var(--c-0a0));
         cursor: pointer;
         -webkit-appearance: none; margin-top: -8px;
@@ -503,11 +660,11 @@
     }
     input[type=range]::-moz-range-track {
         width: 100%; height: 6px; cursor: pointer;
-        background: var(--c-0a0); border-radius:0;
+        background: var(--c-0a0); border-radius:var(--radius);
         border: none;
     }
     input[type=range]::-moz-range-thumb {
-        height: 18px; width: 18px; border-radius:0;
+        height: 18px; width: 18px; border-radius:var(--radius);
         background: radial-gradient(circle at 35% 35%, #4a4a4a, var(--c-1a1) 60%, var(--c-0a0));
         cursor: pointer;
         border: 2px solid var(--c-656);
@@ -517,7 +674,7 @@
             inset 0 1px 2px rgba(255, 255, 255, 0.15);
     }
 
-    .prop-panel { padding: 10px; border-radius:0; margin-top: 10px; font-size: 11px; box-sizing: border-box; width: 100%; overflow: hidden; position: relative; border: 1.5px solid transparent; background-image: linear-gradient(var(--c-1c1), var(--c-1c1)), var(--accent); background-origin: border-box; background-clip: padding-box, border-box; }
+    .prop-panel { padding: 10px; border-radius:var(--radius); margin-top: 10px; font-size: 11px; box-sizing: border-box; width: 100%; overflow: hidden; position: relative; border: 1.5px solid transparent; background-image: linear-gradient(var(--c-1c1), var(--c-1c1)), var(--accent); background-origin: border-box; background-clip: padding-box, border-box; }
     .easing-select { background: var(--c-page); color: var(--c-fff); font-size: 10px; width: 100%; margin-bottom: 5px; }
     .bezier-editor { display:grid; grid-template-columns:repeat(4, 1fr); gap:3px; margin:0 0 7px 0; }
     .bezier-editor label { display:flex; flex-direction:column; gap:2px; color:var(--c-777); font-size:8px; text-align:center; }
@@ -531,7 +688,7 @@
     .input-grid input { width: 100%; box-sizing: border-box; min-width: 0; }
     .layer-action-btn {
         display: flex; align-items: center; justify-content: center;
-        width: 22px; height: 22px; border-radius:0;
+        width: 22px; height: 22px; border-radius:var(--radius);
         border: 1px solid var(--c-fff); background: var(--c-141);
         color: var(--c-b5b); font-size: 11px; cursor: pointer;
         transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
@@ -567,7 +724,7 @@
         padding: 8px;
     }
     .color-history { display: flex; gap: 3px; margin-top: 5px; flex-wrap: wrap; }
-    .color-swatch { width: 16px; height: 16px; border-radius:0; border: 1px solid var(--c-9a9); cursor: pointer; }
+    .color-swatch { width: 16px; height: 16px; border-radius:var(--radius); border: 1px solid var(--c-9a9); cursor: pointer; }
     .hex-input { background: var(--c-page); color: var(--c-fff); border: 1px solid var(--c-fff); font-size: 10px; width: 60px; padding: 2px; }
     .tab-header { position: relative; display: flex; gap: 5px; margin-bottom: 10px; border-bottom: 1px solid var(--c-fff); padding-bottom: 5px; justify-content: space-between; align-items: center; }
     .tab-btn { background: var(--c-1a1); color: var(--c-d5d); border: none; padding: 8px 15px; cursor: pointer; border-radius:0 4px 0 0; font-weight: bold; transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease; }
@@ -597,12 +754,12 @@
     }
     .mode-content { display: none; }
     .mode-content.active { display: block; }
-    .tool-group { background: var(--c-0a0); padding: 8px 10px; border-radius:0; display: flex; gap: 4px; align-items: center; border: 1px solid var(--c-141); box-shadow: 0 6px 24px rgba(0,0,0,0.4); transition: transform 0.25s ease, box-shadow 0.25s ease; vertical-align: top; }
+    .tool-group { background: var(--c-0a0); padding: 8px 10px; border-radius:var(--radius); display: flex; gap: 4px; align-items: center; border: 1px solid var(--c-141); box-shadow: 0 6px 24px rgba(0,0,0,0.4); transition: transform 0.25s ease, box-shadow 0.25s ease; vertical-align: top; }
     .tool-group:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,0.55); }
     .tool-group label { display: none; }
     .seg-btn {
         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-        width: 52px; height: 48px; border-radius:0; cursor: pointer;
+        width: 52px; height: 48px; border-radius:var(--radius); cursor: pointer;
         font-size: 10px; font-weight: 500; color: var(--c-9a9);
         background: var(--c-1c1); border: 1px solid var(--c-fff);
         transition: color 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.12s ease;
@@ -630,7 +787,7 @@
     .seg-btn-wrap { position: relative; display: inline-flex; }
     .multi-badge {
         position: absolute; bottom: 3px; right: 3px;
-        width: 16px; height: 16px; border-radius:0;
+        width: 16px; height: 16px; border-radius:var(--radius);
         background: var(--c-050); border: 1px solid var(--c-fff);
         font-size: 9px; font-weight: 700; color: var(--c-9a9);
         display: flex; align-items: center; justify-content: center;
@@ -657,7 +814,7 @@
         color: var(--c-d5d);
         border: 1px solid var(--c-fff);
         width: 32px; height: 32px;
-        border-radius:0;
+        border-radius:var(--radius);
         cursor: pointer;
         font-size: 14px;
         display: flex; align-items: center; justify-content: center;
@@ -679,7 +836,7 @@
     /* 統一スクロールバーデザイン（ダーク/ライトどちらでも視認できるグレー） */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--c-0a0); }
-    ::-webkit-scrollbar-thumb { background: var(--c-3c3); border-radius:0; }
+    ::-webkit-scrollbar-thumb { background: var(--c-3c3); border-radius:var(--radius); }
     ::-webkit-scrollbar-thumb:hover { background: var(--c-656); }
     ::-webkit-scrollbar-corner { background: var(--c-0a0); }
     * { scrollbar-width: thin; scrollbar-color: var(--c-3c3) var(--c-0a0); }
@@ -689,7 +846,7 @@
         background: var(--c-1a1);
         color: var(--c-f0f);
         border: 1px solid var(--c-141);
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 3px 6px;
         font-size: 11px;
         box-shadow:
@@ -727,7 +884,7 @@
     /* ── 案3: Floating Card × Gradient Accent ── */
     .color-card {
         background: var(--c-0a0);
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 10px 12px;
         border: 1px solid var(--c-141);
         display: inline-flex;
@@ -748,7 +905,7 @@
     }
     .color-picker-outer {
         width: 36px; height: 52px;
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 0;
         background: transparent;
         box-shadow: none;
@@ -766,7 +923,7 @@
         width: calc(100% + 4px); height: calc(100% + 4px);
         margin: -2px;
         border: none;
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 0;
         cursor: pointer;
         display: block;
@@ -781,11 +938,11 @@
     }
     .color-picker-outer input[type=color]::-webkit-color-swatch {
         border: none;
-        border-radius:0;
+        border-radius:var(--radius);
     }
     .color-picker-outer input[type=color]::-moz-color-swatch {
         border: none;
-        border-radius:0;
+        border-radius:var(--radius);
     }
     .color-hex-field {
         display: flex;
@@ -802,7 +959,7 @@
     .color-hex-field input[type=text].hex-input {
         background: var(--c-1a1) !important;
         border: 1px solid var(--c-141) !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         color: var(--c-f0f) !important;
         font-size: 11px !important;
         font-family: 'Courier New', monospace !important;
@@ -825,7 +982,7 @@
         font-size: 8px;
         cursor: pointer;
         display: flex; align-items: center; justify-content: center;
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 0;
         flex-shrink: 0;
         transition: color 0.15s, background 0.15s;
@@ -877,7 +1034,7 @@
     }
     .color-card .card-swatches .color-swatch {
         width: 20px; height: 20px;
-        border-radius:0;
+        border-radius:var(--radius);
         border: 1.5px solid var(--swatch-border) !important;
         box-sizing: border-box;
         cursor: pointer;
@@ -886,7 +1043,7 @@
     }
     .color-card .card-swatches .color-swatch:hover {
         transform: scale(1.2) translateY(-2px);
-        border-radius:0;
+        border-radius:var(--radius);
         border-color: var(--swatch-border-hover) !important;
         box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         z-index: 2;
@@ -896,7 +1053,7 @@
     /* ── 太さカード ── */
     .size-card {
         background: var(--c-0a0);
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 10px 12px;
         border: 1px solid var(--c-141);
         display: inline-flex;
@@ -917,7 +1074,7 @@
         color: var(--c-f0f) !important;
         background: transparent !important;
         border: none !important;
-        border-radius: 0 !important;
+        border-radius: var(--radius) !important;
         box-shadow: none !important;
         padding: 0 0 0 6px !important;
         width: 2.2ch !important;
@@ -936,7 +1093,7 @@
     .size-card-num:focus { color: var(--c-fff) !important; }
     .linecap-btn {
         border: 2px solid transparent;
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 0;
         cursor: pointer;
         display: flex;
@@ -958,7 +1115,7 @@
     .size-preview-canvas {
         display: block;
         background: #111;
-        border-radius:0;
+        border-radius:var(--radius);
         border: 1px solid var(--c-0a0);
     }
     .size-slider-row {
@@ -977,7 +1134,7 @@
         background: transparent !important;
         border: none !important;
         border-bottom: 1px dashed var(--c-fff) !important;
-        border-radius: 0 !important;
+        border-radius: var(--radius) !important;
         box-shadow: none !important;
         padding: 0 !important;
         width: 2.2ch !important;
@@ -1009,7 +1166,7 @@
         justify-content: center;
         width: 16px;
         height: 8px;
-        border-radius:0;
+        border-radius:var(--radius);
         transition: color 0.15s, background 0.15s;
         user-select: none;
     }
@@ -1026,13 +1183,13 @@
     }
     #sizeSlider::-webkit-slider-runnable-track {
         height: 5px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         border: none;
     }
     #sizeSlider::-webkit-slider-thumb {
         height: 12px; width: 25px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--c-f0f);
         border: 2px solid var(--accent);
         box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25), 0 2px 6px rgba(0,0,0,0.6);
@@ -1050,13 +1207,13 @@
     }
     #sizeSlider::-moz-range-track {
         height: 5px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         border: none;
     }
     #sizeSlider::-moz-range-thumb {
         height: 12px; width: 25px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--c-f0f);
         border: 2px solid var(--accent);
         box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25);
@@ -1072,13 +1229,13 @@
     }
     .opacity-slider::-webkit-slider-runnable-track {
         height: 5px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--accent) !important;
         border: none !important;
     }
     .opacity-slider::-webkit-slider-thumb {
         height: 12px !important; width: 25px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--c-f0f) !important;
         border: 2px solid var(--accent) !important;
         box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25), 0 2px 6px rgba(0,0,0,0.6) !important;
@@ -1096,13 +1253,13 @@
     }
     .opacity-slider::-moz-range-track {
         height: 5px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--accent) !important;
         border: none !important;
     }
     .opacity-slider::-moz-range-thumb {
         height: 12px !important; width: 25px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--c-f0f) !important;
         border: 2px solid var(--accent) !important;
         box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25) !important;
@@ -1117,13 +1274,13 @@
     }
     #zoomScale::-webkit-slider-runnable-track {
         height: 5px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         border: none;
     }
     #zoomScale::-webkit-slider-thumb {
         height: 12px; width: 25px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--c-f0f);
         border: 2px solid var(--accent);
         box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25), 0 2px 6px rgba(0,0,0,0.6);
@@ -1141,13 +1298,13 @@
     }
     #zoomScale::-moz-range-track {
         height: 5px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         border: none;
     }
     #zoomScale::-moz-range-thumb {
         height: 12px; width: 25px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--c-f0f);
         border: 2px solid var(--accent);
         box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25);
@@ -1212,7 +1369,7 @@
         align-items: center;
         gap: 5px;
         padding: 1.5px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         box-shadow: 0 3px 10px rgba(var(--accent-rgb),0.2);
         transition: box-shadow 0.2s, transform 0.15s;
@@ -1223,7 +1380,7 @@
     }
     .canvas-size-inner {
         background: var(--c-0a0);
-        border-radius:0;
+        border-radius:var(--radius);
         display: flex;
         align-items: center;
         gap: 4px;
@@ -1241,7 +1398,7 @@
         background: transparent !important;
         border: none !important;
         border-bottom: 1px solid var(--c-fff) !important;
-        border-radius: 0 !important;
+        border-radius: var(--radius) !important;
         box-shadow: none !important;
         color: var(--c-f0f) !important;
         font-size: 11px !important;
@@ -1268,7 +1425,7 @@
     .update-btn-outer {
         display: inline-block;
         padding: 1.5px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         box-shadow: 0 4px 14px rgba(var(--accent-rgb),0.25);
         transition: box-shadow 0.2s, transform 0.2s, background 0.3s;
@@ -1289,7 +1446,7 @@
     .update-btn {
         background: var(--c-0a0);
         border: none;
-        border-radius:0;
+        border-radius:var(--radius);
         color: var(--c-d5d);
         font-size: 10px;
         padding: 0 10px;
@@ -1319,7 +1476,7 @@
     }
     .update-btn .btn-ripple {
         position: absolute;
-        border-radius:0;
+        border-radius:var(--radius);
         background: rgba(var(--accent-rgb),0.35);
         width: 80px; height: 80px;
         margin-left: -40px; margin-top: -40px;
@@ -1353,7 +1510,7 @@
     }
     .alpha-slider::-webkit-slider-runnable-track {
         height: 5px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background:
             linear-gradient(to right, rgba(var(--alpha-color),0), rgba(var(--alpha-color),1)),
             repeating-conic-gradient(var(--c-555) 0% 25%, var(--c-262) 0% 50%) 0 0 / 8px 8px !important;
@@ -1362,7 +1519,7 @@
     .alpha-slider::-webkit-slider-thumb {
         -webkit-appearance: none !important;
         height: 12px !important; width: 25px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--c-f0f) !important;
         border: 2px solid var(--accent) !important;
         box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25), 0 2px 6px rgba(0,0,0,0.6) !important;
@@ -1379,7 +1536,7 @@
     }
     .alpha-slider::-moz-range-track {
         height: 5px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background:
             linear-gradient(to right, rgba(var(--alpha-color),0), rgba(var(--alpha-color),1)),
             repeating-conic-gradient(var(--c-555) 0% 25%, var(--c-262) 0% 50%) 0 0 / 8px 8px !important;
@@ -1387,7 +1544,7 @@
     }
     .alpha-slider::-moz-range-thumb {
         height: 12px !important; width: 25px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--c-f0f) !important;
         border: 2px solid var(--accent) !important;
         box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25) !important;
@@ -1432,7 +1589,7 @@
         text-align: center;
     }
     .bg-preset-btn {
-        width: 20px; height: 20px; border-radius:0;
+        width: 20px; height: 20px; border-radius:var(--radius);
         border: 1px solid var(--c-fff); cursor: pointer;
         transition: transform 0.1s, border-color 0.15s;
         padding: 0; flex-shrink: 0;
@@ -1503,7 +1660,7 @@
         z-index: 99999;
         background: var(--c-0a0);
         border: 1px solid #313131;
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 16px;
         box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(var(--accent-rgb),0.12);
         display: none;
@@ -1532,19 +1689,19 @@
     .picker-sv-box {
         position: relative;
         width: 100%; padding-top: 75%;
-        border-radius:0;
+        border-radius:var(--radius);
         overflow: hidden;
         cursor: crosshair;
         flex-shrink: 0;
     }
     .picker-sv-canvas {
         position: absolute; top:0; left:0; width:100%; height:100%;
-        border-radius:0;
+        border-radius:var(--radius);
     }
     .picker-sv-cursor {
         position: absolute;
         width: 12px; height: 12px;
-        border-radius:0;
+        border-radius:var(--radius);
         border: 2px solid var(--c-fff);
         box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.6);
         transform: translate(-50%, -50%);
@@ -1557,13 +1714,13 @@
     .picker-hue-slider {
         flex: 1; height: 16px !important;
         -webkit-appearance: none; appearance: none;
-        border-radius:0; border: none !important;
+        border-radius:var(--radius); border: none !important;
         background: transparent !important;
         box-shadow: none !important; padding: 0 !important;
         cursor: pointer;
     }
     .picker-hue-slider::-webkit-slider-runnable-track {
-        height: 10px !important; border-radius:0 !important;
+        height: 10px !important; border-radius:var(--radius) !important;
         background: linear-gradient(to right,
             #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%) !important;
         border: none !important;
@@ -1571,7 +1728,7 @@
     .picker-hue-slider::-webkit-slider-thumb {
         -webkit-appearance: none !important;
         width: 16px !important; height: 16px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--c-fff) !important;
         border: 2px solid rgba(0,0,0,0.3) !important;
         box-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
@@ -1579,25 +1736,25 @@
         cursor: pointer;
     }
     .picker-hue-slider::-moz-range-track {
-        height: 10px !important; border-radius:0 !important;
+        height: 10px !important; border-radius:var(--radius) !important;
         background: linear-gradient(to right,
             #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%) !important;
         border: none !important;
     }
     .picker-hue-slider::-moz-range-thumb {
         width: 16px !important; height: 16px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--c-fff) !important;
         border: 2px solid rgba(0,0,0,0.3) !important;
     }
     .picker-preview-swatch {
-        width: 28px; height: 28px; border-radius:0;
+        width: 28px; height: 28px; border-radius:var(--radius);
         border: 1px solid var(--c-fff); flex-shrink: 0;
         background: repeating-conic-gradient(var(--c-555) 0% 25%, var(--c-262) 0% 50%) 0 0 / 8px 8px;
         position: relative; overflow: hidden;
     }
     .picker-preview-swatch::after {
-        content: ''; position: absolute; inset: 0; border-radius:0;
+        content: ''; position: absolute; inset: 0; border-radius:var(--radius);
     }
     .picker-alpha-row {
         display: flex; align-items: center; gap: 8px;
@@ -1605,14 +1762,14 @@
     .picker-alpha-slider {
         flex: 1; height: 16px !important;
         -webkit-appearance: none; appearance: none;
-        border-radius:0; border: none !important;
+        border-radius:var(--radius); border: none !important;
         background: transparent !important;
         box-shadow: none !important; padding: 0 !important;
         cursor: pointer;
         --picker-color: 255,255,255;
     }
     .picker-alpha-slider::-webkit-slider-runnable-track {
-        height: 10px !important; border-radius:0 !important;
+        height: 10px !important; border-radius:var(--radius) !important;
         background:
             linear-gradient(to right, rgba(var(--picker-color),0), rgba(var(--picker-color),1)),
             repeating-conic-gradient(var(--c-555) 0% 25%, var(--c-262) 0% 50%) 0 0 / 8px 8px !important;
@@ -1621,7 +1778,7 @@
     .picker-alpha-slider::-webkit-slider-thumb {
         -webkit-appearance: none !important;
         width: 16px !important; height: 16px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--c-fff) !important;
         border: 2px solid rgba(0,0,0,0.3) !important;
         box-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
@@ -1629,7 +1786,7 @@
         cursor: pointer;
     }
     .picker-alpha-slider::-moz-range-track {
-        height: 10px !important; border-radius:0 !important;
+        height: 10px !important; border-radius:var(--radius) !important;
         background:
             linear-gradient(to right, rgba(var(--picker-color),0), rgba(var(--picker-color),1)),
             repeating-conic-gradient(var(--c-555) 0% 25%, var(--c-262) 0% 50%) 0 0 / 8px 8px !important;
@@ -1637,7 +1794,7 @@
     }
     .picker-alpha-slider::-moz-range-thumb {
         width: 16px !important; height: 16px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         background: var(--c-fff) !important;
         border: 2px solid rgba(0,0,0,0.3) !important;
     }
@@ -1650,7 +1807,7 @@
         width: 100% !important; text-align: center !important;
         font-size: 11px !important; padding: 3px 2px !important;
         background: var(--c-1a1) !important; border: 1px solid var(--c-141) !important;
-        border-radius:0 !important; color: var(--c-f0f) !important;
+        border-radius:var(--radius) !important; color: var(--c-f0f) !important;
         font-family: 'Courier New', monospace !important;
         box-sizing: border-box !important;
     }
@@ -1660,7 +1817,7 @@
     .picker-hex-row input {
         flex: 1; font-size: 11px !important; padding: 4px 8px !important;
         background: var(--c-1a1) !important; border: 1px solid var(--c-141) !important;
-        border-radius:0 !important; color: var(--c-f0f) !important;
+        border-radius:var(--radius) !important; color: var(--c-f0f) !important;
         font-family: 'Courier New', monospace !important;
         letter-spacing: 1px !important; box-sizing: border-box !important;
     }
@@ -1679,7 +1836,7 @@
     #picker-color-history .color-swatch {
         width: 22px !important;
         height: 22px !important;
-        border-radius:0 !important;
+        border-radius:var(--radius) !important;
         border: 1.5px solid var(--swatch-border-picker) !important;
         cursor: pointer;
         flex-shrink: 0;
@@ -1701,7 +1858,7 @@
         flex-direction: column;
         background: var(--c-050);
         border: 1px solid var(--c-141);
-        border-radius:0;
+        border-radius:var(--radius);
         overflow: hidden;
         user-select: none;
         margin-top: 10px;
@@ -1744,7 +1901,7 @@
     }
     .tl-bar {
         position: absolute; top: 4px; height: 20px;
-        border-radius:0;
+        border-radius:var(--radius);
         background: var(--accent);
         box-shadow: 0 1px 4px rgba(0,0,0,0.4);
         cursor: grab;
@@ -1862,7 +2019,7 @@
     kbd {
         display: inline-block;
         background: var(--c-141); border: 1px solid #4e4e4e;
-        border-radius:0; padding: 1px 5px;
+        border-radius:var(--radius); padding: 1px 5px;
         font-family: monospace; font-size: 10px; color: var(--accent);
         white-space: nowrap;
     }
@@ -1980,7 +2137,7 @@
             overflow-y: auto !important;
             box-sizing: border-box !important;
             background: var(--c-1a1);
-            border-radius:0;
+            border-radius:var(--radius);
         }
     }
 
@@ -2015,7 +2172,7 @@
 
     .mobile-fab {
         width: 48px; height: 48px;
-        border-radius:0;
+        border-radius:var(--radius);
         border: none;
         font-size: 20px;
         cursor: pointer;
@@ -2072,7 +2229,7 @@
     #mobile-panel-close {
         width: 100%; padding: 8px;
         background: var(--c-0a0); border: none; color: var(--c-d5d);
-        border-radius:0; cursor: pointer;
+        border-radius:var(--radius); cursor: pointer;
         font-size: 13px; margin-bottom: 10px;
     }
 
@@ -2137,7 +2294,7 @@
         gap: 6px;
         background: var(--c-141);
         border: 1px solid var(--c-fff);
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 7px 12px;
         cursor: pointer;
         font-size: 13px;
@@ -2194,13 +2351,13 @@
     @media (max-width: 700px) {
         .mobile-color-chip-compact {
             padding: 6px !important;
-            border-radius:0 !important;
+            border-radius:var(--radius) !important;
             min-width: unset !important;
         }
         /* ピッカーパネルをスマホでは幅広に */
         .custom-picker-panel {
             width: min(92vw, 300px) !important;
-            border-radius:0 !important;
+            border-radius:var(--radius) !important;
         }
         /* 閉じるオーバーレイ（スマホ専用） */
         #mobile-picker-overlay {
@@ -2408,7 +2565,7 @@
         padding: 10px 20px;
         background: var(--accent);
         border: none;
-        border-radius:0;
+        border-radius:var(--radius);
         color:#000000;
         font-size: 14px;
         font-weight: bold;
@@ -2428,7 +2585,7 @@
         padding: 10px 16px;
         background: var(--c-141);
         border: 1px solid var(--c-fff);
-        border-radius:0;
+        border-radius:var(--radius);
         color: var(--c-b5b);
         font-size: 13px;
         cursor: pointer;
@@ -2450,7 +2607,7 @@
         height: 38px;
         background: var(--c-141);
         border: 1px solid var(--c-fff);
-        border-radius: 0;
+        border-radius: var(--radius);
         color: var(--c-b5b);
         cursor: pointer;
         transition: background 0.15s, color 0.15s;
@@ -2464,7 +2621,7 @@
         min-width: 180px;
         background: var(--c-0a0);
         border: 1px solid var(--c-fff);
-        border-radius: 0;
+        border-radius: var(--radius);
         box-shadow: 0 12px 40px rgba(0,0,0,0.55);
         z-index: 1000;
         overflow: hidden;
@@ -2488,6 +2645,49 @@
     }
     .home-menu-item:hover { background: var(--c-1c1); color: var(--c-fff); }
     .home-menu-item + .home-menu-item { border-top: 1px solid var(--c-141); }
+
+    /* ダーク/ライト/ミッドナイト切り替え（カスタムテーマモーダル内・チェックボックス式） */
+    .theme-mode-checkbox {
+        display: flex; align-items: center; gap: 8px;
+        cursor: pointer; user-select: none;
+    }
+    .theme-mode-checkbox-input,
+    .theme-radius-checkbox-input {
+        position: absolute;
+        opacity: 0; width: 0; height: 0;
+    }
+    .theme-mode-checkbox-box {
+        position: relative;
+        width: 16px; height: 16px;
+        border: 1px solid var(--c-fff);
+        border-radius: var(--radius);
+        background: var(--c-050);
+        flex-shrink: 0;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .theme-mode-checkbox-box::after {
+        content: "";
+        position: absolute;
+        left: 4px; top: 1px;
+        width: 4px; height: 8px;
+        border: solid #000000;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+        opacity: 0;
+        transition: opacity 0.1s;
+    }
+    .theme-mode-checkbox-input:checked + .theme-mode-checkbox-box,
+    .theme-radius-checkbox-input:checked + .theme-mode-checkbox-box {
+        background: var(--accent);
+        border-color: var(--accent);
+    }
+    .theme-mode-checkbox-input:checked + .theme-mode-checkbox-box::after,
+    .theme-radius-checkbox-input:checked + .theme-mode-checkbox-box::after {
+        opacity: 1;
+    }
+    .theme-mode-checkbox-label {
+        font-size: 12px; color: var(--c-c5c);
+    }
 
     /* グリッド */
     .home-grid-area {
@@ -2517,7 +2717,7 @@
     .proj-card {
         background: var(--c-0a0);
         border: 1.5px solid var(--c-141);
-        border-radius:0;
+        border-radius:var(--radius);
         overflow: hidden;
         cursor: pointer;
         transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
@@ -2574,7 +2774,7 @@
         height: 28px;
         background: rgba(0,0,0,0.55);
         border: none;
-        border-radius:0;
+        border-radius:var(--radius);
         color: var(--c-b5b);
         cursor: pointer;
         display: flex;
@@ -2591,7 +2791,7 @@
         position: fixed;
         background: var(--c-0a0);
         border: 1px solid var(--c-fff);
-        border-radius:0;
+        border-radius:var(--radius);
         padding: 6px;
         z-index: 100001;
         min-width: 150px;
@@ -2604,7 +2804,7 @@
         align-items: center;
         gap: 10px;
         padding: 9px 12px;
-        border-radius:0;
+        border-radius:var(--radius);
         font-size: 13px;
         color: var(--c-d5d);
         cursor: pointer;
@@ -2638,7 +2838,7 @@
         padding: 6px 14px;
         background: var(--c-141);
         border: 1px solid var(--c-fff);
-        border-radius:0;
+        border-radius:var(--radius);
         color: var(--c-b5b);
         font-size: 12px;
         cursor: pointer;
@@ -2649,7 +2849,7 @@
     #project-name-input {
         width: 150px; min-width: 80px; max-width: 240px;
         padding: 6px 8px; background: var(--c-0a0); border: 1px solid var(--c-3c3);
-        border-radius: 0; color: var(--c-f0f); font-size: 12px; font-weight: 700;
+        border-radius: var(--radius); color: var(--c-f0f); font-size: 12px; font-weight: 700;
         box-sizing: border-box; outline: none;
     }
     #project-name-input:hover { border-color: var(--c-777); }
@@ -2669,7 +2869,7 @@
     .proj-name-input {
         background: var(--c-1a1);
         border: 1px solid var(--accent);
-        border-radius:0;
+        border-radius:var(--radius);
         color: var(--c-f0f);
         font-size: 12px;
         width: 100%;
@@ -2694,7 +2894,7 @@
     }
 </style>
 
-<div id='line-tool-container' style='font-family: sans-serif; background: var(--c-050); padding: 15px; color: var(--c-fff); border-radius:0; width: 100%; box-sizing: border-box;'>
+<div id='line-tool-container' style='font-family: sans-serif; background: var(--c-050); padding: 15px; color: var(--c-fff); border-radius:var(--radius); width: 100%; box-sizing: border-box;'>
     <div class='tab-header'>
         <div style='display:flex; gap:8px; align-items:center; flex-wrap:wrap;'>
             <button id='home-back-btn' onclick='goHome()'>
@@ -2713,7 +2913,7 @@
             <button class='tab-btn' onclick='toggleShortcutHelp()' title='キーボードショートカット一覧' style='font-size:13px; padding:6px 10px;' id='shortcut-btn'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></button>
         </div>
         <div id='shortcut-help' style='display:none; position:absolute; top:48px; left:15px; z-index:9999;
-            background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:14px 18px;
+            background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:14px 18px;
             font-size:11px; color:var(--c-d5d); box-shadow:0 8px 32px rgba(0,0,0,0.6); min-width:280px; line-height:1.8;'>
             <div style='font-weight:700; font-size:12px; margin-bottom:8px; color:var(--accent);'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg> キーボードショートカット</div>
             <div style='display:grid; grid-template-columns:auto 1fr; gap:2px 12px;'>
@@ -2737,7 +2937,7 @@
         <div id='tab-right' style='display:flex; gap:8px; align-items:center;'>
             <!-- スマホ用：1つのアイコンにまとめる -->
             <button id='mobile-save-btn' onclick='openMiniDrawer("save")'
-                style='display:none; width:40px; height:40px; border-radius:0; border:1px solid rgba(255,255,255,0.25);
+                style='display:none; width:40px; height:40px; border-radius:var(--radius); border:1px solid rgba(255,255,255,0.25);
                 background:#f59e0b; color:#fff; font-size:18px;
                 cursor:pointer; align-items:center; justify-content:center; touch-action:manipulation; flex-shrink:0;
                 box-shadow: 0 0 10px rgba(245,158,11,0.5), 0 0 18px rgba(var(--accent-rgb),0.35), 0 2px 6px rgba(0,0,0,0.4);
@@ -2799,9 +2999,9 @@
                 <span class='seg-btn' data-tool='transform' onclick='selectTool("transform")' title='マーカーをつかんで線を曲げる'><span class='seg-icon'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 Q9 6 12 12 Q15 18 20 6"/><circle cx="9" cy="9.6" r="1.6" fill="currentColor" stroke="none"/><circle cx="15" cy="14.4" r="1.6" fill="currentColor" stroke="none"/></svg></span>変形</span>
                 <span class='seg-btn' data-tool='erase-obj' onclick='selectTool("erase-obj")' title='一本丸ごと削除'><span class='seg-icon'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l10-10 7 7-2.5 2.5"/><path d="M6 11 13 18"/></svg></span>消し</span>
             </div>
-            <div id='global-picker-outer' onclick='openCustomPicker("global", this)' style='width:36px;height:36px;border-radius:0;cursor:pointer;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:transform 0.15s;position:relative;' onmouseenter='this.style.transform="scale(1.08)"' onmouseleave='this.style.transform=""'>
+            <div id='global-picker-outer' onclick='openCustomPicker("global", this)' style='width:36px;height:36px;border-radius:var(--radius);cursor:pointer;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:transform 0.15s;position:relative;' onmouseenter='this.style.transform="scale(1.08)"' onmouseleave='this.style.transform=""'>
                 <input type='color' id='lineColor' value='#ffffff' oninput='syncHex("global")' style='pointer-events:none; opacity:0; position:absolute;'>
-                <div id='global-picker-swatch' style='width:100%;height:100%;border-radius:0;background:var(--c-fff);'></div>
+                <div id='global-picker-swatch' style='width:100%;height:100%;border-radius:var(--radius);background:var(--c-fff);'></div>
             </div>
             <input type='text' id='lineColorHex' value='#ffffff' class='hex-input' onchange='syncPicker("global")' style='display:none;'>
             <input type='range' id='lineColorAlpha' class='alpha-slider' min='0' max='100' value='100' oninput='syncAlpha("global")' style='display:none;'>
@@ -2863,7 +3063,7 @@
             </div>
             <!-- カラーチップ（スマホ：スウォッチのみ・タップでピッカー直接） -->
             <button id='mobile-color-chip' class='mobile-tool-chip mobile-color-chip-compact' onclick='openCustomPickerMobile()'>
-                <div id='mobile-color-swatch' style='width:36px;height:36px;border-radius:0;background:var(--c-fff);border:2px solid var(--swatch-border-hover);flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4);'></div>
+                <div id='mobile-color-swatch' style='width:36px;height:36px;border-radius:var(--radius);background:var(--c-fff);border:2px solid var(--swatch-border-hover);flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4);'></div>
             </button>
             <!-- 太さチップ（－ 数値 ＋） -->
             <div style='display:flex; align-items:stretch;'>
@@ -2875,15 +3075,15 @@
                 <button style='display:flex;align-items:center;justify-content:center;width:34px;background:var(--c-141);border:1px solid var(--c-fff);border-left:none;border-radius:0 10px 10px 0;color:var(--c-b5b);font-size:20px;cursor:pointer;transition:background 0.1s;' onpointerdown='mobileSizeRepeat(1)' onpointerup='mobileSizeRepeatStop()' onpointerleave='mobileSizeRepeatStop()'>＋</button>
             </div>
             <!-- 端の形チップ -->
-            <button class='linecap-btn active' id='mobile-linecap-start-btn' onclick='toggleLineCap("start")' title='開始点の端' style='border-radius:0; width:52px; height:auto; flex-shrink:0;'>
+            <button class='linecap-btn active' id='mobile-linecap-start-btn' onclick='toggleLineCap("start")' title='開始点の端' style='border-radius:var(--radius); width:52px; height:auto; flex-shrink:0;'>
                 <canvas class='linecap-preview' id='mobile-linecap-canvas-start' width='52' height='36'></canvas>
             </button>
-            <button class='linecap-btn active' id='mobile-linecap-end-btn' onclick='toggleLineCap("end")' title='終了点の端' style='border-radius:0; width:52px; height:auto; flex-shrink:0;'>
+            <button class='linecap-btn active' id='mobile-linecap-end-btn' onclick='toggleLineCap("end")' title='終了点の端' style='border-radius:var(--radius); width:52px; height:auto; flex-shrink:0;'>
                 <canvas class='linecap-preview' id='mobile-linecap-canvas-end' width='52' height='36'></canvas>
             </button>
             <!-- プロパティボタン（キャンバス上に浮かぶ・選択中のみ表示） -->
             <!-- 設定ボタン -->
-            <button id='mobile-settings-btn' onclick='openMobilePanel()' style='display:flex; width:32px; height:32px; border-radius:0; border:1px solid var(--c-fff); background:var(--c-141); color:var(--c-b5b); cursor:pointer; flex-shrink:0; align-items:center; justify-content:center;'><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+            <button id='mobile-settings-btn' onclick='openMobilePanel()' style='display:flex; width:32px; height:32px; border-radius:var(--radius); border:1px solid var(--c-fff); background:var(--c-141); color:var(--c-b5b); cursor:pointer; flex-shrink:0; align-items:center; justify-content:center;'><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
         </div>
     </div>
 
@@ -2895,8 +3095,8 @@
 
     <div id='main-layout' style='display: flex; gap: 10px; align-items: stretch;'>
         <div id='canvas-container-box' style='flex:1; min-width:0; position: relative; isolation: isolate;'>
-            <div id='anim-connect-popup' style='display:none; position:fixed; z-index:5000; transform:translate(-50%, -100%); padding:6px; background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; box-shadow:0 8px 24px rgba(0,0,0,0.6); white-space:nowrap;'>
-                <button onclick='connectSelectedLines()' title='端点でつながる選択線を、始点と終点が1つずつの連結線として扱います' style='padding:6px 12px; border-radius:0; border:1px solid #242424; background:var(--c-141); color:var(--c-d5d); font-size:11px; cursor:pointer; white-space:nowrap;'>⌁ 連結して扱う</button>
+            <div id='anim-connect-popup' style='display:none; position:fixed; z-index:5000; transform:translate(-50%, -100%); padding:6px; background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); box-shadow:0 8px 24px rgba(0,0,0,0.6); white-space:nowrap;'>
+                <button onclick='connectSelectedLines()' title='端点でつながる選択線を、始点と終点が1つずつの連結線として扱います' style='padding:6px 12px; border-radius:var(--radius); border:1px solid #242424; background:var(--c-141); color:var(--c-d5d); font-size:11px; cursor:pointer; white-space:nowrap;'>⌁ 連結して扱う</button>
                 <div style='position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid var(--c-fff);'></div>
                 <div style='position:absolute; left:50%; bottom:-5px; transform:translateX(-50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:5px solid var(--c-0a0);'></div>
             </div>
@@ -2924,7 +3124,7 @@
                 position: absolute;
                 z-index: 500;
                 width: 36px; height: 36px;
-                border-radius:0;
+                border-radius:var(--radius);
                 border: 2px solid var(--accent);
                 background: var(--c-050);
                 color: var(--c-d5d);
@@ -2939,7 +3139,7 @@
             </button>
         </div>
 
-        <div id='sidebar' style='width: 350px; flex-shrink:0; background: var(--c-1a1); padding: 10px; border-radius:0; font-size: 12px; overflow-y: auto; box-sizing: border-box;'>
+        <div id='sidebar' style='width: 350px; flex-shrink:0; background: var(--c-1a1); padding: 10px; border-radius:var(--radius); font-size: 12px; overflow-y: auto; box-sizing: border-box;'>
             <div id='global-canvas-config' style='margin-bottom: 10px; border-bottom: 1px solid var(--c-fff); padding-bottom: 5px;'>
                 <div class='canvas-size-row'>
                     <div class='canvas-size-field'>
@@ -2965,7 +3165,7 @@
                     <span>背景:</span>
                     <div class='color-picker-outer' id='bg-picker-outer' style='width:26px;height:26px; flex-shrink:0;cursor:pointer;background:transparent;box-shadow:none;padding:0;' onclick='openCustomPicker("bg", this)'>
                         <input type='color' id='bgColor' value='#000000' oninput='updateBgColor()' style='pointer-events:none; opacity:0; position:absolute;'>
-                        <div id='bg-picker-swatch' style='width:100%;height:100%;border-radius:0;background:#000000;'></div>
+                        <div id='bg-picker-swatch' style='width:100%;height:100%;border-radius:var(--radius);background:#000000;'></div>
                     </div>
                     <input type='range' id='bgColorAlpha' class='alpha-slider' min='0' max='100' value='100' oninput='updateBgColor()' style='width:60px; flex-shrink:0;'>
                     <input type='number' id='bgColorAlphaNum' class='alpha-num' min='0' max='100' value='100' oninput='syncAlphaNum("bg")' style='display:none;'>
@@ -3020,7 +3220,7 @@
                         <span style='color:var(--c-b5b); font-size:10px; white-space:nowrap;'>色</span>
                         <div class='color-picker-outer' id='prop-picker-outer' style='width:30px;height:30px;cursor:pointer;flex-shrink:0;' onclick='openCustomPicker("prop", this)'>
                             <input type='color' id='prop-color' oninput='syncHex("prop")' onchange='updateSelectedProps()' style='pointer-events:none; opacity:0; position:absolute;'>
-                            <div id='prop-picker-swatch' style='width:100%;height:100%;border-radius:0;background:var(--c-fff);'></div>
+                            <div id='prop-picker-swatch' style='width:100%;height:100%;border-radius:var(--radius);background:var(--c-fff);'></div>
                         </div>
                         <!-- 非表示のまま保持（JS参照用） -->
                         <input type='text'   id='prop-colorHex'      class='hex-input'   onchange='syncPicker("prop")' style='display:none;'>
@@ -3103,7 +3303,7 @@
 
     <!-- タイムライン (全幅) -->
     <div id='timeline-resize-handle' style='height:6px; cursor:row-resize; background:transparent; display:flex; align-items:center; justify-content:center; user-select:none; touch-action:none;'>
-        <div style='width:40px; height:3px; border-radius:0; background:var(--c-1a1); pointer-events:none;'></div>
+        <div style='width:40px; height:3px; border-radius:var(--radius); background:var(--c-1a1); pointer-events:none;'></div>
     </div>
     <div id='timeline-panel'>
         <div id='timeline-header'>
@@ -3112,23 +3312,23 @@
             <input type='hidden' id='animTotalDuration' value='3'>
             <label id='tl-fps-label' style='font-size:11px; flex-shrink:0;'>FPS: <input type='number' id='animFPS' value='30' oninput='autoWidth(this); tlSetFPS(this.value);' onblur='tlFpsBlur(this);'></label>
             <div id='tl-sep' style='width:1px; height:20px; background:var(--c-0a0); flex-shrink:0;'></div>
-            <div role='group' aria-label='タイムライン制御' style='display:flex; gap:2px; padding:2px; border:1px solid var(--c-3c3); border-radius:0; background:var(--c-0a0); flex-shrink:0;'>
-                <button id='tl-track-draw-btn' class='tl-track-btn' onclick="setTimelineTrack('draw')" style='border:0; border-radius:0; padding:4px 8px; background:var(--accent); color:#000000; font-size:10px; cursor:pointer;'>描画</button>
-                <button id='tl-track-z-btn' class='tl-track-btn' onclick="setTimelineTrack('z')" style='border:0; border-radius:0; padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>Z移動</button>
-                <button id='tl-track-x-btn' class='tl-track-btn' onclick="setTimelineTrack('x')" style='border:0; border-radius:0; padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>X移動</button>
-                <button id='tl-track-y-btn' class='tl-track-btn' onclick="setTimelineTrack('y')" style='border:0; border-radius:0; padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>Y移動</button>
+            <div role='group' aria-label='タイムライン制御' style='display:flex; gap:2px; padding:2px; border:1px solid var(--c-3c3); border-radius:var(--radius); background:var(--c-0a0); flex-shrink:0;'>
+                <button id='tl-track-draw-btn' class='tl-track-btn' onclick="setTimelineTrack('draw')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:var(--accent); color:#000000; font-size:10px; cursor:pointer;'>描画</button>
+                <button id='tl-track-z-btn' class='tl-track-btn' onclick="setTimelineTrack('z')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>Z移動</button>
+                <button id='tl-track-x-btn' class='tl-track-btn' onclick="setTimelineTrack('x')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>X移動</button>
+                <button id='tl-track-y-btn' class='tl-track-btn' onclick="setTimelineTrack('y')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>Y移動</button>
             </div>
             <label style='margin-left:4px; display:flex; align-items:center; gap:5px; flex-shrink:0;'>
                 <span id='tl-zoom-label' style='font-size:10px; color:var(--c-9a9);'>縮尺</span>
-                <button onclick='tlZoom(-1)' style='background:var(--c-141); border:1px solid var(--c-fff); color:var(--c-b5b); border-radius:0; width:20px; height:20px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; padding:0; flex-shrink:0;'>−</button>
+                <button onclick='tlZoom(-1)' style='background:var(--c-141); border:1px solid var(--c-fff); color:var(--c-b5b); border-radius:var(--radius); width:20px; height:20px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; padding:0; flex-shrink:0;'>−</button>
                 <input type='range' id='timeline-zoom-slider' min='10' max='300' value='90' step='5'
                     class='opacity-slider'
                     style='width:160px;'
                     oninput='tlZoomSlider(this.value)'>
-                <div style='display:flex; align-items:center; gap:0;'><button onclick='tlZoom(1)' style='background:var(--c-141); border:1px solid var(--c-fff); color:var(--c-b5b); border-radius:0; width:20px; height:20px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; padding:0; flex-shrink:0;'>＋</button><span id='tl-zoom-val' style='font-size:10px; color:var(--accent); min-width:24px; text-align:right;'>90f</span></div>
+                <div style='display:flex; align-items:center; gap:0;'><button onclick='tlZoom(1)' style='background:var(--c-141); border:1px solid var(--c-fff); color:var(--c-b5b); border-radius:var(--radius); width:20px; height:20px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; padding:0; flex-shrink:0;'>＋</button><span id='tl-zoom-val' style='font-size:10px; color:var(--accent); min-width:24px; text-align:right;'>90f</span></div>
             </label>
             <!-- スマホ時は歯車ボタン -->
-            <button id='tl-settings-btn' onclick='toggleTlSettings()' style='display:none; width:32px; height:32px; border-radius:0; border:1px solid var(--c-fff); background:var(--c-141); color:var(--c-b5b); cursor:pointer; align-items:center; justify-content:center; flex-shrink:0;'>
+            <button id='tl-settings-btn' onclick='toggleTlSettings()' style='display:none; width:32px; height:32px; border-radius:var(--radius); border:1px solid var(--c-fff); background:var(--c-141); color:var(--c-b5b); cursor:pointer; align-items:center; justify-content:center; flex-shrink:0;'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>
             <input type='number' id='timeline-view-frames' value='90' min='10' max='9999' style='display:none;' oninput='renderTimeline()'>
@@ -3161,7 +3361,7 @@
     <!-- タイムライン設定フローティングパネル（スマホ用） -->
     <div id='tl-settings-panel' style='
         display:none; position:fixed; z-index:10000;
-        background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0;
+        background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius);
         padding:16px 18px; box-shadow:0 8px 32px rgba(0,0,0,0.6);
         min-width:200px; flex-direction:column; gap:14px;
     '>
@@ -3169,12 +3369,12 @@
         <input type='hidden' id='animTotalDuration2' value='3'>
         <label style='display:flex; align-items:center; gap:8px; font-size:12px; color:var(--c-d5d);'>
             <span style='min-width:40px;'>FPS</span>
-            <input type='number' id='animFPS2' value='30' style='width:60px; background:var(--c-141); border:1px solid var(--c-fff); color:var(--c-fff); border-radius:0; padding:4px 6px; font-size:12px;'
+            <input type='number' id='animFPS2' value='30' style='width:60px; background:var(--c-141); border:1px solid var(--c-fff); color:var(--c-fff); border-radius:var(--radius); padding:4px 6px; font-size:12px;'
                 oninput='tlSetFPS(this.value);' onblur='tlFpsBlur(this);'>
         </label>
         <div style='height:1px; background:var(--c-141);'></div>
         <button onclick='document.getElementById("tl-settings-panel").style.display="none"; openMobilePanel();'
-            style='display:flex; align-items:center; gap:8px; background:var(--c-141); border:1px solid var(--c-fff); border-radius:0; color:var(--c-d5d); font-size:12px; padding:8px 12px; cursor:pointer; width:100%;'>
+            style='display:flex; align-items:center; gap:8px; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-d5d); font-size:12px; padding:8px 12px; cursor:pointer; width:100%;'>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
             レイヤー・キャンバス設定
         </button>
@@ -4605,6 +4805,7 @@
     let GRID_RGB = '255,255,255';
     let DIM_HEX = '#9a9a9a';
     let LINE_HEX = '#ffffff';
+    let SELECT_BOX_HEX = '#656565';
     function refreshAccentColorCache() {
         const cs = getComputedStyle(document.documentElement);
         ACCENT_HEX = (cs.getPropertyValue('--accent') || '#d4ff3d').trim() || '#d4ff3d';
@@ -4612,6 +4813,7 @@
         GRID_RGB = (cs.getPropertyValue('--c-fff-rgb') || '255,255,255').trim() || '255,255,255';
         DIM_HEX = (cs.getPropertyValue('--c-9a9') || '#9a9a9a').trim() || '#9a9a9a';
         LINE_HEX = (cs.getPropertyValue('--c-fff') || '#ffffff').trim() || '#ffffff';
+        SELECT_BOX_HEX = (cs.getPropertyValue('--c-656') || '#656565').trim() || '#656565';
         BEZIER_GRAPH_ACCENT = ACCENT_HEX;
     }
     refreshAccentColorCache();
@@ -6509,7 +6711,7 @@
                 render(animT, true);
             } else {
                 pendingClear = false; // 矩形ドラッグが始まったので選択解除はキャンセル
-                currentX = pos.x; currentY = pos.y; uiCtx.setTransform(scale*(window.devicePixelRatio||1),0,0,scale*(window.devicePixelRatio||1),0,0); uiCtx.clearRect(0, 0, uiCanvas.width/(scale*(window.devicePixelRatio||1)), uiCanvas.height/(scale*(window.devicePixelRatio||1))); uiCtx.setLineDash([5, 5]); uiCtx.strokeStyle = 'var(--c-656)'; uiCtx.strokeRect(startX, startY, currentX - startX, currentY - startY); uiCtx.setLineDash([]);
+                currentX = pos.x; currentY = pos.y; uiCtx.setTransform(scale*(window.devicePixelRatio||1),0,0,scale*(window.devicePixelRatio||1),0,0); uiCtx.clearRect(0, 0, uiCanvas.width/(scale*(window.devicePixelRatio||1)), uiCanvas.height/(scale*(window.devicePixelRatio||1))); uiCtx.setLineDash([5, 5]); uiCtx.strokeStyle = SELECT_BOX_HEX; uiCtx.strokeRect(startX, startY, currentX - startX, currentY - startY); uiCtx.setLineDash([]);
             }
         }
     }
@@ -6680,7 +6882,7 @@
         // sidebar を drawerInner に移動
         if (!drawerInner.contains(sidebar)) {
             drawerInner.appendChild(sidebar);
-            sidebar.style.cssText = 'width:100%; background:transparent; padding:0; border-radius:0; font-size:12px; overflow-y:visible; box-sizing:border-box;';
+            sidebar.style.cssText = 'width:100%; background:transparent; padding:0; border-radius:var(--radius); font-size:12px; overflow-y:visible; box-sizing:border-box;';
         }
     }
 
@@ -7234,8 +7436,8 @@
         if (!panel) {
             panel = document.createElement('div');
             panel.id = 'video-export-status';
-            panel.style.cssText = 'position:fixed; left:50%; bottom:28px; transform:translateX(-50%); z-index:999999; min-width:260px; max-width:calc(100vw - 32px); background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:14px 16px; box-shadow:0 8px 32px rgba(0,0,0,.55); color:var(--c-e5e); font-size:12px;';
-            panel.innerHTML = '<div id="video-export-status-text" style="margin-bottom:10px;"></div><div style="height:6px; background:var(--c-141); border-radius:0; overflow:hidden;"><div id="video-export-status-bar" style="height:100%; width:0%; background:#dc2626;"></div></div>';
+            panel.style.cssText = 'position:fixed; left:50%; bottom:28px; transform:translateX(-50%); z-index:999999; min-width:260px; max-width:calc(100vw - 32px); background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:14px 16px; box-shadow:0 8px 32px rgba(0,0,0,.55); color:var(--c-e5e); font-size:12px;';
+            panel.innerHTML = '<div id="video-export-status-text" style="margin-bottom:10px;"></div><div style="height:6px; background:var(--c-141); border-radius:var(--radius); overflow:hidden;"><div id="video-export-status-bar" style="height:100%; width:0%; background:#dc2626;"></div></div>';
             document.body.appendChild(panel);
         }
         const pct = total ? Math.round((done / total) * 100) : 0;
@@ -8937,7 +9139,7 @@ ${layersSVG}
             const mainLayout = document.getElementById('main-layout');
             if (sidebar && mainLayout && !mainLayout.contains(sidebar)) {
                 mainLayout.appendChild(sidebar);
-                sidebar.style.cssText = 'width:350px; flex-shrink:0; background:var(--c-1a1); padding:10px; border-radius:0; font-size:12px; overflow-y:auto; box-sizing:border-box;';
+                sidebar.style.cssText = 'width:350px; flex-shrink:0; background:var(--c-1a1); padding:10px; border-radius:var(--radius); font-size:12px; overflow-y:auto; box-sizing:border-box;';
             }
             const drawer = document.getElementById('sidebar-drawer');
             const tab = document.getElementById('sidebar-tab');
@@ -9185,7 +9387,7 @@ ${layersSVG}
             ];
             tools.forEach(t => {
                 const btn = document.createElement('div');
-                btn.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--c-141);border:1px solid var(--c-fff);border-radius:0;padding:12px 16px;cursor:pointer;font-size:22px;min-width:60px;';
+                btn.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--c-141);border:1px solid var(--c-fff);border-radius:var(--radius);padding:12px 16px;cursor:pointer;font-size:22px;min-width:60px;';
                 btn.innerHTML = t.icon + '<span style="font-size:12px;color:var(--c-d5d);">' + t.label + '</span>';
                 btn.onclick = () => { selectTool(t.value); updateMobileChips(); closeMiniDrawer(); };
                 content.appendChild(btn);
@@ -9242,7 +9444,7 @@ ${layersSVG}
             content.style.gap = '10px';
             actions.forEach(a => {
                 const btn = document.createElement('button');
-                btn.style.cssText = `display:flex;align-items:center;gap:14px;width:100%;padding:14px 18px;border:none;border-radius:0;background:${a.color};color:${a.textColor};font-size:15px;font-weight:bold;cursor:pointer;touch-action:manipulation;text-align:left;font-family:inherit;`;
+                btn.style.cssText = `display:flex;align-items:center;gap:14px;width:100%;padding:14px 18px;border:none;border-radius:var(--radius);background:${a.color};color:${a.textColor};font-size:15px;font-weight:bold;cursor:pointer;touch-action:manipulation;text-align:left;font-family:inherit;`;
                 btn.innerHTML = a.icon + '<span>' + a.label + '</span>';
                 btn.addEventListener('click', a.action);
                 content.appendChild(btn);
@@ -9298,13 +9500,13 @@ ${layersSVG}
             if (!animSettingsBlock) {
                 animSettingsBlock = document.createElement('div');
                 animSettingsBlock.id = 'mobile-panel-anim-settings';
-                animSettingsBlock.style.cssText = 'margin-bottom:12px; padding:12px; background:var(--c-0a0); border-radius:0; border:1px solid var(--c-fff);';
+                animSettingsBlock.style.cssText = 'margin-bottom:12px; padding:12px; background:var(--c-0a0); border-radius:var(--radius); border:1px solid var(--c-fff);';
                 animSettingsBlock.innerHTML = `
                     <div style="font-size:11px; font-weight:700; color:var(--accent); margin-bottom:10px; letter-spacing:1px;">タイムライン設定</div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span style="font-size:12px; color:var(--c-d5d); min-width:36px;">FPS</span>
                         <input type="number" id="mobile-panel-anim-fps" value="30"
-                            style="flex:1; background:var(--c-141); border:1px solid var(--c-fff); color:var(--c-fff); border-radius:0; padding:6px 10px; font-size:14px; font-weight:bold; text-align:center; outline:none;"
+                            style="flex:1; background:var(--c-141); border:1px solid var(--c-fff); color:var(--c-fff); border-radius:var(--radius); padding:6px 10px; font-size:14px; font-weight:bold; text-align:center; outline:none;"
                             oninput="tlSetFPS(this.value);"
                             onblur="tlFpsBlur(this);">
                     </div>
@@ -9998,6 +10200,16 @@ ${layersSVG}
                     if (e.key === 'Escape') { e.preventDefault(); homeCloseBugsModal(); }
                     return;
                 }
+                const customThemeModal = document.getElementById('custom-theme-modal');
+                if (customThemeModal && customThemeModal.style.display !== 'none') {
+                    if (e.key === 'Escape') { e.preventDefault(); homeCloseCustomThemeModal(); }
+                    return;
+                }
+                const creditsModal = document.getElementById('credits-modal');
+                if (creditsModal && creditsModal.style.display !== 'none') {
+                    if (e.key === 'Escape') { e.preventDefault(); homeCloseCreditsModal(); }
+                    return;
+                }
                 if (e.key === 'Escape' && _sidebarDrawerOpen) { closeSidebarDrawer(); }
                 if (e.key === 'Escape') { homeCloseMenu(); }
                 if (e.key === 'Escape') { closeExportPanel(); }
@@ -10029,6 +10241,13 @@ ${layersSVG}
     // ── アップデートログ ──
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
+ 	{
+           	 version: 'Ver.1.1.2',
+            	items: [
+                	'カスタムテーマを追加',
+	'クレジットを追加'
+            	]
+        	},
         {
             version: 'Ver.1.1.1',
             items: [
@@ -10082,6 +10301,122 @@ ${layersSVG}
     }
     function homeCloseBugsModal() {
         const modal = document.getElementById('bugs-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // ── カスタムテーマ ──
+    const CUSTOM_THEME_PRESETS = ['#d4ff3d', '#38bdf8', '#f472b6', '#fb923c', '#a78bfa', '#4ade80', '#f87171', '#fbbf24'];
+    function _customThemeHexToRgb(hex) {
+        const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+        if (isNaN(r) || isNaN(g) || isNaN(b)) return null;
+        return r + ',' + g + ',' + b;
+    }
+    function _customThemeIsValidHex(hex) {
+        return /^#[0-9a-fA-F]{6}$/.test(hex);
+    }
+    function applyCustomAccentColor(hex, save) {
+        if (!_customThemeIsValidHex(hex)) return;
+        const rgb = _customThemeHexToRgb(hex);
+        document.documentElement.style.setProperty('--accent', hex);
+        if (rgb) document.documentElement.style.setProperty('--accent-rgb', rgb);
+        if (save !== false) {
+            try { localStorage.setItem('ducation-custom-accent', hex); } catch(e) {}
+        }
+        const swatch = document.getElementById('custom-theme-swatch');
+        if (swatch) swatch.style.background = hex;
+        const colorInput = document.getElementById('custom-theme-color-input');
+        if (colorInput) colorInput.value = hex;
+        const hexInput = document.getElementById('custom-theme-hex-input');
+        if (hexInput) hexInput.value = hex;
+        if (typeof refreshAccentColorCache === 'function') refreshAccentColorCache();
+        if (typeof redrawAllCanvases === 'function') redrawAllCanvases();
+    }
+    function customThemeSyncFromPicker(hex) {
+        applyCustomAccentColor(hex);
+    }
+    function customThemeSyncFromHex(value) {
+        let hex = (value || '').trim();
+        if (hex && hex[0] !== '#') hex = '#' + hex;
+        if (!_customThemeIsValidHex(hex)) {
+            const hexInput = document.getElementById('custom-theme-hex-input');
+            if (hexInput) hexInput.value = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+            return;
+        }
+        applyCustomAccentColor(hex);
+    }
+    function homeResetCustomTheme() {
+        document.documentElement.style.removeProperty('--accent');
+        document.documentElement.style.removeProperty('--accent-rgb');
+        try { localStorage.removeItem('ducation-custom-accent'); } catch(e) {}
+        const defaultHex = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d4ff3d';
+        const swatch = document.getElementById('custom-theme-swatch');
+        if (swatch) swatch.style.background = defaultHex;
+        const colorInput = document.getElementById('custom-theme-color-input');
+        if (colorInput) colorInput.value = defaultHex;
+        const hexInput = document.getElementById('custom-theme-hex-input');
+        if (hexInput) hexInput.value = defaultHex;
+        if (typeof refreshAccentColorCache === 'function') refreshAccentColorCache();
+        if (typeof redrawAllCanvases === 'function') redrawAllCanvases();
+    }
+    function _buildCustomThemePresets() {
+        const wrap = document.getElementById('custom-theme-presets');
+        if (!wrap || wrap.childElementCount) return;
+        CUSTOM_THEME_PRESETS.forEach(hex => {
+            const sw = document.createElement('div');
+            sw.style.cssText = 'width:28px;height:28px;border-radius:var(--radius);cursor:pointer;border:1.5px solid var(--c-fff);box-shadow:0 2px 6px rgba(0,0,0,0.35);flex-shrink:0;transition:transform 0.12s;';
+            sw.style.background = hex;
+            sw.title = hex;
+            sw.onmouseenter = () => sw.style.transform = 'scale(1.1)';
+            sw.onmouseleave = () => sw.style.transform = '';
+            sw.onclick = () => applyCustomAccentColor(hex);
+            wrap.appendChild(sw);
+        });
+    }
+    function syncCustomThemeModeSwitch() {
+        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        document.querySelectorAll('.theme-mode-checkbox-input').forEach(function(cb) {
+            cb.checked = (cb.getAttribute('data-mode') === current);
+        });
+    }
+    function syncCustomThemeRadiusSwitch() {
+        let saved = 'square';
+        try { saved = localStorage.getItem('ducation-radius') || 'square'; } catch(e) {}
+        document.querySelectorAll('.theme-radius-checkbox-input').forEach(function(cb) {
+            cb.checked = (cb.getAttribute('data-radius') === saved);
+        });
+    }
+    function homeShowCustomThemeModal() {
+        const modal = document.getElementById('custom-theme-modal');
+        if (modal) {
+            _buildCustomThemePresets();
+            syncCustomThemeModeSwitch();
+            syncCustomThemeRadiusSwitch();
+            const currentHex = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d4ff3d';
+            const swatch = document.getElementById('custom-theme-swatch');
+            if (swatch) swatch.style.background = currentHex;
+            const colorInput = document.getElementById('custom-theme-color-input');
+            if (colorInput && _customThemeIsValidHex(currentHex)) colorInput.value = currentHex;
+            const hexInput = document.getElementById('custom-theme-hex-input');
+            if (hexInput) hexInput.value = currentHex;
+            modal.style.display = 'flex';
+        }
+    }
+    function homeCloseCustomThemeModal() {
+        const modal = document.getElementById('custom-theme-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    function homeShowCreditsModal() {
+        const modal = document.getElementById('credits-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+    function homeCloseCreditsModal() {
+        const modal = document.getElementById('credits-modal');
         if (modal) {
             modal.style.display = 'none';
         }
@@ -10436,7 +10771,7 @@ ${layersSVG}
         </div>
         <div class='picker-hue-row'>
             <div class='picker-preview-swatch' id='picker-preview-swatch'>
-                <div id='picker-preview-fill' style='position:absolute;inset:0;border-radius:0;'></div>
+                <div id='picker-preview-fill' style='position:absolute;inset:0;border-radius:var(--radius);'></div>
             </div>
             <input type='range' class='picker-hue-slider' id='picker-hue-slider' min='0' max='360' value='0'>
         </div>
@@ -10510,7 +10845,7 @@ ${layersSVG}
     }
     #mobile-prop-sheet-handle {
         width: 40px; height: 4px;
-        background: var(--c-0a0); border-radius:0;
+        background: var(--c-0a0); border-radius:var(--radius);
         margin: 10px auto 14px;
     }
     #mobile-prop-sheet-title {
@@ -10531,13 +10866,13 @@ ${layersSVG}
         font-size: 10px; color: var(--c-9a9); white-space: nowrap; min-width: 36px;
     }
     #mp-color-swatch {
-        width: 36px; height: 36px; border-radius:0;
+        width: 36px; height: 36px; border-radius:var(--radius);
         border: 2px solid var(--swatch-border-hover);
         cursor: pointer; flex-shrink: 0;
         box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
     #mp-width-minus, #mp-width-plus {
-        width: 36px; height: 36px; border-radius:0;
+        width: 36px; height: 36px; border-radius:var(--radius);
         border: 1px solid var(--c-fff); background: var(--c-050);
         color: var(--c-d5d); font-size: 20px; cursor: pointer;
         display: flex; align-items: center; justify-content: center;
@@ -10552,7 +10887,7 @@ ${layersSVG}
     #mp-opacity-val { font-size: 11px; color: var(--c-b5b); min-width: 28px; text-align: right; }
     .mp-cap-btn {
         width: 52px; height: 36px;
-        border-radius:0; flex-shrink: 0;
+        border-radius:var(--radius); flex-shrink: 0;
     }
     .mp-divider {
         height: 1px; background: var(--c-fff); margin: 4px 0 12px;
@@ -10611,18 +10946,18 @@ ${layersSVG}
 
 <!-- エクスポート形式選択パネル -->
 <div id="export-format-panel" style="display:none; position:fixed; inset:0; z-index:999998; background:rgba(0,0,0,0.55); backdrop-filter:blur(3px); align-items:center; justify-content:center;" onclick="if(event.target===this)closeExportPanel()">
-  <div id="export-panel-inner" style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:0; padding:28px 32px; min-width:300px; box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+  <div id="export-panel-inner" style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; box-shadow:0 8px 40px rgba(0,0,0,0.6);">
     <div style="font-size:15px; font-weight:600; color:var(--c-e5e); margin-bottom:6px;" id="export-panel-title">エクスポート形式を選択</div>
     <div style="font-size:12px; color:var(--c-9a9); margin-bottom:22px;" id="export-panel-sub">ファイル形式を選んでください</div>
     <div style="display:flex; gap:12px;">
-      <button onclick="confirmExport('png')" style="flex:1; padding:14px 0; background:var(--accent); border:none; border-radius:0; color:#000000; font-size:14px; font-weight:600; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      <button onclick="confirmExport('png')" style="flex:1; padding:14px 0; background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:14px; font-weight:600; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
         🖼 PNG
       </button>
-      <button onclick="confirmExport('svg')" style="flex:1; padding:14px 0; background:#16a34a; border:none; border-radius:0; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      <button onclick="confirmExport('svg')" style="flex:1; padding:14px 0; background:#16a34a; border:none; border-radius:var(--radius); color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
         ✦ SVG
       </button>
     </div>
-    <button onclick="closeExportPanel()" style="width:100%; margin-top:12px; padding:9px 0; background:transparent; border:1px solid var(--c-fff); border-radius:0; color:var(--c-9a9); font-size:13px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
+    <button onclick="closeExportPanel()" style="width:100%; margin-top:12px; padding:9px 0; background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-9a9); font-size:13px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
   </div>
 </div>
 </body>
