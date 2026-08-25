@@ -1,4 +1,4 @@
 # .ducation
 
-----credits----\n
+----credits----<\n>
 Fonts: Google Fonts / JSZip (MIT License)
