@@ -151,7 +151,7 @@
         <div class="home-grid" id="home-grid"></div>
     </div>
     <div style="position:fixed; left:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
-    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.3.4</div>
+    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.4.5</div>
 </div>
 <!-- 新規作成モーダル -->
 <div id="new-project-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNewProjectModal()">
@@ -277,16 +277,16 @@
             <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.3.4</span>
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.4.5</span>
             <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
         </div>
 
         <ul id="changelog-items-list" style="margin:0 0 20px; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.8; flex:1; overflow-y:auto; min-height:0;">
-            <li>サイドバーの位置を設定からカスタマイズできるようにしました</li>
-            <li>アップデートログの通知を設定からオフにできるようにしました</li>
-            <li>UIの改善やバグの修正など</li>
+            <li>タイムラインのブロック上で右クリックをすると、他処理のブロック設定に揃えることができるようになりました</li>
+            <li>最大120FPSに対応</li>
+            <li>その他使いやすさの向上</li>
         </ul>
 
         <div style="display:flex; justify-content:flex-end; flex-shrink:0;">
@@ -300,7 +300,7 @@
     <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
         <div style="font-size:16px; font-weight:bold; margin-bottom:8px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">既知のバグ</div>
         <div style="font-size:11px; color:var(--c-9a9); margin-bottom:18px; line-height:1.7;">
-            現在確認されている不具合の一覧です。修正までしばらくお待ちください。
+            現在確認されている不具合の一覧です。修正までしばらくお待ちください。もしバグ等を見つけた場合フィードバックにてお知らせください。
         </div>
 
         <ul id="bugs-items-list" style="margin:0 0 20px; padding-left:0; list-style:none;"></ul>
@@ -316,7 +316,7 @@
     <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
         <div style="font-size:16px; font-weight:bold; margin-bottom:8px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">追加したい要素</div>
         <div style="font-size:11px; color:var(--c-9a9); margin-bottom:18px; line-height:1.7;">
-            今後追加を検討している要素の一覧です。
+            今後追加を検討している要素の一覧です。良いアイデアがあればフィードバックから教えてください～
         </div>
 
         <ul id="custom-element-items" style="margin:0 0 20px; padding-left:0; list-style:none;"></ul>
@@ -2103,6 +2103,21 @@
         box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
     .tl-mid-marker:hover { background: var(--accent); }
+    .tl-popup-item {
+        display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        width: 100%; padding: 6px 12px; border-radius: var(--radius); border: 1px solid #242424;
+        background: var(--c-141); color: var(--c-d5d); font-size: 11px; cursor: pointer;
+        white-space: nowrap; text-align: left; font-family: inherit;
+    }
+    .tl-popup-item:hover { background: var(--c-1c1); color: var(--c-fff); }
+    .tl-popup-submenu-wrap { position: relative; }
+    .tl-popup-submenu {
+        display: none; position: absolute; left: 100%; top: 0; margin-left: 4px;
+        padding: 6px; background: var(--c-0a0); border: 1px solid var(--c-fff);
+        border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        white-space: nowrap; flex-direction: column; gap: 4px; min-width: 90px;
+    }
+    .tl-popup-submenu.open { display: flex; }
     .tl-bar-resize-start {
         position: absolute; left: 0; top: 0; bottom: 0;
         width: 6px; cursor: ew-resize;
@@ -3476,6 +3491,7 @@
                 <div style='position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid var(--c-fff);'></div>
                 <div style='position:absolute; left:50%; bottom:-5px; transform:translateX(-50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:5px solid var(--c-0a0);'></div>
             </div>
+
             <div id='canvas-viewport' style='width: 100%; height: 400px; overflow: auto; background: var(--c-page); border: 1px solid var(--c-fff); border-bottom: none; border-radius:0 6px 0 0; box-sizing: border-box; isolation: isolate;'>
                 <div id='canvas-spacer' style='position: relative; width: 100%; height: 100%;'>
                 <div id='canvas-stack' style='position: absolute; background: transparent; transform-origin: top left;'>
@@ -7723,7 +7739,7 @@
         const prevT = animT;
         const prevSelection = selectedItems.slice();
         const fpsEl = document.getElementById('animFPS');
-        const fps = Math.max(1, Math.min(60, parseInt(fpsEl ? fpsEl.value : '30') || 30));
+        const fps = Math.max(1, Math.min(120, parseInt(fpsEl ? fpsEl.value : '30') || 30));
         const totalFrames = getTimelineRenderFrames(fps);
         const totalDuration = totalFrames / fps;
         const baseW = Math.max(1, parseInt(document.getElementById('canvasWidth').value) || 800);
@@ -8350,7 +8366,7 @@ ${layersSVG}
                 // FPSを復元（保存されていない旧ファイルは30とみなす）。
                 // これを復元しないと、タイムラインのブロック位置（フレーム数）を
                 // 現在のFPSで換算してしまい、実際の値とずれて表示されてしまう。
-                tl.fps = Math.max(1, Math.min(60, parseInt(project.fps, 10) || 30));
+                tl.fps = Math.max(1, Math.min(120, parseInt(project.fps, 10) || 30));
                 const _af = document.getElementById('animFPS');
                 const _af2 = document.getElementById('animFPS2');
                 const _mobileFps = document.getElementById('mobile-panel-anim-fps');
@@ -8863,6 +8879,128 @@ ${layersSVG}
         renderTimeline();
     }
 
+    // タイムラインのバー右クリック時に表示する「マーカーを追加」ポップアップ。
+    // 右クリック＝即追加ではなく、ポップアップ内のボタンを押した時にだけ
+    // addTimelineMidpoint を実行する。
+    let tlMarkerPopupData = null;
+    function closeAllTlPopupSubmenus() {
+        document.querySelectorAll('.tl-popup-submenu.open').forEach(s => s.classList.remove('open'));
+    }
+    function openTlMarkerPopup(clientX, clientY, item, track, frame, startFrame, endFrame) {
+        tlMarkerPopupData = { item, track, frame, startFrame, endFrame };
+        const popup = document.getElementById('tl-marker-popup');
+        if (!popup) return;
+        popup.style.left = clientX + 'px';
+        popup.style.top = clientY + 'px';
+        popup.style.display = 'flex';
+        closeAllTlPopupSubmenus();
+    }
+    function closeTlMarkerPopup() {
+        const popup = document.getElementById('tl-marker-popup');
+        if (popup) popup.style.display = 'none';
+        closeAllTlPopupSubmenus();
+        tlMarkerPopupData = null;
+    }
+    function confirmAddTlMarker() {
+        if (!tlMarkerPopupData) return;
+        const d = tlMarkerPopupData;
+        addTimelineMidpoint(d.item, d.track, d.frame, d.startFrame, d.endFrame);
+        closeTlMarkerPopup();
+    }
+    // タップ操作（ホバー不可の端末）向け: 「揃える」系の項目を押した時にサブメニューを開閉する。
+    // 開く際は他の開いているサブメニューを閉じ、同時に複数開かないようにする。
+    function toggleTlSubmenu(submenuId, e) {
+        if (e) e.stopPropagation();
+        const submenu = document.getElementById(submenuId);
+        if (!submenu) return;
+        const wasOpen = submenu.classList.contains('open');
+        closeAllTlPopupSubmenus();
+        if (!wasOpen) submenu.classList.add('open');
+    }
+    // 右クリックされたブロックが複数選択に含まれている場合、選択中の全アイテムを対象にする。
+    // それ以外の場合は右クリックされたブロック単体のみを対象にする。
+    function getTlPopupTargetItems(item, layer) {
+        if (!layer) return [item];
+        const selectedItems = getTimelineSelectedItems(layer);
+        if (selectedItems.length > 1 && selectedItems.includes(item)) return selectedItems;
+        return [item];
+    }
+    // 右クリックされたブロック（tlMarkerPopupData.item / .track）の長さを、
+    // サブメニューで選んだトラック（描画/z移動/x移動/y移動）の長さに揃える。
+    // 複数選択中は選択中の全ての線それぞれに対して同じ操作を行う。
+    function confirmMatchTlLength(targetTrack) {
+        if (!tlMarkerPopupData) return;
+        const d = tlMarkerPopupData;
+        const track = d.track;
+        const layer = layers[activeLayerIndex];
+        const durationField = { z: 'duration', x: 'xDuration', y: 'yDuration', draw: 'drawDuration' }[track];
+        if (!layer || !durationField) { closeTlMarkerPopup(); return; }
+        const items = getTlPopupTargetItems(d.item, layer);
+        saveState();
+        items.forEach(item => {
+            item[durationField] = getTrackDuration(item, layer, targetTrack);
+        });
+        render(animT);
+        renderTimeline();
+        closeTlMarkerPopup();
+    }
+    // 右クリックされたブロックの開始フレームを、サブメニューで選んだトラックの
+    // 開始フレームに揃える（長さ＝duration はそのまま、ブロックごと移動する）。
+    // 複数選択中は選択中の全ての線それぞれに対して同じ操作を行う。
+    function confirmMatchTlStart(targetTrack) {
+        if (!tlMarkerPopupData) return;
+        const d = tlMarkerPopupData;
+        const track = d.track;
+        const layer = layers[activeLayerIndex];
+        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', draw: 'drawStartFrame' }[track];
+        if (!startField) { closeTlMarkerPopup(); return; }
+        const items = getTlPopupTargetItems(d.item, layer);
+        saveState();
+        items.forEach(item => {
+            item[startField] = getTrackStartFrame(item, targetTrack);
+        });
+        render(animT);
+        renderTimeline();
+        closeTlMarkerPopup();
+    }
+    // 右クリックされたブロックの終了フレーム（開始＋長さ）を、サブメニューで選んだ
+    // トラックの終了フレームに揃える。自身の長さ（duration）は変えず、開始フレームを
+    // 動かすことで終了位置を合わせる。複数選択中は選択中の全ての線それぞれに対して行う。
+    function confirmMatchTlEnd(targetTrack) {
+        if (!tlMarkerPopupData) return;
+        const d = tlMarkerPopupData;
+        const track = d.track;
+        const layer = layers[activeLayerIndex];
+        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', draw: 'drawStartFrame' }[track];
+        if (!layer || !startField) { closeTlMarkerPopup(); return; }
+        const fps = tl.fps;
+        const items = getTlPopupTargetItems(d.item, layer);
+        saveState();
+        items.forEach(item => {
+            const targetStart = getTrackStartFrame(item, targetTrack);
+            const targetDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, targetTrack) * fps));
+            const targetEnd = targetStart + targetDurFrames;
+            const ownDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, track) * fps));
+            item[startField] = Math.max(0, targetEnd - ownDurFrames);
+        });
+        render(animT);
+        renderTimeline();
+        closeTlMarkerPopup();
+    }
+    document.addEventListener('pointerdown', (e) => {
+        const popup = document.getElementById('tl-marker-popup');
+        if (popup && popup.style.display !== 'none' && !popup.contains(e.target)) {
+            closeTlMarkerPopup();
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeTlMarkerPopup();
+    });
+    (function bindTlMarkerPopupScrollClose(){
+        const scrollArea = document.getElementById('timeline-scroll-area');
+        if (scrollArea) scrollArea.addEventListener('scroll', closeTlMarkerPopup);
+    })();
+
 
     function setTimelineTrack(track) {
         const prevTrack = tl.track;
@@ -8893,7 +9031,7 @@ ${layersSVG}
 
     function getAnimationFPS() {
         const el = document.getElementById('animFPS');
-        return Math.max(1, Math.min(60, parseInt(el ? el.value : tl.fps, 10) || tl.fps || 30));
+        return Math.max(1, Math.min(120, parseInt(el ? el.value : tl.fps, 10) || tl.fps || 30));
     }
 
     function getTimelineRenderFrames(fps = getAnimationFPS()) {
@@ -8956,7 +9094,7 @@ ${layersSVG}
         if (isNaN(parsed) || parsed <= 0) {
             el.value = tl.fps;
         } else {
-            el.value = Math.max(1, Math.min(60, parsed));
+            el.value = Math.max(1, Math.min(120, parsed));
         }
         tlSetFPS(el.value);
         // モバイル設定パネルのFPS欄も同期（開いていれば）
@@ -8989,6 +9127,14 @@ ${layersSVG}
         if (sa) {
             sa.addEventListener('wheel', (e) => {
                 if (!e.ctrlKey && !e.metaKey) return;
+                e.preventDefault();
+                tlZoom(e.deltaY > 0 ? 1 : -1);
+            }, { passive: false });
+        }
+        // 定規（ルーラー）部分は、Ctrl等を押さなくてもホイールで縮尺を変更できるようにする
+        const rulerWrapper = document.getElementById('tl-ruler-wrapper');
+        if (rulerWrapper) {
+            rulerWrapper.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 tlZoom(e.deltaY > 0 ? 1 : -1);
             }, { passive: false });
@@ -9243,7 +9389,9 @@ ${layersSVG}
                     if (!['x', 'y', 'z', 'draw'].includes(tl.track)) return;
                     const rect = bar.getBoundingClientRect();
                     const clickFrame = Math.round(startFrame + (e.clientX - rect.left) / ppf);
-                    addTimelineMidpoint(item, tl.track, clickFrame, startFrame, startFrame + durFrames);
+                    // 右クリック＝即マーカー追加ではなく、ポップアップを表示して
+                    // その中のボタンを押した時にだけ追加する。
+                    openTlMarkerPopup(e.clientX, e.clientY, item, tl.track, clickFrame, startFrame, startFrame + durFrames);
                 });
                 bar.addEventListener('pointerdown', (e) => {
                     if (e.target === resizeHandle || e.target === resizeHandleStart) return;
@@ -10597,7 +10745,7 @@ ${layersSVG}
         // FPSを復元（保存されていない旧データは30とみなす）。
         // これを復元しないと、タイムラインのブロック位置（フレーム数）を
         // 現在のFPSで換算してしまい、実際の値とずれて表示されてしまう。
-        tl.fps = Math.max(1, Math.min(60, parseInt(data.fps, 10) || 30));
+        tl.fps = Math.max(1, Math.min(120, parseInt(data.fps, 10) || 30));
         const _af3 = document.getElementById('animFPS');
         const _af4 = document.getElementById('animFPS2');
         const _mobileFps2 = document.getElementById('mobile-panel-anim-fps');
@@ -10713,6 +10861,12 @@ ${layersSVG}
     // id は既読判定に使うので、追加のたびに必ずユニークな値にすること。
     const NOTICE_DATA = [
         {
+            id: 'notice-3',
+            date: '2026.08.27',
+            title: 'Ver.1.4.5 新機能のお知らせ',
+            text: 'タイムラインのブロック上で右クリックを押して、他処理のブロックと設定を揃えられるようになりました。詳しくはアップデートログをご確認下さい～'
+        },
+        {
             id: 'notice-2',
             date: '2026.08.27',
             title: '既知のバグ/追加したい要素 を実装しました',
@@ -10820,6 +10974,14 @@ ${layersSVG}
     // ── アップデートログ ──
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
+        {
+            version: 'Ver.1.4.5',
+            items: [
+                'タイムラインのブロック上で右クリックをすると、他処理のブロック設定に揃えることができるようになりました',
+                '最大120FPSに対応',
+                'その他使いやすさの向上'
+            ]
+        },
         {
             version: 'Ver.1.3.4',
             items: [
@@ -10933,7 +11095,6 @@ ${layersSVG}
     // level: 1=すぐ追加できそう 2=近いうちに追加できそう 3=時間がかかりそう 4=未定・時間がかかりそう
     const CUSTOM_ELEMENTS_DATA = [
         { text: '線の端の形に平行四辺形、四角形（ずっと同じ向きモード）を追加する　実装が難しそう', level: 3 },
-        { text: 'アニメーションのFPS上限を引き上げる　すぐできそう', level: 1 },
         { text: '図形ツールの追加（とりあえず四角形、角だけ四角形、角丸四角形、円あたりを追加したい）', level: 3 }
     ];
     // 1〜4段階の目安メーター（塗りつぶし数が多いほど早く対応できそう）
@@ -11702,6 +11863,47 @@ ${layersSVG}
 </div>
 
 
+
+<!-- タイムライン: 中間点マーカー追加ポップアップ（他のオーバーレイより前面に表示するため、
+     stacking context を作る親要素の外＝body直下に配置している） -->
+<div id='tl-marker-popup' style='display:none; flex-direction:column; gap:4px; position:fixed; z-index:2000000; transform:translate(-50%, -100%); margin-top:-10px; padding:6px; background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); box-shadow:0 8px 24px rgba(0,0,0,0.6); white-space:nowrap;'>
+    <button onclick='confirmAddTlMarker()' class='tl-popup-item'>◆ マーカーを追加</button>
+    <div class='tl-popup-submenu-wrap'
+         onmouseenter="closeAllTlPopupSubmenus(); document.getElementById('tl-match-length-submenu').classList.add('open')"
+         onmouseleave="document.getElementById('tl-match-length-submenu').classList.remove('open')">
+        <button onclick="toggleTlSubmenu('tl-match-length-submenu', event)" class='tl-popup-item'><span>⇔ 長さを揃える</span><span>▶</span></button>
+        <div id='tl-match-length-submenu' class='tl-popup-submenu'>
+            <button onclick="confirmMatchTlLength('draw')" class='tl-popup-item'>描画</button>
+            <button onclick="confirmMatchTlLength('z')" class='tl-popup-item'>z移動</button>
+            <button onclick="confirmMatchTlLength('x')" class='tl-popup-item'>x移動</button>
+            <button onclick="confirmMatchTlLength('y')" class='tl-popup-item'>y移動</button>
+        </div>
+    </div>
+    <div class='tl-popup-submenu-wrap'
+         onmouseenter="closeAllTlPopupSubmenus(); document.getElementById('tl-match-start-submenu').classList.add('open')"
+         onmouseleave="document.getElementById('tl-match-start-submenu').classList.remove('open')">
+        <button onclick="toggleTlSubmenu('tl-match-start-submenu', event)" class='tl-popup-item'><span>⏮ 開始地点を揃える</span><span>▶</span></button>
+        <div id='tl-match-start-submenu' class='tl-popup-submenu'>
+            <button onclick="confirmMatchTlStart('draw')" class='tl-popup-item'>描画</button>
+            <button onclick="confirmMatchTlStart('z')" class='tl-popup-item'>z移動</button>
+            <button onclick="confirmMatchTlStart('x')" class='tl-popup-item'>x移動</button>
+            <button onclick="confirmMatchTlStart('y')" class='tl-popup-item'>y移動</button>
+        </div>
+    </div>
+    <div class='tl-popup-submenu-wrap'
+         onmouseenter="closeAllTlPopupSubmenus(); document.getElementById('tl-match-end-submenu').classList.add('open')"
+         onmouseleave="document.getElementById('tl-match-end-submenu').classList.remove('open')">
+        <button onclick="toggleTlSubmenu('tl-match-end-submenu', event)" class='tl-popup-item'><span>⏭ 終了地点を揃える</span><span>▶</span></button>
+        <div id='tl-match-end-submenu' class='tl-popup-submenu'>
+            <button onclick="confirmMatchTlEnd('draw')" class='tl-popup-item'>描画</button>
+            <button onclick="confirmMatchTlEnd('z')" class='tl-popup-item'>z移動</button>
+            <button onclick="confirmMatchTlEnd('x')" class='tl-popup-item'>x移動</button>
+            <button onclick="confirmMatchTlEnd('y')" class='tl-popup-item'>y移動</button>
+        </div>
+    </div>
+    <div style='position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid var(--c-fff);'></div>
+    <div style='position:absolute; left:50%; bottom:-5px; transform:translateX(-50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:5px solid var(--c-0a0);'></div>
+</div>
 
 <!-- エクスポート形式選択パネル -->
 <div id="export-format-panel" style="display:none; position:fixed; inset:0; z-index:999998; background:rgba(0,0,0,0.55); backdrop-filter:blur(3px); align-items:center; justify-content:center;" onclick="if(event.target===this)closeExportPanel()">
