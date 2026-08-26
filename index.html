@@ -90,6 +90,7 @@
             <div class="home-menu-wrap">
                 <button class="home-menu-btn" onclick="homeToggleMenu(event)" title="メニュー" aria-label="メニュー">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    <span id="home-menu-notif-dot" class="notif-dot" style="display:none;"></span>
                 </button>
                 <div class="home-menu-dropdown" id="home-menu-dropdown">
                     <a href="https://forms.gle/7iHUGu4fwqhAEjnn6" target="_blank" rel="noopener noreferrer" class="home-menu-item">
@@ -104,9 +105,15 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
                         カスタムテーマ
                     </button>
-                    <button class="home-menu-item" onclick="homeCloseMenu(); homeShowChangelogModal()">
+                    <button class="home-menu-item" onclick="homeCloseMenu(); homeShowNoticeModal()" style="position:relative;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                        お知らせ
+                        <span id="home-notice-notif-dot" class="notif-dot notif-dot-inline" style="display:none;"></span>
+                    </button>
+                    <button class="home-menu-item" onclick="homeCloseMenu(); homeShowChangelogModal()" style="position:relative;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
                         アップデートログ
+                        <span id="home-changelog-notif-dot" class="notif-dot notif-dot-inline" style="display:none;"></span>
                     </button>
                     <button class="home-menu-item" onclick="homeCloseMenu(); homeShowBugsModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.88 1.88M14.12 3.88L16 2M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"/><path d="M12 20v-9M6.53 9C4.6 8.8 3 7.1 3 5M6 13H2M6.53 17C4.6 17.2 3 18.9 3 21M17.47 9c1.93-.2 3.53-1.9 3.53-4M18 13h4M17.47 17c1.93.2 3.53 1.9 3.53 4"/></svg>
@@ -125,7 +132,7 @@
         <div class="home-grid" id="home-grid"></div>
     </div>
     <div style="position:fixed; left:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
-    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.1.2</div>
+    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.2.3</div>
 </div>
 <!-- 新規作成モーダル -->
 <div id="new-project-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNewProjectModal()">
@@ -211,6 +218,37 @@
     </div>
 </div>
 
+<!-- お知らせモーダル -->
+<div id="notice-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNoticeModal()">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+
+        <div id="notice-list-view">
+            <div style="font-size:16px; font-weight:bold; margin-bottom:20px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">お知らせ</div>
+
+            <div id="notice-items-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;"></div>
+
+            <div style="display:flex; justify-content:flex-end;">
+                <button onclick="homeCloseNoticeModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
+            </div>
+        </div>
+
+        <div id="notice-detail-view" style="display:none;">
+            <button onclick="noticeShowListView()" style="background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:11px; padding:6px 12px; cursor:pointer; margin-bottom:18px; display:inline-flex; align-items:center; gap:4px; transition:background 0.15s;" onmouseover="this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                一覧へ戻る
+            </button>
+            <div id="notice-detail-date" style="font-size:11px; color:var(--accent); font-weight:bold; margin-bottom:6px;"></div>
+            <div id="notice-detail-title" style="font-size:14px; font-weight:bold; color:var(--c-fff); margin-bottom:14px;"></div>
+            <div id="notice-detail-text" style="font-size:12px; color:var(--c-c5c); line-height:1.8; margin-bottom:20px; white-space:pre-wrap;"></div>
+
+            <div style="display:flex; justify-content:flex-end;">
+                <button onclick="homeCloseNoticeModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <!-- アップデートログモーダル -->
 <div id="changelog-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseChangelogModal()">
     <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
@@ -220,17 +258,15 @@
             <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.1.2</span>
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.2.3</span>
             <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
         </div>
 
         <ul id="changelog-items-list" style="margin:0 0 20px; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.8;">
-            <li>ライトモードを追加</li>
-            <li>線に名前を付けられるようにした</li>
-            <li>ホーム画面に「このツールはバイブコーディングによって作られています」の表示を追加</li>
-            <li>その他バグの修正</li>
+            <li>ホーム画面のメニューにいろいろ追加</li>
+            <li>その他バグ修正</li>
         </ul>
 
         <div style="display:flex; justify-content:flex-end;">
@@ -248,7 +284,7 @@
         </div>
 
         <ul style="margin:0 0 20px; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.9;">
-            <li>線を連結したとき、描画アニメーションの始点を表す赤丸に不具合が生じる（アニメーションにかかわる大きめのバグなので優先的に直します）</li>
+            <li>今は特にないと思います　やったね</li>
         </ul>
 
         <div style="display:flex; justify-content:flex-end;">
@@ -2613,6 +2649,24 @@
         transition: background 0.15s, color 0.15s;
     }
     .home-menu-btn:hover { background: var(--c-1c1); color: var(--c-fff); }
+    .home-menu-btn { position: relative; }
+    .notif-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ff4d4f;
+        box-shadow: 0 0 0 2px var(--c-0a0);
+    }
+    .home-menu-btn .notif-dot {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+    }
+    .notif-dot-inline {
+        margin-left: auto;
+        flex-shrink: 0;
+        box-shadow: none;
+    }
     .home-menu-dropdown {
         display: none;
         position: absolute;
@@ -5377,7 +5431,7 @@
                 } else if (isSelected) {
                     // 選択線: 白グローを下敷きに描画
                     mCtx.globalAlpha = 0.55;
-                    mCtx.strokeStyle = 'var(--c-fff)'; mCtx.lineWidth = (item.width * pScale) + 6;
+                    mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = (item.width * pScale) + 6;
                     mCtx.lineCap = 'butt'; mCtx.setLineDash([]);
                     mCtx.beginPath(); mCtx.moveTo(x1, y1);
                     drawSampledPath(mCtx, revealedWpts);
@@ -5400,7 +5454,7 @@
 
                         // 背景（塗りつぶし）でキャップ形状を表現
                         mCtx.fillStyle = 'rgba(158,158,158,0.22)';
-                        mCtx.strokeStyle = 'var(--c-9a9)';
+                        mCtx.strokeStyle = DIM_HEX;
                         mCtx.lineWidth = 1.5;
                         mCtx.setLineDash([]);
 
@@ -5415,7 +5469,7 @@
                             // 半円の弧を強調
                             mCtx.beginPath();
                             mCtx.arc(0, 0, markerSize, -Math.PI / 2, Math.PI / 2);
-                            mCtx.strokeStyle = 'var(--c-9a9)'; mCtx.lineWidth = 2; mCtx.stroke();
+                            mCtx.strokeStyle = DIM_HEX; mCtx.lineWidth = 2; mCtx.stroke();
                         } else if (capType === 'square') {
                             // 四角（線幅＋マージン分の矩形）
                             mCtx.beginPath();
@@ -5425,13 +5479,13 @@
                             mCtx.beginPath();
                             mCtx.moveTo(markerSize, -markerSize);
                             mCtx.lineTo(markerSize,  markerSize);
-                            mCtx.strokeStyle = 'var(--c-9a9)'; mCtx.lineWidth = 2.5; mCtx.stroke();
+                            mCtx.strokeStyle = DIM_HEX; mCtx.lineWidth = 2.5; mCtx.stroke();
                         } else {
                             // butt: 垂直の切り落とし線のみ
                             mCtx.beginPath();
                             mCtx.moveTo(0, -markerSize);
                             mCtx.lineTo(0,  markerSize);
-                            mCtx.strokeStyle = 'var(--c-9a9)'; mCtx.lineWidth = 2.5; mCtx.stroke();
+                            mCtx.strokeStyle = DIM_HEX; mCtx.lineWidth = 2.5; mCtx.stroke();
                             // 小さい塗り四角で端点を示す
                             mCtx.fillStyle = 'rgba(158,158,158,0.15)';
                             mCtx.fillRect(-markerSize * 0.5, -markerSize, markerSize * 0.5, markerSize * 2);
@@ -5558,7 +5612,7 @@
                     // 閉路は始点・終点を同じ1つの接合として扱い、四角い端を作らない。
                 };
                 if (!contentOnly && (t === 1 || currentMode === 'anim') && currentTool === 'select' && isSelected) {
-                    mCtx.globalAlpha = 0.55; mCtx.strokeStyle = 'var(--c-fff)'; mCtx.lineWidth = (item.width * pScale) + 6; mCtx.lineCap = 'round'; mCtx.lineJoin = 'round';
+                    mCtx.globalAlpha = 0.55; mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = (item.width * pScale) + 6; mCtx.lineCap = 'round'; mCtx.lineJoin = 'round';
                     drawPath(); mCtx.stroke();
                 }
                 if (!overlayOnly) {
@@ -5569,7 +5623,7 @@
                     if (!item.closed && capEnd !== 'butt') { mCtx.lineWidth = endWidth; mCtx.beginPath(); mCtx.moveTo(previous.x, previous.y); mCtx.lineTo(end.x, end.y); mCtx.lineCap = capEnd; mCtx.stroke(); }
                 }
                 if (!contentOnly && t === 1 && currentTool === 'select' && isSelected) {
-                    mCtx.globalAlpha = 1; mCtx.fillStyle = 'var(--c-9a9)'; mCtx.strokeStyle = 'var(--c-fff)'; mCtx.lineWidth = 1.5;
+                    mCtx.globalAlpha = 1; mCtx.fillStyle = DIM_HEX; mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = 1.5;
                     [points[0], points[points.length - 1]].forEach(point => { mCtx.beginPath(); mCtx.arc(point.x, point.y, Math.max(5, item.width * pScale / 2 + 3), 0, Math.PI * 2); mCtx.fill(); mCtx.stroke(); });
                 }
                 mCtx.globalAlpha = 1;
@@ -5649,22 +5703,22 @@
                 const pts = [corners.tl, corners.tr, corners.br, corners.bl];
                 // BBox外枠：白い下敷き線 + 青破線
                 mCtx.globalAlpha = 0.6;
-                mCtx.strokeStyle = 'var(--c-fff)'; mCtx.lineWidth = 2.5; mCtx.setLineDash([]);
+                mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = 2.5; mCtx.setLineDash([]);
                 mCtx.beginPath(); mCtx.moveTo(pts[0].x, pts[0].y);
                 pts.forEach(p => mCtx.lineTo(p.x, p.y)); mCtx.closePath(); mCtx.stroke();
                 mCtx.globalAlpha = 1;
                 mCtx.setLineDash([5, 4]);
-                mCtx.strokeStyle = 'var(--c-9a9)'; mCtx.lineWidth = 1.5;
+                mCtx.strokeStyle = DIM_HEX; mCtx.lineWidth = 1.5;
                 mCtx.beginPath(); mCtx.moveTo(pts[0].x, pts[0].y);
                 pts.forEach(p => mCtx.lineTo(p.x, p.y)); mCtx.closePath(); mCtx.stroke();
                 mCtx.setLineDash([]);
                 // 四隅ハンドル（白縁付きで見やすく）
                 [corners.tl, corners.tr, corners.bl, corners.br].forEach(p => {
                     mCtx.beginPath(); mCtx.arc(p.x, p.y, 7, 0, Math.PI * 2);
-                    mCtx.fillStyle = 'var(--c-fff)'; mCtx.fill();
-                    mCtx.strokeStyle = 'var(--c-9a9)'; mCtx.lineWidth = 2; mCtx.stroke();
+                    mCtx.fillStyle = LINE_HEX; mCtx.fill();
+                    mCtx.strokeStyle = DIM_HEX; mCtx.lineWidth = 2; mCtx.stroke();
                     mCtx.beginPath(); mCtx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-                    mCtx.fillStyle = 'var(--c-9a9)'; mCtx.fill();
+                    mCtx.fillStyle = DIM_HEX; mCtx.fill();
                 });
                 // 回転ハンドル
                 const topMid = { x: (corners.tl.x + corners.tr.x) / 2, y: (corners.tl.y + corners.tr.y) / 2 };
@@ -5674,18 +5728,18 @@
                     y: topMid.y + Math.sin(edgeAngle - Math.PI / 2) * 32
                 };
                 mCtx.globalAlpha = 0.6;
-                mCtx.strokeStyle = 'var(--c-fff)'; mCtx.lineWidth = 2.5;
+                mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = 2.5;
                 mCtx.beginPath(); mCtx.moveTo(topMid.x, topMid.y); mCtx.lineTo(rotHandleActual.x, rotHandleActual.y); mCtx.stroke();
                 mCtx.globalAlpha = 1;
-                mCtx.strokeStyle = 'var(--c-9a9)'; mCtx.lineWidth = 1.5;
+                mCtx.strokeStyle = DIM_HEX; mCtx.lineWidth = 1.5;
                 mCtx.beginPath(); mCtx.moveTo(topMid.x, topMid.y); mCtx.lineTo(rotHandleActual.x, rotHandleActual.y); mCtx.stroke();
                 // 回転ハンドル丸
                 mCtx.beginPath(); mCtx.arc(rotHandleActual.x, rotHandleActual.y, 7, 0, Math.PI * 2);
-                mCtx.fillStyle = 'var(--c-fff)'; mCtx.fill();
-                mCtx.strokeStyle = 'var(--c-9a9)'; mCtx.lineWidth = 2; mCtx.stroke();
+                mCtx.fillStyle = LINE_HEX; mCtx.fill();
+                mCtx.strokeStyle = DIM_HEX; mCtx.lineWidth = 2; mCtx.stroke();
                 // 回転アイコン（弧）
                 mCtx.beginPath(); mCtx.arc(rotHandleActual.x, rotHandleActual.y, 3.5, 0, Math.PI * 1.5);
-                mCtx.strokeStyle = 'var(--c-9a9)'; mCtx.lineWidth = 1.5; mCtx.stroke();
+                mCtx.strokeStyle = DIM_HEX; mCtx.lineWidth = 1.5; mCtx.stroke();
             }
         }
 
@@ -5732,7 +5786,7 @@
                     mCtx.globalAlpha = 1;
                     mCtx.beginPath(); mCtx.arc(x1, y1, 6, 0, Math.PI * 2);
                     mCtx.fillStyle = '#ff3333'; mCtx.fill();
-                    mCtx.strokeStyle = 'var(--c-fff)'; mCtx.lineWidth = 2; mCtx.stroke();
+                    mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = 2; mCtx.stroke();
                     if (item.closed) {
                         const directions = getClosedLineDirectionTargets(item);
                         const loopCenter = item.lines.reduce((center, line) => ({
@@ -5766,7 +5820,7 @@
                             mCtx.lineTo(tipX - ux * (selected ? 10 : 8) + uy * (selected ? 6 : 5), tipY - uy * (selected ? 10 : 8) - ux * (selected ? 6 : 5));
                             mCtx.closePath(); mCtx.fill();
                             if (selected) {
-                                mCtx.strokeStyle = 'var(--c-fff)'; mCtx.lineWidth = 1.5;
+                                mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = 1.5;
                                 mCtx.beginPath(); mCtx.arc(tipX, tipY, 7, 0, Math.PI * 2); mCtx.stroke();
                             }
                             mCtx.restore();
@@ -5852,7 +5906,7 @@
                         mCtx.globalAlpha = 1;
                         mCtx.beginPath(); mCtx.arc(x1, y1, 6, 0, Math.PI * 2);
                         mCtx.fillStyle = '#ff3333'; mCtx.fill();
-                        mCtx.strokeStyle = 'var(--c-fff)'; mCtx.lineWidth = 2; mCtx.stroke();
+                        mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = 2; mCtx.stroke();
                     };
 
                     components.forEach(indices => {
@@ -6711,7 +6765,7 @@
                 render(animT, true);
             } else {
                 pendingClear = false; // 矩形ドラッグが始まったので選択解除はキャンセル
-                currentX = pos.x; currentY = pos.y; uiCtx.setTransform(scale*(window.devicePixelRatio||1),0,0,scale*(window.devicePixelRatio||1),0,0); uiCtx.clearRect(0, 0, uiCanvas.width/(scale*(window.devicePixelRatio||1)), uiCanvas.height/(scale*(window.devicePixelRatio||1))); uiCtx.setLineDash([5, 5]); uiCtx.strokeStyle = SELECT_BOX_HEX; uiCtx.strokeRect(startX, startY, currentX - startX, currentY - startY); uiCtx.setLineDash([]);
+                currentX = pos.x; currentY = pos.y; uiCtx.setTransform(scale*(window.devicePixelRatio||1),0,0,scale*(window.devicePixelRatio||1),0,0); uiCtx.clearRect(0, 0, uiCanvas.width/(scale*(window.devicePixelRatio||1)), uiCanvas.height/(scale*(window.devicePixelRatio||1))); uiCtx.setLineDash([5, 5]); uiCtx.lineWidth = 1.5; uiCtx.strokeStyle = SELECT_BOX_HEX; uiCtx.strokeRect(startX, startY, currentX - startX, currentY - startY); uiCtx.setLineDash([]);
             }
         }
     }
@@ -9846,6 +9900,10 @@ ${layersSVG}
         const sheet = document.getElementById('mobile-prop-sheet');
         if (!sheet) return;
         const first = selectedItems[0];
+        // グループの場合は最初の子線をプロパティ参照に使う（showPropPanelと同じ解決ロジック）。
+        // これをしないと、グループ自体にはcolor/opacity/width等が無いため既定値にフォールバックし、
+        // 実際の線の値と異なる表示になってしまう。
+        const firstLine = (first.type === 'group' && !first.continuous && first.lines && first.lines.length > 0) ? first.lines[0] : first;
         const mpNameRow = document.getElementById('mp-name-row');
         const mpNameInput = document.getElementById('mp-name-input');
         if (mpNameRow && mpNameInput) {
@@ -9856,18 +9914,18 @@ ${layersSVG}
                 mpNameRow.style.display = 'none';
             }
         }
-        const parsed = parseColorToHexAlpha(first.color || 'var(--c-fff)');
+        const parsed = parseColorToHexAlpha(firstLine.color || 'var(--c-fff)');
         document.getElementById('mp-color-swatch').style.background = parsed.hex;
         document.getElementById('mp-color-input').value = parsed.hex;
         document.getElementById('mp-color-hex').value = parsed.hex;
-        const op = first.opacity !== undefined ? first.opacity : 100;
+        const op = firstLine.opacity !== undefined ? firstLine.opacity : 100;
         document.getElementById('mp-opacity-slider').value = op;
         document.getElementById('mp-opacity-val').textContent = op + '%';
-        const w = first.width || 2;
+        const w = firstLine.width || 2;
         document.getElementById('mp-width-val').textContent = w;
         document.getElementById('mp-width-slider').value = w;
-        const cs = first.lineCapStart || first.lineCap || 'round';
-        const ce = first.lineCapEnd   || first.lineCap || 'round';
+        const cs = firstLine.lineCapStart || firstLine.lineCap || 'round';
+        const ce = firstLine.lineCapEnd   || firstLine.lineCap || 'round';
         document.getElementById('mp-cap-start-val').value = cs;
         document.getElementById('mp-cap-end-val').value   = ce;
         const startBtn = document.getElementById('mp-cap-start-btn');
@@ -10190,6 +10248,11 @@ ${layersSVG}
                     if (e.key === 'Escape') { e.preventDefault(); homeCloseHelpModal(); }
                     return;
                 }
+                const noticeModal = document.getElementById('notice-modal');
+                if (noticeModal && noticeModal.style.display !== 'none') {
+                    if (e.key === 'Escape') { e.preventDefault(); homeCloseNoticeModal(); }
+                    return;
+                }
                 const changelogModal = document.getElementById('changelog-modal');
                 if (changelogModal && changelogModal.style.display !== 'none') {
                     if (e.key === 'Escape') { e.preventDefault(); homeCloseChangelogModal(); }
@@ -10238,16 +10301,123 @@ ${layersSVG}
             modal.style.display = 'none';
         }
     }
+    // ── お知らせ ──
+    // 配列の先頭が最新のお知らせ。新しいお知らせを追加する際はこの配列の先頭に追記する。
+    // id は既読判定に使うので、追加のたびに必ずユニークな値にすること。
+    const NOTICE_DATA = [
+        {
+            id: 'notice-1',
+            date: '2026.08.26',
+            title: 'お知らせ機能を追加しました',
+            text: 'お知らせ機能を追加しました。新機能の追加など、大事な情報はここでお知らせします。'
+        }
+    ];
+    // 一覧で表示する本文の抜粋の最大文字数
+    const NOTICE_SNIPPET_LENGTH = 40;
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    function renderNoticeList() {
+        const list = document.getElementById('notice-items-list');
+        if (!list) return;
+        if (NOTICE_DATA.length === 0) {
+            list.innerHTML = '<div style="font-size:12px; color:var(--c-9a9);">現在お知らせはありません</div>';
+            return;
+        }
+        list.innerHTML = NOTICE_DATA.map(function(n) {
+            const snippet = n.text.length > NOTICE_SNIPPET_LENGTH ? n.text.slice(0, NOTICE_SNIPPET_LENGTH) + '…' : n.text;
+            return '<div onclick="noticeShowDetail(\'' + n.id + '\')" style="cursor:pointer; padding:10px 12px; border:1px solid var(--c-fff); border-radius:var(--radius); transition:background 0.15s;" onmouseover="this.style.background=\'var(--c-141)\'" onmouseout="this.style.background=\'transparent\'">' +
+                '<div style="font-size:11px; color:var(--accent); font-weight:bold; margin-bottom:4px;">' + escapeHtml(n.date) + '</div>' +
+                '<div style="font-size:13px; font-weight:bold; color:var(--c-fff); margin-bottom:4px;">' + escapeHtml(n.title || '') + '</div>' +
+                '<div style="font-size:12px; color:var(--c-c5c); line-height:1.6;">' + escapeHtml(snippet) + '</div>' +
+            '</div>';
+        }).join('');
+    }
+    function noticeShowDetail(id) {
+        const item = NOTICE_DATA.find(function(n) { return n.id === id; });
+        if (!item) return;
+        const dateEl = document.getElementById('notice-detail-date');
+        const titleEl = document.getElementById('notice-detail-title');
+        const textEl = document.getElementById('notice-detail-text');
+        if (dateEl) dateEl.textContent = item.date;
+        if (titleEl) titleEl.textContent = item.title || '';
+        if (textEl) textEl.textContent = item.text;
+        const listView = document.getElementById('notice-list-view');
+        const detailView = document.getElementById('notice-detail-view');
+        if (listView) listView.style.display = 'none';
+        if (detailView) detailView.style.display = 'block';
+    }
+    function noticeShowListView() {
+        const listView = document.getElementById('notice-list-view');
+        const detailView = document.getElementById('notice-detail-view');
+        if (detailView) detailView.style.display = 'none';
+        if (listView) listView.style.display = 'block';
+    }
+    function homeShowNoticeModal() {
+        const modal = document.getElementById('notice-modal');
+        if (modal) {
+            renderNoticeList();
+            noticeShowListView();
+            modal.style.display = 'flex';
+        }
+        markNoticeSeen();
+    }
+    function homeCloseNoticeModal() {
+        const modal = document.getElementById('notice-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    // ── お知らせ 未読通知 ──
+    function updateNoticeNotifBadge() {
+        const latest = NOTICE_DATA[0] ? NOTICE_DATA[0].id : null;
+        const itemDot = document.getElementById('home-notice-notif-dot');
+        let isUnseen = false;
+        if (latest) {
+            let seen = null;
+            try { seen = localStorage.getItem('ducation-notice-seen'); } catch(e) {}
+            isUnseen = seen !== latest;
+        }
+        if (itemDot) itemDot.style.display = isUnseen ? 'block' : 'none';
+        updateHomeMenuMasterDot();
+    }
+    function markNoticeSeen() {
+        const latest = NOTICE_DATA[0] ? NOTICE_DATA[0].id : null;
+        if (!latest) return;
+        try { localStorage.setItem('ducation-notice-seen', latest); } catch(e) {}
+        updateNoticeNotifBadge();
+    }
+    // メニューのハンバーガーアイコン上の通知ドット。お知らせ・アップデートログのどちらかが未読なら表示する。
+    function updateHomeMenuMasterDot() {
+        const menuDot = document.getElementById('home-menu-notif-dot');
+        if (!menuDot) return;
+        const noticeDot = document.getElementById('home-notice-notif-dot');
+        const changelogDot = document.getElementById('home-changelog-notif-dot');
+        const anyUnseen = (noticeDot && noticeDot.style.display !== 'none') || (changelogDot && changelogDot.style.display !== 'none');
+        menuDot.style.display = anyUnseen ? 'block' : 'none';
+    }
+    document.addEventListener('DOMContentLoaded', updateNoticeNotifBadge);
     // ── アップデートログ ──
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
- 	{
-           	 version: 'Ver.1.1.2',
-            	items: [
-                	'カスタムテーマを追加',
-	'クレジットを追加'
-            	]
-        	},
+        {
+            version: 'Ver.1.2.3',
+            items: [
+                'ホーム画面のメニューにいろいろ追加',
+                'その他バグ修正'
+            ]
+        },
+        {
+            version: 'Ver.1.1.2',
+            items: [
+                'その他バグの修正'
+            ]
+        },
         {
             version: 'Ver.1.1.1',
             items: [
@@ -10286,6 +10456,7 @@ ${layersSVG}
             renderChangelogEntry();
             modal.style.display = 'flex';
         }
+        markChangelogSeen();
     }
     function homeCloseChangelogModal() {
         const modal = document.getElementById('changelog-modal');
@@ -10293,6 +10464,24 @@ ${layersSVG}
             modal.style.display = 'none';
         }
     }
+    // ── アップデートログ 未読通知 ──
+    function updateChangelogNotifBadge() {
+        const latest = CHANGELOG_DATA[0] ? CHANGELOG_DATA[0].version : null;
+        if (!latest) return;
+        let seen = null;
+        try { seen = localStorage.getItem('ducation-changelog-seen'); } catch(e) {}
+        const isUnseen = seen !== latest;
+        const itemDot = document.getElementById('home-changelog-notif-dot');
+        if (itemDot) itemDot.style.display = isUnseen ? 'block' : 'none';
+        updateHomeMenuMasterDot();
+    }
+    function markChangelogSeen() {
+        const latest = CHANGELOG_DATA[0] ? CHANGELOG_DATA[0].version : null;
+        if (!latest) return;
+        try { localStorage.setItem('ducation-changelog-seen', latest); } catch(e) {}
+        updateChangelogNotifBadge();
+    }
+    document.addEventListener('DOMContentLoaded', updateChangelogNotifBadge);
     function homeShowBugsModal() {
         const modal = document.getElementById('bugs-modal');
         if (modal) {
