@@ -101,9 +101,9 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                         使い方
                     </button>
-                    <button class="home-menu-item" onclick="homeCloseMenu(); homeShowCustomThemeModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-                        カスタムテーマ
+                    <button class="home-menu-item" onclick="homeCloseMenu(); homeShowSettingsModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        設定
                     </button>
                     <button class="home-menu-item" onclick="homeCloseMenu(); homeShowNoticeModal()" style="position:relative;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
@@ -313,12 +313,23 @@
 </div>
 
 
-<!-- カスタムテーマモーダル -->
-<div id="custom-theme-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseCustomThemeModal()">
+<!-- 設定モーダル -->
+<div id="settings-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseSettingsModal()">
     <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:400px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
-        <div style="font-size:16px; font-weight:bold; margin-bottom:6px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">カスタムテーマ</div>
+        <div style="font-size:16px; font-weight:bold; margin-bottom:6px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">設定</div>
         <div style="font-size:11px; color:var(--c-9a9); margin-bottom:20px; line-height:1.7;">
-            アプリ全体の差し色（アクセントカラー）を好きな色に変更できます。
+            アプリの見た目に関する設定です。
+        </div>
+
+        <div style="margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:14px;">
+            <div>
+                <div style="font-size:12px; color:var(--c-fff); margin-bottom:3px;">アップデートログの通知</div>
+                <div style="font-size:10px; color:var(--c-9a9); line-height:1.6;">新しいバージョンが公開されたときに、メニューアイコンへ通知を表示します。</div>
+            </div>
+            <label class="settings-switch">
+                <input type="checkbox" id="changelog-notif-toggle" onchange="setChangelogNotifEnabled(this.checked)">
+                <span class="settings-switch-track"><span class="settings-switch-thumb"></span></span>
+            </label>
         </div>
 
         <div style="margin-bottom:20px;">
@@ -363,23 +374,29 @@
             </div>
         </div>
 
-        <div style="margin-bottom:18px;">
-            <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">プリセット</div>
-            <div id="custom-theme-presets" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
-        </div>
-
         <div style="margin-bottom:22px;">
-            <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">カラーピッカー</div>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div id="custom-theme-swatch" onclick="document.getElementById('custom-theme-color-input').click()" style="width:36px; height:36px; border-radius:var(--radius); border:2px solid var(--c-fff); cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.4); background:var(--accent);"></div>
-                <input type="color" id="custom-theme-color-input" value="#d4ff3d" style="position:absolute; width:0; height:0; opacity:0; pointer-events:none;" oninput="customThemeSyncFromPicker(this.value)">
-                <input type="text" id="custom-theme-hex-input" value="#d4ff3d" maxlength="7" style="flex:1; box-sizing:border-box; background:var(--c-050); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-fff); font-size:13px; padding:8px 12px; outline:none; font-family:'JetBrains Mono', monospace;" onchange="customThemeSyncFromHex(this.value)">
+            <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">カスタムカラー</div>
+            <div style="border:1px solid var(--c-141); border-radius:var(--radius); padding:14px;">
+                <div style="font-size:11px; color:var(--c-9a9); margin-bottom:20px; line-height:1.7;">
+                    アプリ全体の差し色（アクセントカラー）を好きな色に変更できます。
+                </div>
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">プリセット</div>
+                    <div id="custom-theme-presets" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+                </div>
+                <div>
+                    <div style="font-size:11px; color:var(--c-9a9); margin-bottom:8px; letter-spacing:0.5px;">カラーピッカー</div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div id="custom-theme-swatch" onclick="document.getElementById('custom-theme-color-input').click()" style="width:36px; height:36px; border-radius:var(--radius); border:2px solid var(--c-fff); cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.4); background:var(--accent);"></div>
+                        <input type="color" id="custom-theme-color-input" value="#d4ff3d" style="position:absolute; width:0; height:0; opacity:0; pointer-events:none;" oninput="customThemeSyncFromPicker(this.value)">
+                        <input type="text" id="custom-theme-hex-input" value="#d4ff3d" maxlength="7" style="flex:1; box-sizing:border-box; background:var(--c-050); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-fff); font-size:13px; padding:8px 12px; outline:none; font-family:'JetBrains Mono', monospace;" onchange="customThemeSyncFromHex(this.value)">
+                    </div>
+                </div>
             </div>
         </div>
 
         <div style="display:flex; gap:10px; justify-content:flex-end;">
-            <button onclick="homeResetCustomTheme()" style="background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; padding:9px 18px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">デフォルトに戻す</button>
-            <button onclick="homeCloseCustomThemeModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
+            <button onclick="homeCloseSettingsModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">閉じる</button>
         </div>
     </div>
 </div>
@@ -2722,6 +2739,48 @@
         color: var(--c-9a9);
         letter-spacing: 0.3px;
         white-space: nowrap;
+    }
+
+    /* 設定モーダル：スイッチ（トグル） */
+    .settings-switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 22px;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+    .settings-switch input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .settings-switch-track {
+        position: absolute;
+        inset: 0;
+        background: var(--c-141);
+        border: 1px solid var(--c-fff);
+        border-radius: 999px;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .settings-switch-thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--c-9a9);
+        transition: transform 0.15s, background 0.15s;
+    }
+    .settings-switch input:checked + .settings-switch-track {
+        background: var(--accent);
+        border-color: var(--accent);
+    }
+    .settings-switch input:checked + .settings-switch-track .settings-switch-thumb {
+        transform: translateX(18px);
+        background: #000;
     }
     .home-menu-dropdown {
         display: none;
@@ -10324,9 +10383,9 @@ ${layersSVG}
                     if (e.key === 'Escape') { e.preventDefault(); homeCloseCustomElementModal(); }
                     return;
                 }
-                const customThemeModal = document.getElementById('custom-theme-modal');
+                const customThemeModal = document.getElementById('settings-modal');
                 if (customThemeModal && customThemeModal.style.display !== 'none') {
-                    if (e.key === 'Escape') { e.preventDefault(); homeCloseCustomThemeModal(); }
+                    if (e.key === 'Escape') { e.preventDefault(); homeCloseSettingsModal(); }
                     return;
                 }
                 const creditsModal = document.getElementById('credits-modal');
@@ -10533,13 +10592,30 @@ ${layersSVG}
         }
     }
     // ── アップデートログ 未読通知 ──
+    // 通知のオン/オフ設定（設定モーダルのスイッチ）。未設定時はオン扱い。
+    function isChangelogNotifEnabled() {
+        try {
+            const v = localStorage.getItem('ducation-changelog-notif-enabled');
+            return v === null ? true : v === '1';
+        } catch (e) { return true; }
+    }
+    function setChangelogNotifEnabled(enabled) {
+        try { localStorage.setItem('ducation-changelog-notif-enabled', enabled ? '1' : '0'); } catch (e) {}
+        updateChangelogNotifBadge();
+    }
+    function syncChangelogNotifToggle() {
+        const el = document.getElementById('changelog-notif-toggle');
+        if (el) el.checked = isChangelogNotifEnabled();
+    }
     function updateChangelogNotifBadge() {
         const latest = CHANGELOG_DATA[0] ? CHANGELOG_DATA[0].version : null;
-        if (!latest) return;
-        let seen = null;
-        try { seen = localStorage.getItem('ducation-changelog-seen'); } catch(e) {}
-        const isUnseen = seen !== latest;
         const itemDot = document.getElementById('home-changelog-notif-dot');
+        let isUnseen = false;
+        if (latest && isChangelogNotifEnabled()) {
+            let seen = null;
+            try { seen = localStorage.getItem('ducation-changelog-seen'); } catch(e) {}
+            isUnseen = seen !== latest;
+        }
         if (itemDot) itemDot.style.display = isUnseen ? 'block' : 'none';
         updateHomeMenuMasterDot();
     }
@@ -10674,20 +10750,6 @@ ${layersSVG}
         }
         applyCustomAccentColor(hex);
     }
-    function homeResetCustomTheme() {
-        document.documentElement.style.removeProperty('--accent');
-        document.documentElement.style.removeProperty('--accent-rgb');
-        try { localStorage.removeItem('ducation-custom-accent'); } catch(e) {}
-        const defaultHex = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d4ff3d';
-        const swatch = document.getElementById('custom-theme-swatch');
-        if (swatch) swatch.style.background = defaultHex;
-        const colorInput = document.getElementById('custom-theme-color-input');
-        if (colorInput) colorInput.value = defaultHex;
-        const hexInput = document.getElementById('custom-theme-hex-input');
-        if (hexInput) hexInput.value = defaultHex;
-        if (typeof refreshAccentColorCache === 'function') refreshAccentColorCache();
-        if (typeof redrawAllCanvases === 'function') redrawAllCanvases();
-    }
     function _buildCustomThemePresets() {
         const wrap = document.getElementById('custom-theme-presets');
         if (!wrap || wrap.childElementCount) return;
@@ -10715,9 +10777,10 @@ ${layersSVG}
             cb.checked = (cb.getAttribute('data-radius') === saved);
         });
     }
-    function homeShowCustomThemeModal() {
-        const modal = document.getElementById('custom-theme-modal');
+    function homeShowSettingsModal() {
+        const modal = document.getElementById('settings-modal');
         if (modal) {
+            syncChangelogNotifToggle();
             _buildCustomThemePresets();
             syncCustomThemeModeSwitch();
             syncCustomThemeRadiusSwitch();
@@ -10731,8 +10794,8 @@ ${layersSVG}
             modal.style.display = 'flex';
         }
     }
-    function homeCloseCustomThemeModal() {
-        const modal = document.getElementById('custom-theme-modal');
+    function homeCloseSettingsModal() {
+        const modal = document.getElementById('settings-modal');
         if (modal) {
             modal.style.display = 'none';
         }
