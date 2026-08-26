@@ -132,7 +132,7 @@
         <div class="home-grid" id="home-grid"></div>
     </div>
     <div style="position:fixed; left:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
-    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.2.2</div>
+    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.2.3</div>
 </div>
 <!-- 新規作成モーダル -->
 <div id="new-project-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNewProjectModal()">
@@ -258,7 +258,7 @@
             <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.2.2</span>
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.2.3</span>
             <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
@@ -10407,7 +10407,7 @@ ${layersSVG}
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
         {
-            version: 'Ver.1.2.2',
+            version: 'Ver.1.2.3',
             items: [
                 'ホーム画面のメニューにいろいろ追加',
                 'カスタムテーマを追加',
