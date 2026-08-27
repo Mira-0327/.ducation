@@ -151,7 +151,7 @@
         <div class="home-grid" id="home-grid"></div>
     </div>
     <div style="position:fixed; left:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
-    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.2.4.6</div>
+    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.3.4.7</div>
 </div>
 <!-- 新規作成モーダル -->
 <div id="new-project-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNewProjectModal()">
@@ -277,15 +277,15 @@
             <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.2.4.6</span>
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.3.4.7</span>
             <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
         </div>
 
         <ul id="changelog-items-list" style="margin:0 0 20px; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.8; flex:1; overflow-y:auto; min-height:0;">
-            <li>アニメーションモードを入場モードと退場モードに分けました</li>
-            <li>動画や連番PNGの書き出しを途中でキャンセルできるようにしました</li>
+            <li>アニメーションに回転を追加</li>
+            <li>退場モードのバグを修正</li>
         </ul>
 
         <div style="display:flex; justify-content:flex-end; flex-shrink:0;">
@@ -2117,6 +2117,8 @@
         white-space: nowrap; flex-direction: column; gap: 4px; min-width: 90px;
     }
     .tl-popup-submenu.open { display: flex; }
+    /* 画面右端に近く右側に開くとはみ出す場合、左側に開き直すためのクラス（JSで付与） */
+    .tl-popup-submenu.flip-left { left: auto; right: 100%; margin-left: 0; margin-right: 4px; }
     .tl-bar-resize-start {
         position: absolute; left: 0; top: 0; bottom: 0;
         width: 6px; cursor: ew-resize;
@@ -3669,6 +3671,8 @@
                         <label>X到着: <input type='number' id='prop-xOffsetEnd' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
                         <label>Y開始: <input type='number' id='prop-yOffset' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
                         <label>Y到着: <input type='number' id='prop-yOffsetEnd' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
+                        <label>回転開始: <input type='number' id='prop-rOffset' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
+                        <label>回転到着: <input type='number' id='prop-rOffsetEnd' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
                     </div>
                     <div style='margin-top:5px;'>
                         <div class='easing-label'>Zイージング</div>
@@ -3683,6 +3687,10 @@
                         <select id='prop-yEasing' class='easing-select' onchange='changePropEasing("y", this.value)'></select>
                         <div class='bezier-graph-wrap'><canvas class='bezier-graph-canvas' id='prop-yBezier-canvas' width='260' height='110'></canvas></div>
                         <div class='bezier-editor' id='prop-yBezier-editor'></div>
+                        <div class='easing-label'>回転イージング</div>
+                        <select id='prop-rEasing' class='easing-select' onchange='changePropEasing("r", this.value)'></select>
+                        <div class='bezier-graph-wrap'><canvas class='bezier-graph-canvas' id='prop-rBezier-canvas' width='260' height='110'></canvas></div>
+                        <div class='bezier-editor' id='prop-rBezier-editor'></div>
                         <div class='easing-label'>描画イージング</div>
                         <select id='prop-dEasing' class='easing-select' onchange='changePropEasing("d", this.value)'></select>
                         <div class='bezier-graph-wrap'><canvas class='bezier-graph-canvas' id='prop-dBezier-canvas' width='260' height='110'></canvas></div>
@@ -3709,6 +3717,7 @@
                 <button id='tl-track-z-btn' class='tl-track-btn' onclick="setTimelineTrack('z')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>Z移動</button>
                 <button id='tl-track-x-btn' class='tl-track-btn' onclick="setTimelineTrack('x')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>X移動</button>
                 <button id='tl-track-y-btn' class='tl-track-btn' onclick="setTimelineTrack('y')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>Y移動</button>
+                <button id='tl-track-r-btn' class='tl-track-btn' onclick="setTimelineTrack('r')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>回転</button>
             </div>
             <label style='margin-left:4px; display:flex; align-items:center; gap:5px; flex-shrink:0;'>
                 <span id='tl-zoom-label' style='font-size:10px; color:var(--c-9a9);'>縮尺</span>
@@ -3801,7 +3810,7 @@
     const playPauseBtn = document.getElementById('playPauseBtn');
 
     const EASING_PRESETS = { linear: [0, 0, 1, 1], easeIn: [0.42, 0, 1, 1], easeOut: [0, 0, 0.58, 1], easeInOut: [0.42, 0, 0.58, 1], sharp: [0.4, 0, 0.2, 1], smooth: [0.25, 0.1, 0.25, 1.0] };
-    const EASING_KEYS = ['z', 'x', 'y', 'd'];
+    const EASING_KEYS = ['z', 'x', 'y', 'r', 'd'];
     function easingPropertyKey(track) { return track + 'Easing'; }
     function easingBezierKey(track) { return track + 'Bezier'; }
     function clampBezierValue(value, index) {
@@ -3827,7 +3836,7 @@
         }
         return EASING_PRESETS.smooth;
     }
-    const HANDLE_TYPES = { NONE: 0, START_POINT: 1, END_POINT: 2, ROTATE: 3, BBOX_MOVE: 4, BBOX_TL: 5, BBOX_TR: 6, BBOX_BL: 7, BBOX_BR: 8, BBOX_ROTATE: 9 };
+    const HANDLE_TYPES = { NONE: 0, START_POINT: 1, END_POINT: 2, ROTATE: 3, BBOX_MOVE: 4, BBOX_TL: 5, BBOX_TR: 6, BBOX_BL: 7, BBOX_BR: 8, BBOX_ROTATE: 9, ROT_CENTER: 10 };
 
     let layers = [], activeLayerIndex = -1, drawing = false, scale = 1, penWidth = 2, currentMode = 'draw';
     // currentTab: 'draw' | 'enter' | 'exit' — どのタブボタンがアクティブかを保持する。
@@ -4070,10 +4079,11 @@
     // それらを一切変更せずに「入場用の値」と「退場用の値」を独立させるため、
     // 退場タブを表示している間だけ、退場用に退避してある値を一時的にトップレベルへ
     // 差し替え、退場タブを離れる際に入場用の値へ戻す、という単純なスワップ方式を取る。
-    const ANIM_SWAP_KEYS_COMMON = ['zOffset', 'xOffset', 'yOffset', 'zOffsetEnd', 'xOffsetEnd', 'yOffsetEnd',
-        'duration', 'drawDuration', 'xDuration', 'yDuration',
-        'zEasing', 'xEasing', 'yEasing', 'dEasing', 'zBezier', 'xBezier', 'yBezier', 'dBezier'];
-    const ANIM_SWAP_KEYS_ITEM_ONLY = ['zMids', 'xMids', 'yMids', 'drawMids', 'zStartFrame', 'xStartFrame', 'yStartFrame', 'drawStartFrame'];
+    const ANIM_SWAP_KEYS_COMMON = ['zOffset', 'xOffset', 'yOffset', 'rOffset', 'zOffsetEnd', 'xOffsetEnd', 'yOffsetEnd', 'rOffsetEnd',
+        'duration', 'drawDuration', 'xDuration', 'yDuration', 'rDuration',
+        'zEasing', 'xEasing', 'yEasing', 'rEasing', 'dEasing', 'zBezier', 'xBezier', 'yBezier', 'rBezier', 'dBezier',
+        'rCenterX', 'rCenterY'];
+    const ANIM_SWAP_KEYS_ITEM_ONLY = ['zMids', 'xMids', 'yMids', 'rMids', 'drawMids', 'zStartFrame', 'xStartFrame', 'yStartFrame', 'rStartFrame', 'drawStartFrame'];
     function _animSwapKeys(isItem) { return isItem ? ANIM_SWAP_KEYS_COMMON.concat(ANIM_SWAP_KEYS_ITEM_ONLY) : ANIM_SWAP_KEYS_COMMON; }
     function _cloneAnimVal(v) { return Array.isArray(v) ? v.map(x => (x && typeof x === 'object') ? Object.assign({}, x) : x) : v; }
     function _snapshotAnimKeys(obj, keys) {
@@ -4091,11 +4101,60 @@
         layers.forEach(layer => { fn(layer, false); (layer.items || []).forEach(item => fn(item, true)); });
     }
 
-    // ── 入場モード/退場モードで「線の連結（連結して扱う／グループ解除）」も独立させる仕組み ──
+    // ── 回転の中心（ピボット）を動かせるようにする仕組み ──
+    // 通常は回転の中心はキャンバス中央固定だが、アイテム（線・連結線グループ）が
+    // rCenterX/rCenterY を持つ場合はそちらを回転の中心として使う。
+    // 入場用/退場用は ANIM_SWAP_KEYS_COMMON に含めてあるので、モードごとに独立して保持される。
+    // 対象は「単体の線」と「連結線グループ（continuous）」のみ。連結していない
+    // グループは線ごとに独立して回転するため、グループ共通の中心という概念を持たない。
+    function isPivotEligibleItem(item) {
+        return !!item && (item.type !== 'group' || item.continuous);
+    }
+    function getPivotWorldPos(item) {
+        const cw = parseInt(document.getElementById('canvasWidth').value) || 800;
+        const ch = parseInt(document.getElementById('canvasHeight').value) || 400;
+        return {
+            x: (item && item.rCenterX !== undefined) ? item.rCenterX : cw / 2,
+            y: (item && item.rCenterY !== undefined) ? item.rCenterY : ch / 2
+        };
+    }
+    // 回転の中心そのものは、移動アニメーション（x/yオフセット）以外の影響を受けない
+    // （回転・拡縮は自分自身を中心に行われるため不動点になる）。そのため画面上の
+    // 位置を求めるにはx/yオフセットの現在値だけが分かればよい。
+    function getPivotAnimOffset(item, layer, tGlobal) {
+        const totalDuration = getTimelineRenderDuration();
+        const fps = getAnimationFPS();
+        const currentFrameNum = tGlobal * totalDuration * fps;
+        const xOffset = item.xOffset !== undefined ? item.xOffset : (layer.xOffset || 0);
+        const yOffset = item.yOffset !== undefined ? item.yOffset : (layer.yOffset || 0);
+        const xOffsetEnd = item.xOffsetEnd !== undefined ? item.xOffsetEnd : (layer.xOffsetEnd || 0);
+        const yOffsetEnd = item.yOffsetEnd !== undefined ? item.yOffsetEnd : (layer.yOffsetEnd || 0);
+        const xCurve = getEasingCurve(item, layer, 'x');
+        const yCurve = getEasingCurve(item, layer, 'y');
+        const xStartFrame = getTrackStartFrame(item, 'x');
+        const yStartFrame = getTrackStartFrame(item, 'y');
+        const xDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'x') * fps));
+        const yDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'y') * fps));
+        const currentXOffset = getPiecewiseValue(buildTrackKeyframes(item, 'x', xStartFrame, xStartFrame + xDurFrames, xOffset, xOffsetEnd), currentFrameNum, xCurve);
+        const currentYOffset = getPiecewiseValue(buildTrackKeyframes(item, 'y', yStartFrame, yStartFrame + yDurFrames, yOffset, yOffsetEnd), currentFrameNum, yCurve);
+        return { x: currentXOffset, y: currentYOffset };
+    }
+    function getPivotScreenPos(item, layer, tGlobal) {
+        const world = getPivotWorldPos(item);
+        const off = getPivotAnimOffset(item, layer, tGlobal);
+        return { x: world.x + off.x, y: world.y + off.y };
+    }
+
+    // ── 入場モード/退場モードでの「線の連結（連結して扱う／グループ解除）」の同期の仕組み ──
     // 「連結して扱う」は複数の線アイテムを1つの continuous なグループアイテムへ統合する“構造的な”
     // 操作で、上のアニメーション値スワップ（同じオブジェクトの一部プロパティだけを入れ替える方式）
     // では表現できない（アイテムの個数そのものが変わるため）。そのため連結状態については
     // レイヤーごとに layer.items 全体を丸ごと複製・退避し、タブ切替のたびに丸ごと差し替える。
+    // 連結状態は基本的に入場側と退場側で同期しており、入場側の連結・グループ解除がそのまま
+    // 退場側にも反映される。ただし退場タブ側で明示的に連結設定を変更した場合（connectSelectedLines /
+    // ungroupSelected / reverseSelectedContinuousLine）は、そのレイヤーの layer.__exitConnDesynced を
+    // 立てて以後の自動同期を止め、退場側で作った独自の連結構造を保持する（線の追加・削除のみ
+    // _syncLineExistence で引き続き同期する）。
     function _cloneLayerItems(items) {
         return JSON.parse(JSON.stringify(items || []));
     }
@@ -4114,11 +4173,63 @@
         });
         return remapped;
     }
-    // 現在の連結状態（入場用）を保存し、退場用の連結状態（無ければ現在の状態を複製）を適用する
+    // ── 描画モードで描いた/消した線を、入場/退場どちらのタブにも反映させる仕組み ──
+    // 上の「丸ごと退避・差し替え」方式だけだと、退場タブへ一度でも切り替えた後は
+    // __exitItems が固定されてしまい、その後に描画（または入場）タブで新しく描いた線・
+    // 削除した線が退場タブ側に一切反映されない不具合があった。
+    // ここでは「その線（id）が一方にしか存在しない」場合だけ追加・削除を同期し、
+    // 両方に既に存在する線の連結・グループ化状態（ユーザーが入場/退場で意図的に
+    // 別々に変えている可能性がある構造）には一切手を加えない。
+    function _flattenLeafLineItems(items) {
+        const out = [];
+        (items || []).forEach(it => {
+            if (it && it.type === 'group') { (it.lines || []).forEach(l => { if (l) out.push(l); }); }
+            else if (it) out.push(it);
+        });
+        return out;
+    }
+    function _leafIdSet(items) {
+        const set = new Set();
+        _flattenLeafLineItems(items).forEach(l => { if (l && l.id !== undefined && l.id !== null) set.add(l.id); });
+        return set;
+    }
+    function _topLevelLeafIds(topItem) {
+        if (topItem && topItem.type === 'group') return (topItem.lines || []).map(l => l && l.id).filter(id => id !== undefined && id !== null);
+        return (topItem && topItem.id !== undefined && topItem.id !== null) ? [topItem.id] : [];
+    }
+    function _syncLineExistence(sourceItems, targetItems) {
+        const source = sourceItems || [], target = targetItems || [];
+        const sourceLeafIds = _leafIdSet(source);
+        const targetLeafIds = _leafIdSet(target);
+        // ソース側に1本も残っていない（=消された）アイテムだけをターゲットから除外する
+        const kept = target.filter(it => {
+            const ids = _topLevelLeafIds(it);
+            if (ids.length === 0) return true;
+            return ids.some(id => sourceLeafIds.has(id));
+        });
+        // ターゲット側にまったく存在しない（=新しく描かれた）アイテムだけをそのまま複製して追加する
+        source.forEach(it => {
+            const ids = _topLevelLeafIds(it);
+            if (ids.length === 0) return;
+            if (!ids.some(id => targetLeafIds.has(id))) kept.push(JSON.parse(JSON.stringify(it)));
+        });
+        return kept;
+    }
+    // 現在の連結状態（入場用）を保存し、退場用の連結状態を適用する。
+    // 退場側でユーザーが「連結して扱う／グループ解除」等を行って連結設定を独自に
+    // 変更していない限り（__exitConnDesynced が立っていない限り）、退場用の連結状態は
+    // 入場用にそのまま追従させる（基本的に同期）。一度でも退場側で変更されたら、
+    // 以後はその独自構造を保ちつつ線の追加・削除だけを同期する（従来の挙動）。
     function _activateExitLineConnections() {
         layers.forEach(layer => {
-            layer.__enterItems = _cloneLayerItems(layer.items);
-            if (!layer.__exitItems) layer.__exitItems = _cloneLayerItems(layer.items);
+            const enterSnapshot = _cloneLayerItems(layer.items);
+            layer.__enterItems = enterSnapshot;
+            if (layer.__exitConnDesynced) {
+                if (!layer.__exitItems) layer.__exitItems = _cloneLayerItems(layer.items);
+                else layer.__exitItems = _syncLineExistence(enterSnapshot, layer.__exitItems);
+            } else {
+                layer.__exitItems = _cloneLayerItems(enterSnapshot);
+            }
             layer.items = _cloneLayerItems(layer.__exitItems);
         });
         if (typeof selectedItems !== 'undefined') selectedItems = _remapItemsAfterLineConnectionSwap(selectedItems);
@@ -4126,8 +4237,12 @@
     // 現在の連結状態（退場タブで編集された状態）を保存し、入場用の連結状態を復元する
     function _activateEnterLineConnections() {
         layers.forEach(layer => {
-            layer.__exitItems = _cloneLayerItems(layer.items);
-            if (layer.__enterItems) layer.items = _cloneLayerItems(layer.__enterItems);
+            const exitSnapshot = _cloneLayerItems(layer.items);
+            layer.__exitItems = exitSnapshot;
+            if (layer.__enterItems) {
+                layer.__enterItems = _syncLineExistence(exitSnapshot, layer.__enterItems);
+                layer.items = _cloneLayerItems(layer.__enterItems);
+            }
         });
         if (typeof selectedItems !== 'undefined') selectedItems = _remapItemsAfterLineConnectionSwap(selectedItems);
     }
@@ -4536,7 +4651,7 @@
         while (existing.has(`Layer ${n}`)) n++;
         return `Layer ${n}`;
     }
-    function addLayer() { saveState(); layers.push({ id: Date.now(), name: nextLayerName(), items: [], visible: true, angleStep: 45, angleOffset: 0, lengthStepX: 50, lengthStepY: 50, triSideA: 50, triSideB: 50, triSideC: 50, gridOffsetX: 0, gridOffsetY: 0, snapMode: 2, opacity: 100, zOffset: 0, xOffset: 0, yOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', dEasing: 'smooth' }); activeLayerIndex = layers.length - 1; render(); }
+    function addLayer() { saveState(); layers.push({ id: Date.now(), name: nextLayerName(), items: [], visible: true, angleStep: 45, angleOffset: 0, lengthStepX: 50, lengthStepY: 50, triSideA: 50, triSideB: 50, triSideC: 50, gridOffsetX: 0, gridOffsetY: 0, snapMode: 2, opacity: 100, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth' }); activeLayerIndex = layers.length - 1; render(); }
     function duplicateSelected() {
         if (selectedItems.length === 0) return;
         saveState();
@@ -5081,24 +5196,30 @@
             zStartFrame: getTrackStartFrame(first, 'z'),
             xStartFrame: getTrackStartFrame(first, 'x'),
             yStartFrame: getTrackStartFrame(first, 'y'),
+            rStartFrame: getTrackStartFrame(first, 'r'),
             duration: first.duration !== undefined ? first.duration : layer.duration,
             drawDuration: first.drawDuration !== undefined ? first.drawDuration : layer.drawDuration,
             xDuration: first.xDuration !== undefined ? first.xDuration : (layer.xDuration || layer.duration),
             yDuration: first.yDuration !== undefined ? first.yDuration : (layer.yDuration || layer.duration),
+            rDuration: first.rDuration !== undefined ? first.rDuration : (layer.rDuration || layer.duration),
             zOffset: first.zOffset !== undefined ? first.zOffset : layer.zOffset,
             xOffset: first.xOffset !== undefined ? first.xOffset : (layer.xOffset || 0),
             yOffset: first.yOffset !== undefined ? first.yOffset : (layer.yOffset || 0),
+            rOffset: first.rOffset !== undefined ? first.rOffset : (layer.rOffset || 0),
             zOffsetEnd: first.zOffsetEnd !== undefined ? first.zOffsetEnd : (layer.zOffsetEnd || 0),
             xOffsetEnd: first.xOffsetEnd !== undefined ? first.xOffsetEnd : (layer.xOffsetEnd || 0),
             yOffsetEnd: first.yOffsetEnd !== undefined ? first.yOffsetEnd : (layer.yOffsetEnd || 0),
+            rOffsetEnd: first.rOffsetEnd !== undefined ? first.rOffsetEnd : (layer.rOffsetEnd || 0),
             opacity: first.opacity !== undefined ? first.opacity : 100,
             zEasing: first.zEasing || layer.zEasing || 'smooth',
             xEasing: first.xEasing || layer.xEasing || 'smooth',
             yEasing: first.yEasing || layer.yEasing || 'smooth',
+            rEasing: first.rEasing || layer.rEasing || 'smooth',
             dEasing: first.dEasing || layer.dEasing || 'smooth',
             zBezier: first.zBezier ? [...first.zBezier] : undefined,
             xBezier: first.xBezier ? [...first.xBezier] : undefined,
             yBezier: first.yBezier ? [...first.yBezier] : undefined,
+            rBezier: first.rBezier ? [...first.rBezier] : undefined,
             dBezier: first.dBezier ? [...first.dBezier] : undefined,
             color: first.color, width: first.width,
             lineCapStart: first.lineCapStart || first.lineCap || 'round',
@@ -5304,7 +5425,7 @@
     function _applySelectedProps() {
         // saveState なしでプロパティだけ反映（スライダードラッグ中のリアルタイムプレビュー用）
         if (selectedItems.length === 0) return;
-        const props = { zOffset: parseFloat(document.getElementById('prop-zOffset').value), xOffset: parseFloat(document.getElementById('prop-xOffset').value), yOffset: parseFloat(document.getElementById('prop-yOffset').value), zOffsetEnd: parseFloat(document.getElementById('prop-zOffsetEnd').value), xOffsetEnd: parseFloat(document.getElementById('prop-xOffsetEnd').value), yOffsetEnd: parseFloat(document.getElementById('prop-yOffsetEnd').value), opacity: parseFloat(document.getElementById('prop-opacity').value), width: parseFloat(document.getElementById('prop-width').value), color: getPropColor(), zEasing: document.getElementById('prop-zEasing').value, xEasing: document.getElementById('prop-xEasing').value, yEasing: document.getElementById('prop-yEasing').value, dEasing: document.getElementById('prop-dEasing').value, lineCapStart: document.getElementById('prop-lineCapStart').value, lineCapEnd: document.getElementById('prop-lineCapEnd').value, lineCap: document.getElementById('prop-lineCapStart').value };
+        const props = { zOffset: parseFloat(document.getElementById('prop-zOffset').value), xOffset: parseFloat(document.getElementById('prop-xOffset').value), yOffset: parseFloat(document.getElementById('prop-yOffset').value), rOffset: parseFloat(document.getElementById('prop-rOffset').value), zOffsetEnd: parseFloat(document.getElementById('prop-zOffsetEnd').value), xOffsetEnd: parseFloat(document.getElementById('prop-xOffsetEnd').value), yOffsetEnd: parseFloat(document.getElementById('prop-yOffsetEnd').value), rOffsetEnd: parseFloat(document.getElementById('prop-rOffsetEnd').value), opacity: parseFloat(document.getElementById('prop-opacity').value), width: parseFloat(document.getElementById('prop-width').value), color: getPropColor(), zEasing: document.getElementById('prop-zEasing').value, xEasing: document.getElementById('prop-xEasing').value, yEasing: document.getElementById('prop-yEasing').value, rEasing: document.getElementById('prop-rEasing').value, dEasing: document.getElementById('prop-dEasing').value, lineCapStart: document.getElementById('prop-lineCapStart').value, lineCapEnd: document.getElementById('prop-lineCapEnd').value, lineCap: document.getElementById('prop-lineCapStart').value };
         EASING_KEYS.forEach(track => {
             if (document.getElementById('prop-' + track + 'Easing').value === 'custom') props[easingBezierKey(track)] = getBezierEditorValues(track);
         });
@@ -5602,9 +5723,11 @@
         document.getElementById('prop-zOffset').value = firstLine.zOffset || 0;
         document.getElementById('prop-xOffset').value = firstLine.xOffset || 0;
         document.getElementById('prop-yOffset').value = firstLine.yOffset || 0;
+        document.getElementById('prop-rOffset').value = firstLine.rOffset || 0;
         document.getElementById('prop-zOffsetEnd').value = firstLine.zOffsetEnd || 0;
         document.getElementById('prop-xOffsetEnd').value = firstLine.xOffsetEnd || 0;
         document.getElementById('prop-yOffsetEnd').value = firstLine.yOffsetEnd || 0;
+        document.getElementById('prop-rOffsetEnd').value = firstLine.rOffsetEnd || 0;
         const opacityVal = firstLine.opacity !== undefined ? firstLine.opacity : 100;
         document.getElementById('prop-opacity').value = opacityVal;
         document.getElementById('prop-opacity-slider').value = opacityVal;
@@ -5628,8 +5751,8 @@
         drawPropLinecapPreviews(pcs, pce);
         const propMarkerCountEl = document.getElementById('prop-markerCount');
         if (propMarkerCountEl) propMarkerCountEl.value = firstLine.markerCount || 0;
-        const zSelect = document.getElementById('prop-zEasing'), xSelect = document.getElementById('prop-xEasing'), ySelect = document.getElementById('prop-yEasing'), dSelect = document.getElementById('prop-dEasing');
-        [zSelect, xSelect, ySelect, dSelect].forEach(select => { select.innerHTML = Object.keys(EASING_PRESETS).map(k => `<option value='${k}'>${k}</option>`).join('') + '<option value="custom">custom</option>'; });
+        const zSelect = document.getElementById('prop-zEasing'), xSelect = document.getElementById('prop-xEasing'), ySelect = document.getElementById('prop-yEasing'), rSelect = document.getElementById('prop-rEasing'), dSelect = document.getElementById('prop-dEasing');
+        [zSelect, xSelect, ySelect, rSelect, dSelect].forEach(select => { select.innerHTML = Object.keys(EASING_PRESETS).map(k => `<option value='${k}'>${k}</option>`).join('') + '<option value="custom">custom</option>'; });
         EASING_KEYS.forEach(track => {
             const select = document.getElementById('prop-' + track + 'Easing');
             const custom = firstLine[easingBezierKey(track)];
@@ -5750,12 +5873,15 @@
             const zOffset = item.zOffset !== undefined ? item.zOffset : layer.zOffset;
             const xOffset = item.xOffset !== undefined ? item.xOffset : (layer.xOffset || 0);
             const yOffset = item.yOffset !== undefined ? item.yOffset : (layer.yOffset || 0);
+            const rOffset = item.rOffset !== undefined ? item.rOffset : (layer.rOffset || 0);
             const zOffsetEnd = item.zOffsetEnd !== undefined ? item.zOffsetEnd : (layer.zOffsetEnd || 0);
             const xOffsetEnd = item.xOffsetEnd !== undefined ? item.xOffsetEnd : (layer.xOffsetEnd || 0);
             const yOffsetEnd = item.yOffsetEnd !== undefined ? item.yOffsetEnd : (layer.yOffsetEnd || 0);
+            const rOffsetEnd = item.rOffsetEnd !== undefined ? item.rOffsetEnd : (layer.rOffsetEnd || 0);
             const zCurve = getEasingCurve(item, layer, 'z');
             const xCurve = getEasingCurve(item, layer, 'x');
             const yCurve = getEasingCurve(item, layer, 'y');
+            const rCurve = getEasingCurve(item, layer, 'r');
             const dCurve = getEasingCurve(item, layer, 'd');
             const itemOpacity = item.opacity !== undefined ? item.opacity : 100;
             const lineCapStart = item.lineCapStart || item.lineCap || 'round'; const lineCapEnd = item.lineCapEnd || item.lineCap || 'round';
@@ -5765,14 +5891,17 @@
             const zStartFrame = getTrackStartFrame(item, 'z');
             const xStartFrame = getTrackStartFrame(item, 'x');
             const yStartFrame = getTrackStartFrame(item, 'y');
+            const rStartFrame = getTrackStartFrame(item, 'r');
             const zDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'z') * fps));
             const xDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'x') * fps));
             const yDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'y') * fps));
+            const rDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'r') * fps));
             const drawStartFrame = getTrackStartFrame(item, 'draw');
             const drawDurFrames = Math.max(1, Math.round(drawDuration * fps));
             let currentZ = getPiecewiseValue(buildTrackKeyframes(item, 'z', zStartFrame, zStartFrame + zDurFrames, zOffset, zOffsetEnd), currentFrameNum, zCurve);
             const currentXOffset = getPiecewiseValue(buildTrackKeyframes(item, 'x', xStartFrame, xStartFrame + xDurFrames, xOffset, xOffsetEnd), currentFrameNum, xCurve);
             const currentYOffset = getPiecewiseValue(buildTrackKeyframes(item, 'y', yStartFrame, yStartFrame + yDurFrames, yOffset, yOffsetEnd), currentFrameNum, yCurve);
+            let currentR = getPiecewiseValue(buildTrackKeyframes(item, 'r', rStartFrame, rStartFrame + rDurFrames, rOffset, rOffsetEnd), currentFrameNum, rCurve);
             // 描画トラックも中間点(drawMids)を挟めるよう、x/y/zと同じ区分的補間を使う。
             // 中間点が無ければ従来通り 0→1 の単純な2点補間と完全に一致する。
             let localTdAnim = getPiecewiseValue(buildTrackKeyframes(item, 'draw', drawStartFrame, drawStartFrame + drawDurFrames, 0, 1), currentFrameNum, dCurve);
@@ -5786,7 +5915,19 @@
             mCtx.globalAlpha = (itemOpacity / 100);
             // サブピクセルにじみ防止: 座標をDPR単位で丸める
             const _snap = (v) => Math.round(v * _scaledDpr) / _scaledDpr;
-            const _tf = (wx, wy) => ({ x: _snap((wx - centerX) * pScale + centerX + currentXOffset), y: _snap((wy - centerY) * pScale + centerY + currentYOffset) });
+            // 回転(currentR, 度)は中心(_rcX, _rcY)基準で、拡縮(pScale)後・平行移動前に適用する。
+            // 中心は既定ではキャンバス中央(centerX, centerY)だが、アイテムが独自の
+            // 回転中心(rCenterX/rCenterY)を持つ場合はそちらを使う。
+            const _rcX = item.rCenterX !== undefined ? item.rCenterX : centerX;
+            const _rcY = item.rCenterY !== undefined ? item.rCenterY : centerY;
+            const _rRad = currentR * Math.PI / 180;
+            const _cosR = Math.cos(_rRad), _sinR = Math.sin(_rRad);
+            const _tfRaw = (wx, wy) => {
+                const dx0 = (wx - _rcX) * pScale, dy0 = (wy - _rcY) * pScale;
+                const rx = dx0 * _cosR - dy0 * _sinR, ry = dx0 * _sinR + dy0 * _cosR;
+                return { x: rx + _rcX + currentXOffset, y: ry + _rcY + currentYOffset };
+            };
+            const _tf = (wx, wy) => { const p = _tfRaw(wx, wy); return { x: _snap(p.x), y: _snap(p.y) }; };
             const x1 = _tf(item.x1, item.y1).x, y1 = _tf(item.x1, item.y1).y;
             const x2_full = _tf(item.x2, item.y2).x, y2_full = _tf(item.x2, item.y2).y;
             // 変形ツールのマーカー（曲げ点）を含む全経路を作り、描画進捗(localTdAnim)に応じて
@@ -5839,10 +5980,10 @@
 
             if (!overlayOnly) {
             if (needClip) {
-                const toScreen = (wx, wy) => [
-                    _snap((wx - centerX) * pScale + centerX),
-                    _snap((wy - centerY) * pScale + centerY)
-                ];
+                const toScreen = (wx, wy) => {
+                    const p = _tfRaw(wx, wy);
+                    return [_snap(p.x - currentXOffset), _snap(p.y - currentYOffset)];
+                };
 
                 // 両端の描画端点（butt延長、端点変形なし）
                 const sx1 = lineCapStart === 'butt' ? x1 - ux0*hw : x1;
@@ -6028,24 +6169,35 @@
             const _gZOffset = item.zOffset !== undefined ? item.zOffset : layer.zOffset;
             const _gXOffset = item.xOffset !== undefined ? item.xOffset : (layer.xOffset || 0);
             const _gYOffset = item.yOffset !== undefined ? item.yOffset : (layer.yOffset || 0);
+            const _gROffset = item.rOffset !== undefined ? item.rOffset : (layer.rOffset || 0);
             const _gZOffsetEnd = item.zOffsetEnd !== undefined ? item.zOffsetEnd : (layer.zOffsetEnd || 0);
             const _gXOffsetEnd = item.xOffsetEnd !== undefined ? item.xOffsetEnd : (layer.xOffsetEnd || 0);
             const _gYOffsetEnd = item.yOffsetEnd !== undefined ? item.yOffsetEnd : (layer.yOffsetEnd || 0);
+            const _gROffsetEnd = item.rOffsetEnd !== undefined ? item.rOffsetEnd : (layer.rOffsetEnd || 0);
             const _gCurrentFrameNum = t * totalDuration * fps;
             const _gZStartFrame = getTrackStartFrame(item, 'z');
             const _gXStartFrame = getTrackStartFrame(item, 'x');
             const _gYStartFrame = getTrackStartFrame(item, 'y');
+            const _gRStartFrame = getTrackStartFrame(item, 'r');
             const _gZDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'z') * fps));
             const _gXDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'x') * fps));
             const _gYDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'y') * fps));
+            const _gRDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'r') * fps));
             const currentZ = getPiecewiseValue(buildTrackKeyframes(item, 'z', _gZStartFrame, _gZStartFrame + _gZDurFrames, _gZOffset, _gZOffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'z'));
             const currentXOffset = getPiecewiseValue(buildTrackKeyframes(item, 'x', _gXStartFrame, _gXStartFrame + _gXDurFrames, _gXOffset, _gXOffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'x'));
             const currentYOffset = getPiecewiseValue(buildTrackKeyframes(item, 'y', _gYStartFrame, _gYStartFrame + _gYDurFrames, _gYOffset, _gYOffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'y'));
+            const currentR = getPiecewiseValue(buildTrackKeyframes(item, 'r', _gRStartFrame, _gRStartFrame + _gRDurFrames, _gROffset, _gROffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'r'));
             const pScale = 500 / Math.max(1, 500 + currentZ);
-            const toScreen = point => ({
-                x: (point.x - centerX) * pScale + centerX + currentXOffset,
-                y: (point.y - centerY) * pScale + centerY + currentYOffset,
-            });
+            // 回転中心: 既定はキャンバス中央(centerX, centerY)だが、グループ自身が
+            // 独自の回転中心(rCenterX/rCenterY)を持つ場合はそちらを使う。
+            const _grcX = item.rCenterX !== undefined ? item.rCenterX : centerX;
+            const _grcY = item.rCenterY !== undefined ? item.rCenterY : centerY;
+            const _gRRad = currentR * Math.PI / 180, _gCosR = Math.cos(_gRRad), _gSinR = Math.sin(_gRRad);
+            const toScreen = point => {
+                const dx0 = (point.x - _grcX) * pScale, dy0 = (point.y - _grcY) * pScale;
+                const rx = dx0 * _gCosR - dy0 * _gSinR, ry = dx0 * _gSinR + dy0 * _gCosR;
+                return { x: rx + _grcX + currentXOffset, y: ry + _grcY + currentYOffset };
+            };
             // 連結前に各線へ保存された曲げ点を連結後の経路にも引き継ぐ。
             // 同時に、線と線が単純につながっているだけの「継ぎ目」の位置を corners に記録する。
             // 継ぎ目は元々2本の別々の（まっすぐな）線の境界であり、スムージングの対象に
@@ -6251,9 +6403,11 @@
                 const zOffset = source.zOffset !== undefined ? source.zOffset : (fallback.zOffset || 0);
                 const xOffset = source.xOffset !== undefined ? source.xOffset : (fallback.xOffset || 0);
                 const yOffset = source.yOffset !== undefined ? source.yOffset : (fallback.yOffset || 0);
+                const rOffset = source.rOffset !== undefined ? source.rOffset : (fallback.rOffset || 0);
                 const zOffsetEnd = source.zOffsetEnd !== undefined ? source.zOffsetEnd : (fallback.zOffsetEnd || 0);
                 const xOffsetEnd = source.xOffsetEnd !== undefined ? source.xOffsetEnd : (fallback.xOffsetEnd || 0);
                 const yOffsetEnd = source.yOffsetEnd !== undefined ? source.yOffsetEnd : (fallback.yOffsetEnd || 0);
+                const rOffsetEnd = source.rOffsetEnd !== undefined ? source.rOffsetEnd : (fallback.rOffsetEnd || 0);
                 const _mFps = getAnimationFPS();
                 const _mCurrentFrame = markerTime * _mFps;
                 const valueFor = (track, startVal, endVal) => {
@@ -6268,11 +6422,26 @@
                 const currentZVal = valueFor('z', zOffset, zOffsetEnd);
                 const currentXVal = valueFor('x', xOffset, xOffsetEnd);
                 const currentYVal = valueFor('y', yOffset, yOffsetEnd);
+                const currentRVal = valueFor('r', rOffset, rOffsetEnd);
                 return {
                     scale: 500 / Math.max(1, 500 + currentZVal),
                     x: currentXVal,
-                    y: currentYVal
+                    y: currentYVal,
+                    rot: currentRVal * Math.PI / 180
                 };
+            };
+            // markerPosition() の scale/rot/x/y を使い、ワールド座標(px,py)をスクリーン座標へ変換する。
+            // drawLine/drawContinuousGroup の回転変換と同じ順序（拡縮→回転→平行移動）に揃える。
+            // pivotItem を渡した場合は、そのアイテムの回転中心(rCenterX/rCenterY、無ければ
+            // キャンバス中央)を使う。実際の描画（drawLine/drawContinuousGroup）と揃えることで、
+            // 回転中心をずらしたときにマーカーが線からずれないようにする。
+            const applyMarkerPos = (position, px, py, pivotItem = null) => {
+                const rcx = (pivotItem && pivotItem.rCenterX !== undefined) ? pivotItem.rCenterX : centerX2;
+                const rcy = (pivotItem && pivotItem.rCenterY !== undefined) ? pivotItem.rCenterY : centerY2;
+                const dx0 = (px - rcx) * position.scale, dy0 = (py - rcy) * position.scale;
+                const cosR = Math.cos(position.rot || 0), sinR = Math.sin(position.rot || 0);
+                const rx = dx0 * cosR - dy0 * sinR, ry = dx0 * sinR + dy0 * cosR;
+                return { x: rx + rcx + position.x, y: ry + rcy + position.y };
             };
             selectedItems.forEach(item => {
                 // 連結線の始点は連結パス全体で1つだけ。内部線の始点は表示しない。
@@ -6280,8 +6449,8 @@
                     const first = item.lines[0];
                     if (!first) return;
                     const position = markerPosition(item, first);
-                    const x1 = (first.x1 - centerX2) * position.scale + centerX2 + position.x;
-                    const y1 = (first.y1 - centerY2) * position.scale + centerY2 + position.y;
+                    const _p1 = applyMarkerPos(position, first.x1, first.y1, item);
+                    const x1 = _p1.x, y1 = _p1.y;
                     mCtx.globalAlpha = 1;
                     mCtx.beginPath(); mCtx.arc(x1, y1, 6, 0, Math.PI * 2);
                     mCtx.fillStyle = '#ff3333'; mCtx.fill();
@@ -6300,8 +6469,8 @@
                         const outwardLength = Math.hypot(outwardX, outwardY) || 1;
                         const outward = { x: outwardX / outwardLength, y: outwardY / outwardLength };
                         const drawDirectionArrow = (target, color, selected) => {
-                            const tx = (target.x - centerX2) * position.scale + centerX2 + position.x;
-                            const ty = (target.y - centerY2) * position.scale + centerY2 + position.y;
+                            const _pt = applyMarkerPos(position, target.x, target.y, item);
+                            const tx = _pt.x, ty = _pt.y;
                             const dx = tx - x1, dy = ty - y1;
                             const length = Math.hypot(dx, dy) || 1;
                             const ux = dx / length, uy = dy / length;
@@ -6400,8 +6569,8 @@
 
                     const drawDot = (line, xRaw, yRaw) => {
                         const position = markerPosition(line);
-                        const x1 = (xRaw - centerX2) * position.scale + centerX2 + position.x;
-                        const y1 = (yRaw - centerY2) * position.scale + centerY2 + position.y;
+                        const _pd = applyMarkerPos(position, xRaw, yRaw, line);
+                        const x1 = _pd.x, y1 = _pd.y;
                         mCtx.globalAlpha = 1;
                         mCtx.beginPath(); mCtx.arc(x1, y1, 6, 0, Math.PI * 2);
                         mCtx.fillStyle = '#ff3333'; mCtx.fill();
@@ -6437,6 +6606,25 @@
                         drawDot(chosen.line, chosen.x, chosen.y);
                     });
                 }
+            }
+
+            // 回転の中心（ピボット）マーカー: 1本の線、または連結線グループを1つだけ
+            // 選択している場合、その回転中心をドラッグ可能なマーカーとして表示する。
+            // （非連結グループは線ごとに独立して回転するため、共通の中心を持たず対象外）
+            if (selectedItems.length === 1 && isPivotEligibleItem(selectedItems[0])) {
+                const pivotItem = selectedItems[0];
+                const pivotWorld = { x: pivotItem.rCenterX !== undefined ? pivotItem.rCenterX : centerX2, y: pivotItem.rCenterY !== undefined ? pivotItem.rCenterY : centerY2 };
+                const pivotOff = markerPosition(pivotItem, pivotItem);
+                const _pvX = pivotWorld.x + pivotOff.x, _pvY = pivotWorld.y + pivotOff.y;
+                mCtx.save();
+                mCtx.globalAlpha = 1;
+                mCtx.strokeStyle = ACCENT_HEX; mCtx.lineWidth = 1.5;
+                mCtx.beginPath(); mCtx.moveTo(_pvX - 9, _pvY); mCtx.lineTo(_pvX + 9, _pvY); mCtx.stroke();
+                mCtx.beginPath(); mCtx.moveTo(_pvX, _pvY - 9); mCtx.lineTo(_pvX, _pvY + 9); mCtx.stroke();
+                mCtx.beginPath(); mCtx.arc(_pvX, _pvY, 6, 0, Math.PI * 2);
+                mCtx.fillStyle = LINE_HEX; mCtx.fill();
+                mCtx.strokeStyle = ACCENT_HEX; mCtx.lineWidth = 2; mCtx.stroke();
+                mCtx.restore();
             }
         }
 
@@ -6867,6 +7055,17 @@
             }
         }
         startX = pos.x; startY = pos.y; currentX = pos.x; currentY = pos.y; activeHandle = HANDLE_TYPES.NONE; handleTargetItem = null; originalSelectedState = null; handleSavedState = false;
+        // アニメモード: 回転の中心（ピボット）マーカーを掴んだかどうかを他の判定より先に調べる
+        if (currentMode === 'anim' && tool === 'select' && selectedItems.length === 1 && isPivotEligibleItem(selectedItems[0])) {
+            const pivotItem = selectedItems[0];
+            const pivotPos = getPivotScreenPos(pivotItem, layer, animT);
+            if (distPt(pos.x, pos.y, pivotPos.x, pivotPos.y) < 10) {
+                activeHandle = HANDLE_TYPES.ROT_CENTER;
+                handleTargetItem = pivotItem;
+                saveState(); handleSavedState = true;
+                return;
+            }
+        }
         if (currentMode === 'anim' && tool === 'select' && selectedItems.length > 0) {
             for (const item of selectedItems) {
                 if (item.type === 'group' && item.continuous) {
@@ -7048,6 +7247,23 @@
             return;
         }
         if (activeHandle !== HANDLE_TYPES.NONE) {
+            // 回転の中心（ピボット）ドラッグ: 唯一、アニメーションモードでも座標変更を許可する
+            if (activeHandle === HANDLE_TYPES.ROT_CENTER && handleTargetItem) {
+                const off = getPivotAnimOffset(handleTargetItem, layer, animT);
+                let nx = pos.x - off.x, ny = pos.y - off.y;
+                if (layer.snapMode == 3) {
+                    const tp = nearestTriGridPoint(nx, ny, layer);
+                    if (tp) { nx = tp.x; ny = tp.y; }
+                } else {
+                    const ox = layer.gridOffsetX||0, oy = layer.gridOffsetY||0;
+                    if (layer.lengthStepX > 0) nx = Math.round((nx - ox) / layer.lengthStepX) * layer.lengthStepX + ox;
+                    if (layer.lengthStepY > 0) ny = Math.round((ny - oy) / layer.lengthStepY) * layer.lengthStepY + oy;
+                }
+                handleTargetItem.rCenterX = nx;
+                handleTargetItem.rCenterY = ny;
+                render(animT, true);
+                return;
+            }
             // アニメーションモードでは座標変更を禁止
             if (currentMode === 'anim') return;
             if (!handleSavedState) { saveState(); handleSavedState = true; }
@@ -7271,6 +7487,14 @@
 
     function canvasUp(clientX, clientY) {
         if (!drawing) return; drawing = false;
+        // 回転の中心（ピボット）ドラッグの終了: 選択解除の再判定ロジック（線の近くでのタップ判定）を
+        // 経由すると、ピボットが線から離れた位置にある場合に誤って選択が外れてしまうため、
+        // ここで専用に後始末して抜ける。
+        if (activeHandle === HANDLE_TYPES.ROT_CENTER) {
+            activeHandle = HANDLE_TYPES.NONE; handleTargetItem = null; handleSavedState = false;
+            render(animT);
+            return;
+        }
         if ((document.querySelector('input[name="tool"]:checked') || {value:''}).value === 'transform') { draggingBend = null; render(animT); return; }
         if ((document.querySelector('input[name="tool"]:checked') || {value:''}).value === 'erase-obj') { isDraggingItems = false; render(animT); return; } uiCtx.setTransform(scale*(window.devicePixelRatio||1),0,0,scale*(window.devicePixelRatio||1),0,0); uiCtx.clearRect(0, 0, uiCanvas.width/(scale*(window.devicePixelRatio||1)), uiCanvas.height/(scale*(window.devicePixelRatio||1))); const tool = (document.querySelector('input[name="tool"]:checked') || {value:'pen'}).value;
         if (tool === 'pen') {
@@ -7281,7 +7505,7 @@
             const drawnColor = getLineColor();
             const capStart = document.getElementById('lineCapStart') ? document.getElementById('lineCapStart').value : 'round';
             const capEnd = document.getElementById('lineCapEnd') ? document.getElementById('lineCapEnd').value : 'round';
-            const newLine = { id: genItemId(), x1: startX, y1: startY, x2: currentX, y2: currentY, color: drawnColor, width: penWidth, zOffset: 0, xOffset: 0, yOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, opacity: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', dEasing: 'smooth', lineCap: capStart, lineCapStart: capStart, lineCapEnd: capEnd };
+            const newLine = { id: genItemId(), x1: startX, y1: startY, x2: currentX, y2: currentY, color: drawnColor, width: penWidth, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, opacity: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth', lineCap: capStart, lineCapStart: capStart, lineCapEnd: capEnd };
             // 連結モード: ON の場合、新しく描いた線の端点が既存線（または連結線）の
             // 自由端と重なっていれば、アニメーションモードの「連結して扱う」ボタンと
             // 同じ効果で自動的に1本の連結線として統合する。
@@ -7771,6 +7995,8 @@
         const connected = buildConnectedItem(orderedLines, layer, isClosed);
         layer.items = layer.items.filter(item => !selectedItems.includes(item));
         layer.items.push(connected);
+        // 退場モード側で連結設定を変更した場合は、以後この線について入場側との自動同期を止める
+        if (layer && currentMode === 'anim' && animSubMode === 'exit') layer.__exitConnDesynced = true;
         selectedItems = [connected];
         bboxRotation = 0;
         render(animT);
@@ -7845,6 +8071,9 @@
         if (!item) { alert('連結した線を1つ選択してください'); return; }
         saveState();
         reverseContinuousLine(item);
+        // 退場モード側で連結線の向きを変更した場合は、以後この線について入場側との自動同期を止める
+        const layer = layers[activeLayerIndex];
+        if (layer && currentMode === 'anim' && animSubMode === 'exit') layer.__exitConnDesynced = true;
         render(animT);
         renderTimeline();
     }
@@ -7852,14 +8081,18 @@
         saveState();
         const layer = layers[activeLayerIndex];
         const newSelected = [];
+        let ungroupedAny = false;
         selectedItems.forEach(item => {
             if (item.type === 'group') {
                 layer.items = layer.items.filter(it => it !== item);
                 item.lines.forEach(line => { layer.items.push(line); newSelected.push(line); });
+                ungroupedAny = true;
             } else {
                 newSelected.push(item);
             }
         });
+        // 退場モード側でグループ解除した場合は、以後この線について入場側との自動同期を止める
+        if (ungroupedAny && layer && currentMode === 'anim' && animSubMode === 'exit') layer.__exitConnDesynced = true;
         selectedItems = newSelected;
         bboxRotation = 0;
         render(animT);
@@ -9165,13 +9398,14 @@ ${layersSVG}
     };
 
     function getTrackStartFrame(item, track = tl.track) {
-        const key = track === 'z' ? 'zStartFrame' : track === 'x' ? 'xStartFrame' : track === 'y' ? 'yStartFrame' : 'drawStartFrame';
+        const key = track === 'z' ? 'zStartFrame' : track === 'x' ? 'xStartFrame' : track === 'y' ? 'yStartFrame' : track === 'r' ? 'rStartFrame' : 'drawStartFrame';
         return Math.max(0, parseInt(item[key] !== undefined ? item[key] : item.startFrame, 10) || 0);
     }
     function getTrackDuration(item, layer, track = tl.track) {
         const value = track === 'z' ? (item.duration !== undefined ? item.duration : layer.duration)
             : track === 'x' ? (item.xDuration !== undefined ? item.xDuration : (layer.xDuration || layer.duration))
             : track === 'y' ? (item.yDuration !== undefined ? item.yDuration : (layer.yDuration || layer.duration))
+            : track === 'r' ? (item.rDuration !== undefined ? item.rDuration : (layer.rDuration || layer.duration))
             : (item.drawDuration !== undefined ? item.drawDuration : layer.drawDuration);
         return Math.max(1 / tl.fps, parseFloat(value) || 1 / tl.fps);
     }
@@ -9192,8 +9426,8 @@ ${layersSVG}
             endVal = 1;
             easingTrack = 'd';
         } else {
-            const startKey = track === 'z' ? 'zOffset' : track === 'x' ? 'xOffset' : 'yOffset';
-            const endKey = track === 'z' ? 'zOffsetEnd' : track === 'x' ? 'xOffsetEnd' : 'yOffsetEnd';
+            const startKey = track === 'z' ? 'zOffset' : track === 'x' ? 'xOffset' : track === 'r' ? 'rOffset' : 'yOffset';
+            const endKey = track === 'z' ? 'zOffsetEnd' : track === 'x' ? 'xOffsetEnd' : track === 'r' ? 'rOffsetEnd' : 'yOffsetEnd';
             startVal = item[startKey] !== undefined ? item[startKey] : (layer[startKey] || 0);
             endVal = item[endKey] !== undefined ? item[endKey] : (layer[endKey] || 0);
             easingTrack = track;
@@ -9224,10 +9458,61 @@ ${layersSVG}
         tlMarkerPopupData = { item, track, frame, startFrame, endFrame };
         const popup = document.getElementById('tl-marker-popup');
         if (!popup) return;
+        closeAllTlPopupSubmenus();
         popup.style.left = clientX + 'px';
         popup.style.top = clientY + 'px';
         popup.style.display = 'flex';
+        // 画面端（特に右端・下端）でポップアップ自体が見切れないよう位置を補正する
+        clampElementToViewport(popup);
+    }
+    // 要素の表示位置が画面外にはみ出している場合、はみ出た分だけ
+    // left/top を押し戻して画面内に収める共通処理。
+    // position:fixed のポップアップ本体にも、position:absolute のサブメニューにも使える
+    // （どちらも「現在の left/top からの相対オフセット」として機能するため）。
+    function clampElementToViewport(el, margin) {
+        margin = margin == null ? 8 : margin;
+        const rect = el.getBoundingClientRect();
+        let dx = 0, dy = 0;
+        if (rect.left < margin) dx = margin - rect.left;
+        else if (rect.right > window.innerWidth - margin) dx = (window.innerWidth - margin) - rect.right;
+        if (rect.top < margin) dy = margin - rect.top;
+        else if (rect.bottom > window.innerHeight - margin) dy = (window.innerHeight - margin) - rect.bottom;
+        if (dx) el.style.left = (parseFloat(el.style.left) || 0) + dx + 'px';
+        if (dy) el.style.top = (parseFloat(el.style.top) || 0) + dy + 'px';
+    }
+    // サブメニュー（開始地点/終了地点/長さを揃える の▶先）を開き、
+    // 画面右端で右方向に開くとはみ出す場合は左側に開き直し、
+    // 上下にもはみ出さないよう位置を補正する。
+    function positionTlSubmenu(submenu) {
+        const margin = 8;
+        // まず左右方向: 一旦リセットして本来の右展開(left:100%)の幅で測り、
+        // 右端をはみ出すなら左展開(flip-left)に切り替える。
+        // ※ left/top は CSS の left:100% / top:0 を活かすため、水平方向には触れない。
+        submenu.classList.remove('flip-left');
+        submenu.style.top = '';
+        let rect = submenu.getBoundingClientRect();
+        if (rect.right > window.innerWidth - margin) {
+            submenu.classList.add('flip-left');
+            rect = submenu.getBoundingClientRect();
+        }
+        // 左展開に切り替えても、さらに左端をはみ出す（横幅が画面より広い等）場合は
+        // 已むを得ず右展開に戻す（どちらにせよ収まらないので、はみ出しが少ない方を優先）。
+        if (rect.left < margin) {
+            submenu.classList.remove('flip-left');
+            rect = submenu.getBoundingClientRect();
+        }
+        // 縦方向: 上下にはみ出す分だけ top を押し戻す（top:0 が起点なので加算方式でOK）。
+        let dy = 0;
+        if (rect.top < margin) dy = margin - rect.top;
+        else if (rect.bottom > window.innerHeight - margin) dy = (window.innerHeight - margin) - rect.bottom;
+        if (dy) submenu.style.top = dy + 'px';
+    }
+    function openTlSubmenu(id) {
         closeAllTlPopupSubmenus();
+        const submenu = document.getElementById(id);
+        if (!submenu) return;
+        submenu.classList.add('open');
+        positionTlSubmenu(submenu);
     }
     function closeTlMarkerPopup() {
         const popup = document.getElementById('tl-marker-popup');
@@ -9249,7 +9534,10 @@ ${layersSVG}
         if (!submenu) return;
         const wasOpen = submenu.classList.contains('open');
         closeAllTlPopupSubmenus();
-        if (!wasOpen) submenu.classList.add('open');
+        if (!wasOpen) {
+            submenu.classList.add('open');
+            positionTlSubmenu(submenu);
+        }
     }
     // 右クリックされたブロックが複数選択に含まれている場合、選択中の全アイテムを対象にする。
     // それ以外の場合は右クリックされたブロック単体のみを対象にする。
@@ -9267,7 +9555,7 @@ ${layersSVG}
         const d = tlMarkerPopupData;
         const track = d.track;
         const layer = layers[activeLayerIndex];
-        const durationField = { z: 'duration', x: 'xDuration', y: 'yDuration', draw: 'drawDuration' }[track];
+        const durationField = { z: 'duration', x: 'xDuration', y: 'yDuration', r: 'rDuration', draw: 'drawDuration' }[track];
         if (!layer || !durationField) { closeTlMarkerPopup(); return; }
         const items = getTlPopupTargetItems(d.item, layer);
         saveState();
@@ -9286,7 +9574,7 @@ ${layersSVG}
         const d = tlMarkerPopupData;
         const track = d.track;
         const layer = layers[activeLayerIndex];
-        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', draw: 'drawStartFrame' }[track];
+        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', r: 'rStartFrame', draw: 'drawStartFrame' }[track];
         if (!startField) { closeTlMarkerPopup(); return; }
         const items = getTlPopupTargetItems(d.item, layer);
         saveState();
@@ -9305,7 +9593,7 @@ ${layersSVG}
         const d = tlMarkerPopupData;
         const track = d.track;
         const layer = layers[activeLayerIndex];
-        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', draw: 'drawStartFrame' }[track];
+        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', r: 'rStartFrame', draw: 'drawStartFrame' }[track];
         if (!layer || !startField) { closeTlMarkerPopup(); return; }
         const fps = tl.fps;
         const items = getTlPopupTargetItems(d.item, layer);
@@ -9338,18 +9626,20 @@ ${layersSVG}
 
     function setTimelineTrack(track) {
         const prevTrack = tl.track;
-        tl.track = ['draw', 'z', 'x', 'y'].includes(track) ? track : 'draw';
+        tl.track = ['draw', 'z', 'x', 'y', 'r'].includes(track) ? track : 'draw';
         const drawBtn = document.getElementById('tl-track-draw-btn');
         const zBtn = document.getElementById('tl-track-z-btn');
         const xBtn = document.getElementById('tl-track-x-btn');
         const yBtn = document.getElementById('tl-track-y-btn');
-        if (drawBtn && zBtn && xBtn && yBtn) {
+        const rBtn = document.getElementById('tl-track-r-btn');
+        if (drawBtn && zBtn && xBtn && yBtn && rBtn) {
             Object.assign(drawBtn.style, tl.track === 'draw' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(zBtn.style, tl.track === 'z' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(xBtn.style, tl.track === 'x' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(yBtn.style, tl.track === 'y' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
+            Object.assign(rBtn.style, tl.track === 'r' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             if (prevTrack !== tl.track) {
-                const activeBtn = { draw: drawBtn, z: zBtn, x: xBtn, y: yBtn }[tl.track];
+                const activeBtn = { draw: drawBtn, z: zBtn, x: xBtn, y: yBtn, r: rBtn }[tl.track];
                 if (activeBtn) {
                     activeBtn.classList.remove('tl-track-btn-activate');
                     // リフローを挟んでクラスを再付与し、アニメーションを確実に再生させる
@@ -9376,7 +9666,7 @@ ${layersSVG}
                 if (!item) return;
                 if (item.type === 'group') {
                     if (item.continuous) {
-                        ['draw', 'z', 'x', 'y'].forEach(track => {
+                        ['draw', 'z', 'x', 'y', 'r'].forEach(track => {
                             maxEndFrame = Math.max(maxEndFrame, getTrackStartFrame(item, track) + Math.max(1, Math.round(getTrackDuration(item, layer, track) * fps)));
                         });
                         return;
@@ -9384,7 +9674,7 @@ ${layersSVG}
                     (item.lines || []).forEach(scanItem);
                     return;
                 }
-                ['draw', 'z', 'x', 'y'].forEach(track => {
+                ['draw', 'z', 'x', 'y', 'r'].forEach(track => {
                     maxEndFrame = Math.max(maxEndFrame, getTrackStartFrame(item, track) + Math.max(1, Math.round(getTrackDuration(item, layer, track) * fps)));
                 });
             };
@@ -9539,16 +9829,18 @@ ${layersSVG}
         // DOM再構築中にscrollイベントが飛ばないようロック
         tl._scrollLocked = true;
         const fps = tl.fps;
-        const trackLabel = ({ draw: '描画', z: 'Z移動', x: 'X移動', y: 'Y移動' })[tl.track] || '描画';
+        const trackLabel = ({ draw: '描画', z: 'Z移動', x: 'X移動', y: 'Y移動', r: '回転' })[tl.track] || '描画';
         const drawTrackBtn = document.getElementById('tl-track-draw-btn');
         const zTrackBtn = document.getElementById('tl-track-z-btn');
         const xTrackBtn = document.getElementById('tl-track-x-btn');
         const yTrackBtn = document.getElementById('tl-track-y-btn');
-        if (drawTrackBtn && zTrackBtn && xTrackBtn && yTrackBtn) {
+        const rTrackBtn = document.getElementById('tl-track-r-btn');
+        if (drawTrackBtn && zTrackBtn && xTrackBtn && yTrackBtn && rTrackBtn) {
             Object.assign(drawTrackBtn.style, tl.track === 'draw' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(zTrackBtn.style, tl.track === 'z' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(xTrackBtn.style, tl.track === 'x' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(yTrackBtn.style, tl.track === 'y' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
+            Object.assign(rTrackBtn.style, tl.track === 'r' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
         }
         const vf = parseInt(document.getElementById('timeline-view-frames').value) || 90;
         tl.viewFrames = vf;
@@ -9655,7 +9947,7 @@ ${layersSVG}
 
                 // 中間点マーカー（X/Y/Z移動トラックのみ）: 既存の中間点を描画し、
                 // ドラッグでフレーム移動、クリックで値編集、右クリックで削除できるようにする
-                if (['x', 'y', 'z', 'draw'].includes(tl.track) && Array.isArray(item[tl.track + 'Mids'])) {
+                if (['x', 'y', 'z', 'r', 'draw'].includes(tl.track) && Array.isArray(item[tl.track + 'Mids'])) {
                     const midKey = tl.track + 'Mids';
                     const midsArr = item[midKey];
                     midsArr.forEach((mid, midIdx) => {
@@ -9720,7 +10012,7 @@ ${layersSVG}
                     // 右クリックしてもブラウザ標準メニューが出る/中間点が置かれない
                     // という不具合があった。
                     e.preventDefault(); e.stopPropagation();
-                    if (!['x', 'y', 'z', 'draw'].includes(tl.track)) return;
+                    if (!['x', 'y', 'z', 'r', 'draw'].includes(tl.track)) return;
                     const rect = bar.getBoundingClientRect();
                     const clickFrame = Math.round(startFrame + (e.clientX - rect.left) / ppf);
                     // 右クリック＝即マーカー追加ではなく、ポップアップを表示して
@@ -9926,8 +10218,8 @@ ${layersSVG}
         const d = tl.dragging;
         const dx = e.clientX - d.startX;
         const dFrames = Math.round(dx / d.ppf);
-        const startKey = d.track === 'z' ? 'zStartFrame' : d.track === 'x' ? 'xStartFrame' : d.track === 'y' ? 'yStartFrame' : 'drawStartFrame';
-        const durationKey = d.track === 'z' ? 'duration' : d.track === 'x' ? 'xDuration' : d.track === 'y' ? 'yDuration' : 'drawDuration';
+        const startKey = d.track === 'z' ? 'zStartFrame' : d.track === 'x' ? 'xStartFrame' : d.track === 'y' ? 'yStartFrame' : d.track === 'r' ? 'rStartFrame' : 'drawStartFrame';
+        const durationKey = d.track === 'z' ? 'duration' : d.track === 'x' ? 'xDuration' : d.track === 'y' ? 'yDuration' : d.track === 'r' ? 'rDuration' : 'drawDuration';
 
         // 複数選択中は選択中の全アイテムを同量操作する
         // origMulti: ドラッグ開始時に記録した各アイテムの初期値
@@ -11196,6 +11488,12 @@ ${layersSVG}
     // id は既読判定に使うので、追加のたびに必ずユニークな値にすること。
     const NOTICE_DATA = [
         {
+            id: 'notice-5',
+            date: '2026.08.27',
+            title: 'Ver.3.4.7 新機能のお知らせ',
+            text: 'アニメーションに回転を追加しました。'
+        },
+        {
             id: 'notice-4',
             date: '2026.08.27',
             title: 'Ver.2.4.6 新機能のお知らせ',
@@ -11315,6 +11613,13 @@ ${layersSVG}
     // ── アップデートログ ──
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
+        {
+            version: 'Ver.3.4.7',
+            items: [
+                'アニメーションに回転を追加',
+                '退場モードのバグを修正'
+            ]
+        },
         {
             version: 'Ver.2.4.6',
             items: [
@@ -11439,16 +11744,13 @@ ${layersSVG}
         { text: 'ライトモード時、線を選択したときの表示が変（仕様の可能性があるので直せないかも）', level: 4 },
         { text: '変形ツールの挙動が想像と違うと思う（違うと思うんだけどどう？）', level: 4 },
         { text: '線の連結と変形が組み合わさった時変な挙動が起きやすい', level: 3 },
-        { text: 'タイムラインのブロックを右クリックしたときに出るポップアップが見切れることがある', level: 1 },
         { text: 'スマホ版のUIは多分使いにくいだろうと思うが、そういうフィードバックも来ていないので多分スマホでこのツール使う人って存在しない　もしくはあまりにもUIがひどすぎて既に使うのやめてる　もしそうだったらかなしい', level: 4 }
     ];
     // ── 追加したい要素 ──
     // level: 1=すぐ追加できそう 2=近いうちに追加できそう 3=時間がかかりそう 4=未定・時間がかかりそう
     const CUSTOM_ELEMENTS_DATA = [
         { text: '線の端の形に平行四辺形、四角形（ずっと同じ向きモード）などを追加する　実装が難しそう', level: 3 },
-        { text: '図形ツールの追加（とりあえず四角形、角だけ四角形、角丸四角形、円あたりを追加したい）', level: 3 },
-        { text: '線の退場アニメーションも作れるようにする（現時点でも中間点でどうにかなるのでやらないかも）', level: 4 },
-        { text: '線を回転できるようにしたいよね', level: 2 }
+        { text: '図形ツールの追加（とりあえず四角形、角だけ四角形、角丸四角形、円あたりを追加したい）', level: 3 }
     ];
     // 1〜4段階の目安メーター（塗りつぶし数が多いほど早く対応できそう）
     const FIX_LEVEL_META = {
@@ -11758,7 +12060,7 @@ ${layersSVG}
         document.querySelectorAll('.bg-preset-btn').forEach(b =>
             b.classList.toggle('active', b.dataset.color === '#000000'));
         // addLayer()はsaveState()を含むためここでは直接pushする
-        layers.push({ id: Date.now(), name: 'Layer 1', items: [], visible: true, angleStep: 45, angleOffset: 0, lengthStepX: 50, lengthStepY: 50, triSideA: 50, triSideB: 50, triSideC: 50, gridOffsetX: 0, gridOffsetY: 0, snapMode: 2, opacity: 100, zOffset: 0, xOffset: 0, yOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', dEasing: 'smooth' });
+        layers.push({ id: Date.now(), name: 'Layer 1', items: [], visible: true, angleStep: 45, angleOffset: 0, lengthStepX: 50, lengthStepY: 50, triSideA: 50, triSideB: 50, triSideC: 50, gridOffsetX: 0, gridOffsetY: 0, snapMode: 2, opacity: 100, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth' });
         activeLayerIndex = 0;
         render();
         saveState(); // アンドゥスタックに初期状態を積む
@@ -12203,7 +12505,7 @@ ${layersSVG}
 <div id='tl-marker-popup' style='display:none; flex-direction:column; gap:4px; position:fixed; z-index:2000000; transform:translate(-50%, -100%); margin-top:-10px; padding:6px; background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); box-shadow:0 8px 24px rgba(0,0,0,0.6); white-space:nowrap;'>
     <button onclick='confirmAddTlMarker()' class='tl-popup-item'>◆ マーカーを追加</button>
     <div class='tl-popup-submenu-wrap'
-         onmouseenter="closeAllTlPopupSubmenus(); document.getElementById('tl-match-length-submenu').classList.add('open')"
+         onmouseenter="openTlSubmenu('tl-match-length-submenu')"
          onmouseleave="document.getElementById('tl-match-length-submenu').classList.remove('open')">
         <button onclick="toggleTlSubmenu('tl-match-length-submenu', event)" class='tl-popup-item'><span>⇔ 長さを揃える</span><span>▶</span></button>
         <div id='tl-match-length-submenu' class='tl-popup-submenu'>
@@ -12211,10 +12513,11 @@ ${layersSVG}
             <button onclick="confirmMatchTlLength('z')" class='tl-popup-item'>z移動</button>
             <button onclick="confirmMatchTlLength('x')" class='tl-popup-item'>x移動</button>
             <button onclick="confirmMatchTlLength('y')" class='tl-popup-item'>y移動</button>
+            <button onclick="confirmMatchTlLength('r')" class='tl-popup-item'>回転</button>
         </div>
     </div>
     <div class='tl-popup-submenu-wrap'
-         onmouseenter="closeAllTlPopupSubmenus(); document.getElementById('tl-match-start-submenu').classList.add('open')"
+         onmouseenter="openTlSubmenu('tl-match-start-submenu')"
          onmouseleave="document.getElementById('tl-match-start-submenu').classList.remove('open')">
         <button onclick="toggleTlSubmenu('tl-match-start-submenu', event)" class='tl-popup-item'><span>⏮ 開始地点を揃える</span><span>▶</span></button>
         <div id='tl-match-start-submenu' class='tl-popup-submenu'>
@@ -12222,10 +12525,11 @@ ${layersSVG}
             <button onclick="confirmMatchTlStart('z')" class='tl-popup-item'>z移動</button>
             <button onclick="confirmMatchTlStart('x')" class='tl-popup-item'>x移動</button>
             <button onclick="confirmMatchTlStart('y')" class='tl-popup-item'>y移動</button>
+            <button onclick="confirmMatchTlStart('r')" class='tl-popup-item'>回転</button>
         </div>
     </div>
     <div class='tl-popup-submenu-wrap'
-         onmouseenter="closeAllTlPopupSubmenus(); document.getElementById('tl-match-end-submenu').classList.add('open')"
+         onmouseenter="openTlSubmenu('tl-match-end-submenu')"
          onmouseleave="document.getElementById('tl-match-end-submenu').classList.remove('open')">
         <button onclick="toggleTlSubmenu('tl-match-end-submenu', event)" class='tl-popup-item'><span>⏭ 終了地点を揃える</span><span>▶</span></button>
         <div id='tl-match-end-submenu' class='tl-popup-submenu'>
@@ -12233,6 +12537,7 @@ ${layersSVG}
             <button onclick="confirmMatchTlEnd('z')" class='tl-popup-item'>z移動</button>
             <button onclick="confirmMatchTlEnd('x')" class='tl-popup-item'>x移動</button>
             <button onclick="confirmMatchTlEnd('y')" class='tl-popup-item'>y移動</button>
+            <button onclick="confirmMatchTlEnd('r')" class='tl-popup-item'>回転</button>
         </div>
     </div>
     <div style='position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid var(--c-fff);'></div>
