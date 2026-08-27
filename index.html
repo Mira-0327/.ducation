@@ -151,7 +151,7 @@
         <div class="home-grid" id="home-grid"></div>
     </div>
     <div style="position:fixed; left:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
-    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.1.4.5</div>
+    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.2.4.6</div>
 </div>
 <!-- 新規作成モーダル -->
 <div id="new-project-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNewProjectModal()">
@@ -277,16 +277,15 @@
             <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.1.4.5</span>
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.2.4.6</span>
             <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
         </div>
 
         <ul id="changelog-items-list" style="margin:0 0 20px; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.8; flex:1; overflow-y:auto; min-height:0;">
-            <li>タイムラインのブロック上で右クリックをすると、他処理のブロック設定に揃えることができるようになりました</li>
-            <li>最大120FPSに対応</li>
-            <li>その他使いやすさの向上</li>
+            <li>アニメーションモードを入場モードと退場モードに分けました</li>
+            <li>動画や連番PNGの書き出しを途中でキャンセルできるようにしました</li>
         </ul>
 
         <div style="display:flex; justify-content:flex-end; flex-shrink:0;">
@@ -3296,8 +3295,9 @@
                 <button class='undo-redo-btn undo-btn' onclick='undo()' title='アンドゥ (Ctrl+Z)'>←</button>
                 <button class='undo-redo-btn redo-btn' onclick='redo()' title='リドゥ (Ctrl+Y)'>→</button>
             </div>
-            <button class='tab-btn active' onclick='switchMode("draw")'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span class='tab-label'> 描画モード</span></button>
-            <button class='tab-btn' onclick='switchMode("anim")'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg><span class='tab-label'> アニメーションモード</span></button>
+            <button id='tab-btn-draw' class='tab-btn active' onclick='switchMode("draw")'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span class='tab-label'> 描画モード</span></button>
+            <button id='tab-btn-enter' class='tab-btn' onclick='switchMode("enter")'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg><span class='tab-label'> 入場モード</span></button>
+            <button id='tab-btn-exit' class='tab-btn' onclick='switchMode("exit")'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg><span class='tab-label'> 退場モード</span></button>
             <button class='tab-btn' onclick='toggleShortcutHelp()' title='キーボードショートカット一覧' style='font-size:13px; padding:6px 10px;' id='shortcut-btn'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></button>
         </div>
         <div id='shortcut-help' style='display:none; position:absolute; top:48px; left:15px; z-index:9999;
@@ -3830,6 +3830,12 @@
     const HANDLE_TYPES = { NONE: 0, START_POINT: 1, END_POINT: 2, ROTATE: 3, BBOX_MOVE: 4, BBOX_TL: 5, BBOX_TR: 6, BBOX_BL: 7, BBOX_BR: 8, BBOX_ROTATE: 9 };
 
     let layers = [], activeLayerIndex = -1, drawing = false, scale = 1, penWidth = 2, currentMode = 'draw';
+    // currentTab: 'draw' | 'enter' | 'exit' — どのタブボタンがアクティブかを保持する。
+    // currentMode は既存コード全体で 'draw' / 'anim' の2値として参照され続けるため、
+    // 「入場モード」「退場モード」はどちらも内部的には currentMode = 'anim' のまま扱い、
+    // animSubMode で入場/退場を区別する。
+    let currentTab = 'draw';
+    let animSubMode = 'enter';
     // ── プロジェクト管理 ──
     const LS_KEY = 'kyk_projects_v1';
     let _currentProjectId = null;
@@ -4053,23 +4059,112 @@
         return result;
     }
 
+    // ── 入場モード/退場モードで独立したアニメーション値を持たせる仕組み ──
+    // レイヤー・線(item)が持つアニメーション関連プロパティ（移動量・時間・イージング・
+    // 中間点・開始フレームなど）は、既存コード全体でトップレベルのプロパティとして
+    // 直接読み書きされている（レンダリング・タイムラインUI・プロパティパネル等）。
+    // それらを一切変更せずに「入場用の値」と「退場用の値」を独立させるため、
+    // 退場タブを表示している間だけ、退場用に退避してある値を一時的にトップレベルへ
+    // 差し替え、退場タブを離れる際に入場用の値へ戻す、という単純なスワップ方式を取る。
+    const ANIM_SWAP_KEYS_COMMON = ['zOffset', 'xOffset', 'yOffset', 'zOffsetEnd', 'xOffsetEnd', 'yOffsetEnd',
+        'duration', 'drawDuration', 'xDuration', 'yDuration',
+        'zEasing', 'xEasing', 'yEasing', 'dEasing', 'zBezier', 'xBezier', 'yBezier', 'dBezier'];
+    const ANIM_SWAP_KEYS_ITEM_ONLY = ['zMids', 'xMids', 'yMids', 'drawMids', 'zStartFrame', 'xStartFrame', 'yStartFrame', 'drawStartFrame'];
+    function _animSwapKeys(isItem) { return isItem ? ANIM_SWAP_KEYS_COMMON.concat(ANIM_SWAP_KEYS_ITEM_ONLY) : ANIM_SWAP_KEYS_COMMON; }
+    function _cloneAnimVal(v) { return Array.isArray(v) ? v.map(x => (x && typeof x === 'object') ? Object.assign({}, x) : x) : v; }
+    function _snapshotAnimKeys(obj, keys) {
+        const snap = {};
+        keys.forEach(k => { if (obj[k] !== undefined) snap[k] = _cloneAnimVal(obj[k]); });
+        return snap;
+    }
+    function _applyAnimSnapshot(obj, keys, snap) {
+        keys.forEach(k => {
+            if (snap && snap[k] !== undefined) obj[k] = _cloneAnimVal(snap[k]);
+            else delete obj[k];
+        });
+    }
+    function _forEachAnimHost(fn) {
+        layers.forEach(layer => { fn(layer, false); (layer.items || []).forEach(item => fn(item, true)); });
+    }
+    // 現在の値（入場用）を保存し、退場用の値（無ければ現在値を複製）を適用する
+    function _activateExitAnimValues() {
+        _forEachAnimHost((obj, isItem) => {
+            const keys = _animSwapKeys(isItem);
+            obj.__enterAnim = _snapshotAnimKeys(obj, keys);
+            if (!obj.__exitAnim) obj.__exitAnim = _snapshotAnimKeys(obj, keys);
+            _applyAnimSnapshot(obj, keys, obj.__exitAnim);
+        });
+    }
+    // 現在の値（退場用に編集された値）を保存し、入場用の値を復元する
+    function _activateEnterAnimValues() {
+        _forEachAnimHost((obj, isItem) => {
+            const keys = _animSwapKeys(isItem);
+            obj.__exitAnim = _snapshotAnimKeys(obj, keys);
+            if (obj.__enterAnim) _applyAnimSnapshot(obj, keys, obj.__enterAnim);
+        });
+    }
+
+    // 別プロジェクトの新規作成／読み込み時に呼び出す。以前どのタブ（描画/入場/退場）を
+    // 見ていたかに関わらず必ず描画モードから始める。退場タブで退避されていた値が
+    // 別プロジェクトのデータに誤って適用されるのを防ぐため、スワップは行わず
+    // 状態を直接 'draw' にリセットする。
+    function _resetToDrawModeIfNeeded() {
+        if (currentMode === 'draw' && currentTab === 'draw') return;
+        currentMode = 'draw';
+        currentTab = 'draw';
+        animSubMode = 'enter';
+        document.querySelectorAll('.tab-btn').forEach(btn => _cls(btn).remove('active'));
+        document.getElementById('tab-btn-draw')?.classList.add('active');
+        const drawPenRadio = document.getElementById('draw-pen-radio');
+        if (drawPenRadio) drawPenRadio.checked = true;
+        const drawEl = document.getElementById('draw-tools');
+        const animEl = document.getElementById('anim-tools');
+        _cls(drawEl).toggle('active', true);
+        _cls(animEl).toggle('active', false);
+        const timelinePanel = document.getElementById('timeline-panel');
+        if (timelinePanel) _cls(timelinePanel).remove('open');
+        const acp = document.getElementById('anim-connect-popup');
+        if (acp) acp.style.display = 'none';
+        const canvasConfig = document.getElementById('global-canvas-config');
+        const addLayerBtn = document.getElementById('addLayerBtn');
+        if (canvasConfig) canvasConfig.style.display = 'block';
+        if (addLayerBtn) addLayerBtn.style.display = 'block';
+        if (uiCanvas) uiCanvas.style.pointerEvents = 'auto';
+    }
+
     // 切替アニメーション中に連打/連続呼び出しされると、前の switchMode() の
     // transitionend リスナーやインラインスタイルが後の呼び出しと衝突し、
     // サイドバーやキャンバスの高さ計算が不正な状態のまま確定してしまう不具合があった。
     // そのため切替中は新規呼び出しを即座に実行せず、完了後に最後の要求だけを反映する。
     let _modeSwitching = false;
     let _pendingMode = null;
+    const TAB_ORDER = { draw: 0, enter: 1, exit: 2 };
     function switchMode(mode) {
-        if (mode === currentMode) { _pendingMode = null; return; }
+        // mode は 'draw' | 'enter' | 'exit' の3種類。
+        // 'enter'（入場モード）と 'exit'（退場モード）はどちらも内部モードとしては
+        // 'anim' として扱われる（アニメーションタブの中身は共通のため）。
+        if (mode === currentTab) { _pendingMode = null; return; }
         if (_modeSwitching) { _pendingMode = mode; return; }
+
+        const newInternalMode = (mode === 'draw') ? 'draw' : 'anim';
+        const wasExit = (currentTab === 'exit');
+        const willExit = (mode === 'exit');
+        // タブの並び（描画→入場→退場）上で右に進むか左に戻るかでスライド方向を決める。
+        // 「描画→入場」のときと同じ演出を、入場⇔退場の切替でも一貫して使う。
+        const slideForward = TAB_ORDER[mode] > TAB_ORDER[currentTab];
+        if (wasExit && !willExit) _activateEnterAnimValues();
+        else if (!wasExit && willExit) _activateExitAnimValues();
+
         _modeSwitching = true;
+        currentTab = mode;
+        animSubMode = (mode === 'exit') ? 'exit' : 'enter';
         const prevMode = currentMode;
-        currentMode = mode;
+        currentMode = newInternalMode;
 
         const drawEl = document.getElementById('draw-tools');
         const animEl = document.getElementById('anim-tools');
         const cnt = document.getElementById('line-tool-container');
-        const toAnim = (mode === 'anim');
+        const toAnim = (newInternalMode === 'anim');
         const drawer = document.getElementById('sidebar-drawer');
         const tab = document.getElementById('sidebar-tab');
         // モード切替前のサイドバー開閉状態を保持し、切替後も同じ状態に復元する
@@ -4078,8 +4173,8 @@
         document.querySelectorAll('.tab-btn').forEach(btn => _cls(btn).remove('active'));
 
         // ── フェーズ1: cnt・ドロワー・タブを同時にスライドアウト ──
-        const slideOutDir = toAnim ? 'translateX(-30px)' : 'translateX(30px)';
-        _cls(cnt).add('mode-slide', toAnim ? 'slide-out-left' : 'slide-out-right');
+        const slideOutDir = slideForward ? 'translateX(-30px)' : 'translateX(30px)';
+        _cls(cnt).add('mode-slide', slideForward ? 'slide-out-left' : 'slide-out-right');
         if (drawerActive) {
             // .open クラスを外してインラインスタイルで完全制御（CSS詳細度の競合を回避）
             _cls(drawer).remove('open');
@@ -4107,7 +4202,7 @@
             const addLayerBtn = document.getElementById('addLayerBtn');
             const timelinePanel = document.getElementById('timeline-panel');
             if (mode === 'draw') {
-                document.querySelector('.tab-btn[onclick*="draw"]')?.classList.add('active');
+                document.getElementById('tab-btn-draw')?.classList.add('active');
                 document.getElementById('draw-pen-radio').checked = true;
                 if (timelinePanel) _cls(timelinePanel).remove('open');
                 const acp = document.getElementById('anim-connect-popup'); if (acp) acp.style.display = 'none';
@@ -4116,7 +4211,7 @@
                 uiCanvas.style.pointerEvents = 'auto';
                 render(1);
             } else {
-                document.querySelector('.tab-btn[onclick*="anim"]')?.classList.add('active');
+                document.getElementById(mode === 'exit' ? 'tab-btn-exit' : 'tab-btn-enter')?.classList.add('active');
                 document.getElementById('anim-select-radio').checked = true; selectTool('select');
                 if (timelinePanel) { _cls(timelinePanel).add('open'); renderTimeline(); setTimeout(renderTimeline, 150); setTimeout(renderTimeline, 300); }
                 canvasConfig.style.display = 'block';
@@ -4128,11 +4223,11 @@
             switchTool(); syncSegButtons();
 
             // ── フェーズ2: cnt・ドロワー・タブを反対側に瞬間移動してから同時にスライドイン ──
-            const slideFromDir = toAnim ? 'translateX(30px)' : 'translateX(-30px)';
+            const slideFromDir = slideForward ? 'translateX(30px)' : 'translateX(-30px)';
 
             // cnt: transitionなしで反対側へ
             _cls(cnt).remove('mode-slide', 'slide-out-left', 'slide-out-right');
-            cnt.style.transform = toAnim ? 'translateX(80px)' : 'translateX(-80px)';
+            cnt.style.transform = slideForward ? 'translateX(80px)' : 'translateX(-80px)';
             cnt.style.opacity = '0';
 
             // ドロワー・タブ: transitionなしで反対側へ
@@ -4527,6 +4622,13 @@
             }
         }
         return last.value;
+    }
+
+    // 退場モードでは「描画トラック」の進捗(0→1)を反転させて解釈することで、
+    // 入場モードの“描かれていく”演出をそのまま流用しつつ“消えていく”演出にする。
+    // 退場モードの進捗0＝線が全て見えている状態、進捗1＝完全に消えた状態。
+    function _revealFraction(progress) {
+        return (currentMode === 'anim' && animSubMode === 'exit') ? (1 - progress) : progress;
     }
 
     function updateGridBrightness(val) {
@@ -5648,7 +5750,8 @@
             // 途中までの点だけで曲線を再計算すると、アニメ中に形状が変わる。
             const _curveWpts = sampleSmoothPath(_fullWpts);
             const _wTotalLen = _curveWpts.slice(1).reduce((s, p, i) => s + Math.hypot(p.x - _curveWpts[i].x, p.y - _curveWpts[i].y), 0);
-            let _wRemain = _wTotalLen * localTdAnim;
+            const _revealFrac = _revealFraction(localTdAnim);
+            let _wRemain = _wTotalLen * _revealFrac;
             const revealedWpts = [_curveWpts[0]];
             for (let _wi = 1; _wi < _curveWpts.length && _wRemain > 0; _wi++) {
                 const _wFrom = _curveWpts[_wi - 1], _wTo = _curveWpts[_wi];
@@ -5672,7 +5775,7 @@
             }
 
             const ms = item.miterStart;
-            const me = (localTdAnim >= 1) ? item.miterEnd : null;
+            const me = (_revealFrac >= 1) ? item.miterEnd : null;
             const needClip = ms || me;
 
             mCtx.strokeStyle = item.color; mCtx.lineWidth = item.width * pScale;
@@ -5874,6 +5977,7 @@
             const _gCurrentFrameNumForDraw = t * totalDuration * fps;
             // 描画トラックも中間点(drawMids)を挟めるよう、x/y/zと同じ区分的補間を使う。
             const wholeDrawProgress = getPiecewiseValue(buildTrackKeyframes(item, 'draw', _gDrawStartFrame, _gDrawStartFrame + _gDrawDurFrames, 0, 1), _gCurrentFrameNumForDraw, getEasingCurve(item, layer, 'd'));
+            const wholeRevealFrac = _revealFraction(wholeDrawProgress);
             const _gZOffset = item.zOffset !== undefined ? item.zOffset : layer.zOffset;
             const _gXOffset = item.xOffset !== undefined ? item.xOffset : (layer.xOffset || 0);
             const _gYOffset = item.yOffset !== undefined ? item.yOffset : (layer.yOffset || 0);
@@ -5938,7 +6042,7 @@
             }
             const curveDrawPts = sampleSmoothPath(drawPts, 16, corners);
             const totalLength = curveDrawPts.slice(1).reduce((sum, point, index) => sum + Math.hypot(point.x - curveDrawPts[index].x, point.y - curveDrawPts[index].y), 0);
-            let remaining = totalLength * wholeDrawProgress;
+            let remaining = totalLength * wholeRevealFrac;
             const visiblePoints = [curveDrawPts[0]];
             for (let i = 1; i < curveDrawPts.length && remaining > 0; i++) {
                 const from = curveDrawPts[i - 1], to = curveDrawPts[i];
@@ -5956,7 +6060,7 @@
                 const opacity = (item.opacity !== undefined ? item.opacity : 100) / 100;
                 const drawPath = () => {
                     mCtx.beginPath();
-                    drawSampledPath(mCtx, visiblePoints, item.closed && wholeDrawProgress >= 1);
+                    drawSampledPath(mCtx, visiblePoints, item.closed && wholeRevealFrac >= 1);
                     // 閉路は始点・終点を同じ1つの接合として扱い、四角い端を作らない。
                 };
                 if (!contentOnly && (t === 1 || currentMode === 'anim') && currentTool === 'select' && isSelected) {
@@ -7726,7 +7830,127 @@
         return candidates.find(candidate => MediaRecorder.isTypeSupported(candidate.mimeType)) || null;
     }
 
+    // 保存ボタン→「動画保存」が押されたときの入口。
+    // ブラウザ対応チェックのみここで行い、実際の書き出しは
+    // 入場/退場/両方 選択ポップアップの確定後（confirmVideoExportOptions）に実行する。
     async function downloadVideo() {
+        if (downloadVideo._busy) return;
+        const format = getVideoRecordingFormat();
+        if (!format || typeof HTMLCanvasElement.prototype.captureStream !== 'function') {
+            alert('このブラウザは動画保存に対応していません。.webm対応ブラウザでお試しください。');
+            return;
+        }
+        openVideoExportOptionsPanel();
+    }
+
+    // ── 動画保存オプションポップアップ（入場のみ/退場のみ/両方 + 待機フレーム数）──
+    let _videoExportChoice = { mode: 'enter', waitFrames: 15 };
+
+    function openVideoExportOptionsPanel() {
+        const panel = document.getElementById('video-export-options-panel');
+        if (!panel) { _runVideoExport('enter', 0); return; } // パネルが無ければ従来通り入場のみで実行
+        const radios = panel.querySelectorAll('input[name="video-export-mode"]');
+        radios.forEach(r => { r.checked = (r.value === _videoExportChoice.mode); });
+        const waitInput = document.getElementById('video-export-wait-frames');
+        if (waitInput) waitInput.value = _videoExportChoice.waitFrames;
+        updateVideoExportWaitVisibility();
+        const inner = document.getElementById('video-export-options-inner');
+        panel.style.opacity = '0';
+        panel.style.display = 'flex';
+        if (inner) {
+            inner.style.transform = 'scale(0.88) translateY(12px)';
+            inner.style.opacity = '0';
+            inner.style.transition = 'none';
+        }
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            panel.style.transition = 'opacity 0.2s ease';
+            panel.style.opacity = '1';
+            if (inner) {
+                inner.style.transition = 'transform 0.25s cubic-bezier(0.34,1.45,0.64,1), opacity 0.2s ease';
+                inner.style.transform = 'scale(1) translateY(0)';
+                inner.style.opacity = '1';
+            }
+        }));
+    }
+    function closeVideoExportOptionsPanel() {
+        const panel = document.getElementById('video-export-options-panel');
+        const inner = document.getElementById('video-export-options-inner');
+        if (!panel || panel.style.display === 'none') return;
+        panel.style.transition = 'opacity 0.18s ease';
+        panel.style.opacity = '0';
+        if (inner) {
+            inner.style.transition = 'transform 0.18s cubic-bezier(0.4,0,0.6,1), opacity 0.18s ease';
+            inner.style.transform = 'scale(0.92) translateY(8px)';
+            inner.style.opacity = '0';
+        }
+        setTimeout(() => {
+            panel.style.display = 'none';
+            panel.style.opacity = '';
+            panel.style.transition = '';
+            if (inner) {
+                inner.style.transform = '';
+                inner.style.opacity = '';
+                inner.style.transition = '';
+            }
+        }, 190);
+    }
+    function updateVideoExportWaitVisibility() {
+        const panel = document.getElementById('video-export-options-panel');
+        if (!panel) return;
+        const checked = panel.querySelector('input[name="video-export-mode"]:checked');
+        const mode = checked ? checked.value : 'enter';
+        const waitRow = document.getElementById('video-export-wait-row');
+        if (waitRow) waitRow.style.display = (mode === 'both') ? 'flex' : 'none';
+    }
+    function confirmVideoExportOptions() {
+        const panel = document.getElementById('video-export-options-panel');
+        const checked = panel ? panel.querySelector('input[name="video-export-mode"]:checked') : null;
+        const mode = (checked ? checked.value : 'enter'); // 'enter' | 'exit' | 'both'
+        const waitInput = document.getElementById('video-export-wait-frames');
+        let waitFrames = parseInt(waitInput ? waitInput.value : '0', 10);
+        if (!Number.isFinite(waitFrames) || waitFrames < 0) waitFrames = 0;
+        _videoExportChoice = { mode, waitFrames };
+        closeVideoExportOptionsPanel();
+        _runVideoExport(mode, mode === 'both' ? waitFrames : 0);
+    }
+
+    // 内部データ上の「入場用の値」「退場用の値」を animSubMode に合わせて切り替える。
+    // switchMode() 内で行っているスワップ処理と同じロジックを、UI遷移なしで呼び出せるようにしたもの。
+    function _setAnimSubModeForExport(target) {
+        if (animSubMode === target) return;
+        if (target === 'exit') _activateExitAnimValues();
+        else _activateEnterAnimValues();
+        animSubMode = target;
+    }
+
+    // 実際の動画書き出し処理。
+    // mode: 'enter'（入場のみ） | 'exit'（退場のみ） | 'both'（両方、waitFramesで指定した
+    // フレーム数だけ入場完了状態を維持してから退場を再生する）
+    // ── 動画/連番PNG書き出しのキャンセル機構 ──
+    // 書き出し中に表示されるステータスパネルの「キャンセル」ボタンから呼ばれ、
+    // フラグを立てるだけ。実際の中断は各書き出しループが毎フレームこのフラグを見て行う。
+    let _videoExportCancelRequested = false;
+    class VideoExportCancelledError extends Error {
+        constructor(message = 'video export cancelled') {
+            super(message);
+            this.name = 'VideoExportCancelledError';
+        }
+    }
+    function cancelVideoExport() {
+        if (_videoExportCancelRequested) return;
+        _videoExportCancelRequested = true;
+        const btn = document.getElementById('video-export-cancel-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'キャンセル中…';
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'default';
+        }
+        const text = document.getElementById('video-export-status-text');
+        if (text) text.textContent = 'キャンセルしています…';
+    }
+
+    async function _runVideoExport(mode, waitFrames) {
         if (downloadVideo._busy) return;
         const format = getVideoRecordingFormat();
         if (!format || typeof HTMLCanvasElement.prototype.captureStream !== 'function') {
@@ -7735,13 +7959,14 @@
         }
 
         downloadVideo._busy = true;
+        _videoExportCancelRequested = false;
         stopAnimation();
         const prevT = animT;
         const prevSelection = selectedItems.slice();
+        const prevCurrentMode = currentMode;
+        const prevAnimSubMode = animSubMode;
         const fpsEl = document.getElementById('animFPS');
         const fps = Math.max(1, Math.min(120, parseInt(fpsEl ? fpsEl.value : '30') || 30));
-        const totalFrames = getTimelineRenderFrames(fps);
-        const totalDuration = totalFrames / fps;
         const baseW = Math.max(1, parseInt(document.getElementById('canvasWidth').value) || 800);
         const baseH = Math.max(1, parseInt(document.getElementById('canvasHeight').value) || 400);
         const exportCanvas = document.createElement('canvas');
@@ -7751,14 +7976,48 @@
         // 自動キャプチャを止め、完成したフレームだけを1枚ずつMediaRecorderへ渡す。
         // これにより、重い描画中の中間フレームや同じフレームの重複記録を防ぐ。
         selectedItems = [];
+        // 退場の「消えていく」進捗反転(_revealFraction)を正しく機能させるため、
+        // 書き出し中は内部的にアニメーションモード扱いにする（UI・タブ表示には影響しない）。
+        currentMode = 'anim';
+
+        // 入場/退場それぞれのフレーム数を、内部データを一時的に切り替えながら計測し、
+        // 実際に描画する {subMode, t} の並びを組み立てる。
+        const frameSpecs = [];
+        if (mode === 'enter' || mode === 'both') {
+            _setAnimSubModeForExport('enter');
+            const enterFrames = getTimelineRenderFrames(fps);
+            for (let f = 0; f < enterFrames; f++) {
+                const t = enterFrames <= 1 ? 1 : f / (enterFrames - 1);
+                frameSpecs.push({ subMode: 'enter', t });
+            }
+        }
+        if (mode === 'both' && waitFrames > 0) {
+            // 入場完了状態(t=1)を維持したまま指定フレーム数だけ待機する
+            for (let f = 0; f < waitFrames; f++) frameSpecs.push({ subMode: 'enter', t: 1 });
+        }
+        if (mode === 'exit' || mode === 'both') {
+            _setAnimSubModeForExport('exit');
+            const exitFrames = getTimelineRenderFrames(fps);
+            for (let f = 0; f < exitFrames; f++) {
+                const t = exitFrames <= 1 ? 1 : f / (exitFrames - 1);
+                frameSpecs.push({ subMode: 'exit', t });
+            }
+        }
+        if (frameSpecs.length === 0) frameSpecs.push({ subMode: prevAnimSubMode, t: 1 });
+
+        const totalFrames = frameSpecs.length;
+        const totalDuration = totalFrames / fps;
         showVideoExportStatus(0, totalFrames, format.extension);
 
         const frameBitmaps = [];
         let stream = null;
         try {
+            let activeSub = null;
             for (let frame = 0; frame < totalFrames; frame++) {
-                const t = totalFrames <= 1 ? 1 : frame / (totalFrames - 1);
-                drawVideoExportFrame(t, exportCtx, baseW, baseH);
+                if (_videoExportCancelRequested) throw new VideoExportCancelledError();
+                const spec = frameSpecs[frame];
+                if (activeSub !== spec.subMode) { _setAnimSubModeForExport(spec.subMode); activeSub = spec.subMode; }
+                drawVideoExportFrame(spec.t, exportCtx, baseW, baseH);
                 frameBitmaps.push(await createImageBitmap(exportCanvas));
                 showVideoExportStatus(frame + 1, totalFrames, format.extension + ' render');
                 await yieldToBrowser();
@@ -7773,16 +8032,26 @@
             }
             const recorder = new MediaRecorder(stream, { mimeType: format.mimeType });
             const chunks = [];
+            let encodeCancelled = false;
             const blob = await new Promise((resolve, reject) => {
                 recorder.ondataavailable = event => { if (event.data && event.data.size > 0) chunks.push(event.data); };
                 recorder.onerror = event => reject(event.error || new Error('動画の録画に失敗しました'));
-                recorder.onstop = () => resolve(new Blob(chunks, { type: format.mimeType }));
+                recorder.onstop = () => {
+                    if (encodeCancelled) reject(new VideoExportCancelledError());
+                    else resolve(new Blob(chunks, { type: format.mimeType }));
+                };
                 recorder.start(250);
 
                 const frameInterval = 1000 / fps;
                 let nextFrameTime = performance.now();
                 let frame = 0;
                 const assembleFrame = () => {
+                    if (_videoExportCancelRequested) {
+                        // 途中までのチャンクは使わず、部分的な動画がダウンロードされないようにする
+                        encodeCancelled = true;
+                        recorder.stop();
+                        return;
+                    }
                     exportCtx.clearRect(0, 0, baseW, baseH);
                     exportCtx.drawImage(frameBitmaps[frame], 0, 0, baseW, baseH);
                     if (manualFrameCapture) videoTrack.requestFrame();
@@ -7803,15 +8072,21 @@
             a.click();
             setTimeout(() => URL.revokeObjectURL(a.href), 1000);
         } catch (err) {
-            alert('動画保存に失敗しました: ' + err.message);
+            if (!(err && err.name === 'VideoExportCancelledError')) {
+                alert('動画保存に失敗しました: ' + err.message);
+            }
         } finally {
             if (stream) stream.getTracks().forEach(track => track.stop());
             frameBitmaps.forEach(bitmap => bitmap.close());
             hideVideoExportStatus();
             selectedItems = prevSelection;
+            // 書き出し前の入場/退場データ状態・アニメーションモードへ正しく戻す
+            _setAnimSubModeForExport(prevAnimSubMode);
+            currentMode = prevCurrentMode;
             animT = prevT;
             render(animT);
             downloadVideo._busy = false;
+            _videoExportCancelRequested = false;
         }
     }
 
@@ -7829,6 +8104,7 @@
             return;
         }
         downloadVideoFrames._busy = true;
+        _videoExportCancelRequested = false;
         stopAnimation();
         const prevT = animT;
         const prevSelection = selectedItems.slice();
@@ -7847,6 +8123,7 @@
         showVideoExportStatus(0, totalFrames, 'PNG render');
         try {
             for (let frame = 0; frame < totalFrames; frame++) {
+                if (_videoExportCancelRequested) throw new VideoExportCancelledError();
                 const t = totalFrames <= 1 ? 1 : frame / (totalFrames - 1);
                 drawVideoExportFrame(t, exportCtx, baseW, baseH);
                 const blob = await canvasToPngBlob(exportCanvas);
@@ -7854,6 +8131,7 @@
                 showVideoExportStatus(frame + 1, totalFrames, 'PNG render');
                 await yieldToBrowser();
             }
+            if (_videoExportCancelRequested) throw new VideoExportCancelledError();
             zip.file('metadata.json', JSON.stringify({
                 fps,
                 totalFrames,
@@ -7871,13 +8149,16 @@
             a.click();
             setTimeout(() => URL.revokeObjectURL(a.href), 1000);
         } catch (err) {
-            alert('連番PNG保存に失敗しました: ' + err.message);
+            if (!(err && err.name === 'VideoExportCancelledError')) {
+                alert('連番PNG保存に失敗しました: ' + err.message);
+            }
         } finally {
             hideVideoExportStatus();
             selectedItems = prevSelection;
             animT = prevT;
             render(animT);
             downloadVideoFrames._busy = false;
+            _videoExportCancelRequested = false;
         }
     }
 
@@ -7907,13 +8188,18 @@
             panel = document.createElement('div');
             panel.id = 'video-export-status';
             panel.style.cssText = 'position:fixed; left:50%; bottom:28px; transform:translateX(-50%); z-index:999999; min-width:260px; max-width:calc(100vw - 32px); background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:14px 16px; box-shadow:0 8px 32px rgba(0,0,0,.55); color:var(--c-e5e); font-size:12px;';
-            panel.innerHTML = '<div id="video-export-status-text" style="margin-bottom:10px;"></div><div style="height:6px; background:var(--c-141); border-radius:var(--radius); overflow:hidden;"><div id="video-export-status-bar" style="height:100%; width:0%; background:#dc2626;"></div></div>';
+            panel.innerHTML =
+                '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">' +
+                    '<div id="video-export-status-text" style="flex:1; min-width:0;"></div>' +
+                    '<button id="video-export-cancel-btn" onclick="cancelVideoExport()" style="flex-shrink:0; background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-9a9); font-size:11px; padding:4px 10px; cursor:pointer;" onmouseover="if(!this.disabled)this.style.background=\'var(--c-141)\'" onmouseout="this.style.background=\'transparent\'">キャンセル</button>' +
+                '</div>' +
+                '<div style="height:6px; background:var(--c-141); border-radius:var(--radius); overflow:hidden;"><div id="video-export-status-bar" style="height:100%; width:0%; background:#dc2626;"></div></div>';
             document.body.appendChild(panel);
         }
         const pct = total ? Math.round((done / total) * 100) : 0;
         const text = document.getElementById('video-export-status-text');
         const bar = document.getElementById('video-export-status-bar');
-        if (text) text.textContent = `動画を作成中 (${mimeType}) ${done}/${total}`;
+        if (text && !_videoExportCancelRequested) text.textContent = `動画を作成中 (${mimeType}) ${done}/${total}`;
         if (bar) bar.style.width = pct + '%';
     }
 
@@ -8311,6 +8597,7 @@ ${layersSVG}
                     projectData: project
                 });
                 // layers をディープコピーして代入（参照問題を防ぐ）
+                _resetToDrawModeIfNeeded();
                 layers = JSON.parse(JSON.stringify(project.layers));
                 // 古いデータに欠けているプロパティを補完（Fix⑥: 全プロパティを網羅）
                 layers.forEach(layer => {
@@ -10692,6 +10979,7 @@ ${layersSVG}
     // ── projectData をエディタに適用 ──
     function applyProjectData(data) {
         if (!data || !data.layers) return;
+        _resetToDrawModeIfNeeded();
         layers = JSON.parse(JSON.stringify(data.layers)); // ディープコピーで参照問題を防ぐ
         // 古いデータに欠けているプロパティを補完（Fix⑥: 全プロパティを網羅）
         layers.forEach(layer => {
@@ -10861,6 +11149,12 @@ ${layersSVG}
     // id は既読判定に使うので、追加のたびに必ずユニークな値にすること。
     const NOTICE_DATA = [
         {
+            id: 'notice-4',
+            date: '2026.08.27',
+            title: 'Ver.2.4.6 新機能のお知らせ',
+            text: 'アニメーションモードを入場モードと退場モードに分けました。'
+        },
+        {
             id: 'notice-3',
             date: '2026.08.27',
             title: 'Ver.1.4.5 新機能のお知らせ',
@@ -10974,6 +11268,13 @@ ${layersSVG}
     // ── アップデートログ ──
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
+        {
+            version: 'Ver.2.4.6',
+            items: [
+                'アニメーションモードを入場モードと退場モードに分けました',
+                '動画や連番PNGの書き出しを途中でキャンセルできるようにしました'
+            ]
+        },
         {
             version: 'Ver.1.4.5',
             items: [
@@ -11380,26 +11681,7 @@ ${layersSVG}
         const ch   = Math.min(9999, Math.max(1, parseInt((hEl && hEl.value) || 1080) || 1080));
 
         // 前のプロジェクトがアニメーションモードのままでも、新規作成時は必ず描画モードから始める
-        if (currentMode !== 'draw') {
-            currentMode = 'draw';
-            document.querySelectorAll('.tab-btn').forEach(btn => _cls(btn).remove('active'));
-            document.querySelector('.tab-btn[onclick*="draw"]')?.classList.add('active');
-            const drawPenRadio = document.getElementById('draw-pen-radio');
-            if (drawPenRadio) drawPenRadio.checked = true;
-            const drawEl = document.getElementById('draw-tools');
-            const animEl = document.getElementById('anim-tools');
-            _cls(drawEl).toggle('active', true);
-            _cls(animEl).toggle('active', false);
-            const timelinePanel = document.getElementById('timeline-panel');
-            if (timelinePanel) _cls(timelinePanel).remove('open');
-            const acp = document.getElementById('anim-connect-popup');
-            if (acp) acp.style.display = 'none';
-            const canvasConfig = document.getElementById('global-canvas-config');
-            const addLayerBtn = document.getElementById('addLayerBtn');
-            if (canvasConfig) canvasConfig.style.display = 'block';
-            if (addLayerBtn) addLayerBtn.style.display = 'block';
-            if (uiCanvas) uiCanvas.style.pointerEvents = 'auto';
-        }
+        _resetToDrawModeIfNeeded();
 
         const id   = 'proj_' + Date.now();
         const proj = {
@@ -11924,6 +12206,42 @@ ${layersSVG}
       </button>
     </div>
     <button onclick="closeExportPanel()" style="width:100%; margin-top:12px; padding:9px 0; background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-9a9); font-size:13px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
+  </div>
+</div>
+
+<!-- 動画保存オプション選択パネル（入場のみ/退場のみ/両方） -->
+<div id="video-export-options-panel" style="display:none; position:fixed; inset:0; z-index:999998; background:rgba(0,0,0,0.55); backdrop-filter:blur(3px); align-items:center; justify-content:center;" onclick="if(event.target===this)closeVideoExportOptionsPanel()">
+  <div id="video-export-options-inner" style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:calc(100vw - 32px); box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+    <div style="font-size:15px; font-weight:600; color:var(--c-e5e); margin-bottom:6px;">動画保存オプション</div>
+    <div style="font-size:12px; color:var(--c-9a9); margin-bottom:18px;">書き出す内容を選んでください</div>
+
+    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+      <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid var(--c-fff); border-radius:var(--radius); cursor:pointer; color:var(--c-e5e); font-size:13px;">
+        <input type="radio" name="video-export-mode" value="enter" onchange="updateVideoExportWaitVisibility()">
+        入場のみ
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid var(--c-fff); border-radius:var(--radius); cursor:pointer; color:var(--c-e5e); font-size:13px;">
+        <input type="radio" name="video-export-mode" value="exit" onchange="updateVideoExportWaitVisibility()">
+        退場のみ
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid var(--c-fff); border-radius:var(--radius); cursor:pointer; color:var(--c-e5e); font-size:13px;">
+        <input type="radio" name="video-export-mode" value="both" onchange="updateVideoExportWaitVisibility()">
+        両方（入場 → 退場）
+      </label>
+    </div>
+
+    <div id="video-export-wait-row" style="display:none; align-items:center; gap:10px; margin-bottom:20px; padding:10px 12px; background:var(--c-141); border-radius:var(--radius);">
+      <span style="font-size:12px; color:var(--c-9a9); white-space:nowrap;">待機フレーム数</span>
+      <input type="number" id="video-export-wait-frames" min="0" step="1" value="15" style="flex:1; min-width:0; background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-e5e); font-size:13px; padding:6px 8px;">
+      <span style="font-size:11px; color:var(--c-9a9); white-space:nowrap;">frames</span>
+    </div>
+
+    <div style="display:flex; gap:12px;">
+      <button onclick="confirmVideoExportOptions()" style="flex:1; padding:14px 0; background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:14px; font-weight:600; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        ▶ 保存
+      </button>
+    </div>
+    <button onclick="closeVideoExportOptionsPanel()" style="width:100%; margin-top:12px; padding:9px 0; background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-9a9); font-size:13px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
   </div>
 </div>
 </body>
