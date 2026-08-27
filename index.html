@@ -3836,6 +3836,10 @@
     // animSubMode で入場/退場を区別する。
     let currentTab = 'draw';
     let animSubMode = 'enter';
+    // アイテム（線・連結グループ）に振る一意なID。入場/退場タブで連結状態を独立させる際、
+    // タブ切替のたびにアイテムを複製するため、選択状態などを id で引き当て直せるようにする。
+    let _itemIdSeq = 0;
+    function genItemId() { return Date.now() * 1000 + (++_itemIdSeq % 1000); }
     // ── プロジェクト管理 ──
     const LS_KEY = 'kyk_projects_v1';
     let _currentProjectId = null;
@@ -4086,6 +4090,47 @@
     function _forEachAnimHost(fn) {
         layers.forEach(layer => { fn(layer, false); (layer.items || []).forEach(item => fn(item, true)); });
     }
+
+    // ── 入場モード/退場モードで「線の連結（連結して扱う／グループ解除）」も独立させる仕組み ──
+    // 「連結して扱う」は複数の線アイテムを1つの continuous なグループアイテムへ統合する“構造的な”
+    // 操作で、上のアニメーション値スワップ（同じオブジェクトの一部プロパティだけを入れ替える方式）
+    // では表現できない（アイテムの個数そのものが変わるため）。そのため連結状態については
+    // レイヤーごとに layer.items 全体を丸ごと複製・退避し、タブ切替のたびに丸ごと差し替える。
+    function _cloneLayerItems(items) {
+        return JSON.parse(JSON.stringify(items || []));
+    }
+    // 連結状態の丸ごと差し替えでアイテムの参照（オブジェクトの同一性）が変わるため、
+    // 差し替え前に保持していた selectedItems 等の参照は id で引き当て直す必要がある。
+    // 一致するアイテムが見つからない場合（連結/グループ解除で消えた等）は選択から外す。
+    function _remapItemsAfterLineConnectionSwap(oldItems) {
+        if (!Array.isArray(oldItems) || oldItems.length === 0) return [];
+        const byId = new Map();
+        layers.forEach(layer => (layer.items || []).forEach(it => {
+            if (it && it.id !== undefined && it.id !== null) byId.set(it.id, it);
+        }));
+        const remapped = [];
+        oldItems.forEach(it => {
+            if (it && it.id !== undefined && it.id !== null && byId.has(it.id)) remapped.push(byId.get(it.id));
+        });
+        return remapped;
+    }
+    // 現在の連結状態（入場用）を保存し、退場用の連結状態（無ければ現在の状態を複製）を適用する
+    function _activateExitLineConnections() {
+        layers.forEach(layer => {
+            layer.__enterItems = _cloneLayerItems(layer.items);
+            if (!layer.__exitItems) layer.__exitItems = _cloneLayerItems(layer.items);
+            layer.items = _cloneLayerItems(layer.__exitItems);
+        });
+        if (typeof selectedItems !== 'undefined') selectedItems = _remapItemsAfterLineConnectionSwap(selectedItems);
+    }
+    // 現在の連結状態（退場タブで編集された状態）を保存し、入場用の連結状態を復元する
+    function _activateEnterLineConnections() {
+        layers.forEach(layer => {
+            layer.__exitItems = _cloneLayerItems(layer.items);
+            if (layer.__enterItems) layer.items = _cloneLayerItems(layer.__enterItems);
+        });
+        if (typeof selectedItems !== 'undefined') selectedItems = _remapItemsAfterLineConnectionSwap(selectedItems);
+    }
     // 現在の値（入場用）を保存し、退場用の値（無ければ現在値を複製）を適用する
     function _activateExitAnimValues() {
         _forEachAnimHost((obj, isItem) => {
@@ -4094,6 +4139,7 @@
             if (!obj.__exitAnim) obj.__exitAnim = _snapshotAnimKeys(obj, keys);
             _applyAnimSnapshot(obj, keys, obj.__exitAnim);
         });
+        _activateExitLineConnections();
     }
     // 現在の値（退場用に編集された値）を保存し、入場用の値を復元する
     function _activateEnterAnimValues() {
@@ -4102,6 +4148,7 @@
             obj.__exitAnim = _snapshotAnimKeys(obj, keys);
             if (obj.__enterAnim) _applyAnimSnapshot(obj, keys, obj.__enterAnim);
         });
+        _activateEnterLineConnections();
     }
 
     // 別プロジェクトの新規作成／読み込み時に呼び出す。以前どのタブ（描画/入場/退場）を
@@ -5028,7 +5075,7 @@
     function buildConnectedItem(orderedLines, layer, isClosed) {
         const first = orderedLines[0];
         const connected = {
-            type: 'group', continuous: true, closed: isClosed, id: Date.now(), lines: orderedLines,
+            type: 'group', continuous: true, closed: isClosed, id: genItemId(), lines: orderedLines,
             startFrame: first.startFrame || 0,
             drawStartFrame: getTrackStartFrame(first, 'draw'),
             zStartFrame: getTrackStartFrame(first, 'z'),
@@ -7234,7 +7281,7 @@
             const drawnColor = getLineColor();
             const capStart = document.getElementById('lineCapStart') ? document.getElementById('lineCapStart').value : 'round';
             const capEnd = document.getElementById('lineCapEnd') ? document.getElementById('lineCapEnd').value : 'round';
-            const newLine = { x1: startX, y1: startY, x2: currentX, y2: currentY, color: drawnColor, width: penWidth, zOffset: 0, xOffset: 0, yOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, opacity: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', dEasing: 'smooth', lineCap: capStart, lineCapStart: capStart, lineCapEnd: capEnd };
+            const newLine = { id: genItemId(), x1: startX, y1: startY, x2: currentX, y2: currentY, color: drawnColor, width: penWidth, zOffset: 0, xOffset: 0, yOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, opacity: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', dEasing: 'smooth', lineCap: capStart, lineCapStart: capStart, lineCapEnd: capEnd };
             // 連結モード: ON の場合、新しく描いた線の端点が既存線（または連結線）の
             // 自由端と重なっていれば、アニメーションモードの「連結して扱う」ボタンと
             // 同じ効果で自動的に1本の連結線として統合する。
@@ -7587,7 +7634,7 @@
         // 元のアイテムをlayerから削除
         layer.items = layer.items.filter(it => !selectedItems.includes(it));
         // グループとして追加
-        const grp = { type: 'group', id: Date.now(), lines: allLines };
+        const grp = { type: 'group', id: genItemId(), lines: allLines };
         layer.items.push(grp);
         selectedItems = [grp];
         bboxRotation = 0;
@@ -11149,6 +11196,12 @@ ${layersSVG}
     // id は既読判定に使うので、追加のたびに必ずユニークな値にすること。
     const NOTICE_DATA = [
         {
+            id: 'notice-5',
+            date: '2026.08.27',
+            title: 'Ver.2.4.7 新機能のお知らせ',
+            text: '入場モードと退場モードで「連結して扱う」（線の連結）を独立して設定できるようにしました。一方のモードで連結・グループ解除しても、もう一方には影響しません。'
+        },
+        {
             id: 'notice-4',
             date: '2026.08.27',
             title: 'Ver.2.4.6 新機能のお知らせ',
@@ -11268,6 +11321,12 @@ ${layersSVG}
     // ── アップデートログ ──
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
+        {
+            version: 'Ver.2.4.7',
+            items: [
+                '入場モードと退場モードで、線の「連結して扱う」（連結・グループ解除）の状態を独立させました'
+            ]
+        },
         {
             version: 'Ver.2.4.6',
             items: [
