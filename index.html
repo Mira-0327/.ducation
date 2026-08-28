@@ -151,7 +151,7 @@
         <div class="home-grid" id="home-grid"></div>
     </div>
     <div style="position:fixed; left:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
-    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.3.4.7</div>
+    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.4.4.8</div>
 </div>
 <!-- 新規作成モーダル -->
 <div id="new-project-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNewProjectModal()">
@@ -277,15 +277,17 @@
             <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.3.4.7</span>
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.4.4.8</span>
             <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
         </div>
 
         <ul id="changelog-items-list" style="margin:0 0 20px; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.8; flex:1; overflow-y:auto; min-height:0;">
-            <li>アニメーションに回転を追加</li>
-            <li>退場モードのバグを修正</li>
+            <li>アニメーションにフェードを追加</li>
+            <li>描画モードに図形ツールを追加</li>
+            <li>変形ツールの挙動を見直した</li>
+            <li>その他使いやすさの向上、バグの修正</li>
         </ul>
 
         <div style="display:flex; justify-content:flex-end; flex-shrink:0;">
@@ -2109,6 +2111,7 @@
         white-space: nowrap; text-align: left; font-family: inherit;
     }
     .tl-popup-item:hover { background: var(--c-1c1); color: var(--c-fff); }
+    .tl-popup-item.active, .tl-popup-item.active:hover { background: var(--accent); color: #000000; border-color: var(--accent); }
     .tl-popup-submenu-wrap { position: relative; }
     .tl-popup-submenu {
         display: none; position: absolute; left: 100%; top: 0; margin-left: 4px;
@@ -3380,6 +3383,11 @@
                 <input type='radio' name='tool' value='select' onchange='switchTool()' style='display:none'>
                 <input type='radio' name='tool' value='transform' onchange='switchTool()' style='display:none'>
                 <input type='radio' name='tool' value='erase-obj' onchange='switchTool()' style='display:none'>
+                <input type='radio' name='tool' value='rect-shape' onchange='switchTool()' style='display:none'>
+                <input type='radio' name='tool' value='circle-shape' onchange='switchTool()' style='display:none'>
+                <input type='radio' name='tool' value='triangle-shape' onchange='switchTool()' style='display:none'>
+                <input type='radio' name='tool' value='roundrect-shape' onchange='switchTool()' style='display:none'>
+                <input type='hidden' id='shape-tool-kind' value='rect-shape'>
                 <input type='checkbox' class='multiSelectMode' style='display:none'>
                 <span class='seg-btn-wrap'>
                     <span class='seg-btn active' data-tool='pen' onclick='selectTool("pen")'><span class='seg-icon'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>ペン</span>
@@ -3391,6 +3399,10 @@
                 </span>
                 <span class='seg-btn' data-tool='transform' onclick='selectTool("transform")' title='マーカーをつかんで線を曲げる'><span class='seg-icon'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 Q9 6 12 12 Q15 18 20 6"/><circle cx="9" cy="9.6" r="1.6" fill="currentColor" stroke="none"/><circle cx="15" cy="14.4" r="1.6" fill="currentColor" stroke="none"/></svg></span>変形</span>
                 <span class='seg-btn' data-tool='erase-obj' onclick='selectTool("erase-obj")' title='一本丸ごと削除'><span class='seg-icon'><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l10-10 7 7-2.5 2.5"/><path d="M6 11 13 18"/></svg></span>消し</span>
+                <span class='seg-btn-wrap'>
+                    <span class='seg-btn' data-tool='rect-shape circle-shape triangle-shape roundrect-shape' id='shape-tool-btn' onclick='selectTool(currentShapeKind())' title='ドラッグして図形を描く'><span class='seg-icon' id='shape-tool-icon'></span><span id='shape-tool-label'>図形</span></span>
+                    <span class='multi-badge' id='shape-kind-btn' onclick='toggleShapeKind(event)' title='図形の種類を切り替え'></span>
+                </span>
             </div>
             <div id='global-picker-outer' onclick='openCustomPicker("global", this)' style='width:36px;height:36px;border-radius:var(--radius);cursor:pointer;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:transform 0.15s;position:relative;' onmouseenter='this.style.transform="scale(1.08)"' onmouseleave='this.style.transform=""'>
                 <input type='color' id='lineColor' value='#ffffff' oninput='syncHex("global")' style='pointer-events:none; opacity:0; position:absolute;'>
@@ -3607,13 +3619,13 @@
                     <div style='grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 11px;'>
                         <span style='white-space:nowrap; color:var(--c-b5b); font-size:10px;'>不透明度</span>
                         <input type='range' min='0' max='100' id='prop-opacity-slider' class='opacity-slider'
-                            oninput='document.getElementById("prop-opacity").value=this.value; updateSelectedPropsLive()' onchange='updateSelectedProps()'>
-                        <input type='number' min='0' max='100' id='prop-opacity' onchange='document.getElementById("prop-opacity-slider").value=this.value; updateSelectedProps()' oninput='autoWidth(this)'>%
+                            oninput='document.getElementById("prop-opacity").value=this.value; updateSelectedPropsLive("opacity")' onchange='updateSelectedProps("opacity")'>
+                        <input type='number' min='0' max='100' id='prop-opacity' onchange='document.getElementById("prop-opacity-slider").value=this.value; updateSelectedProps("opacity")' oninput='autoWidth(this); document.getElementById("prop-opacity-slider").value=this.value; updateSelectedPropsLive("opacity")'>%
                     </div>
                     <div style='margin: 2px 0; display:flex; align-items:center; gap:6px;'>
                         <span style='color:var(--c-b5b); font-size:10px; white-space:nowrap;'>色</span>
                         <div class='color-picker-outer' id='prop-picker-outer' style='width:30px;height:30px;cursor:pointer;flex-shrink:0;' onclick='openCustomPicker("prop", this)'>
-                            <input type='color' id='prop-color' oninput='syncHex("prop")' onchange='updateSelectedProps()' style='pointer-events:none; opacity:0; position:absolute;'>
+                            <input type='color' id='prop-color' oninput='syncHex("prop")' onchange='updateSelectedProps("color")' style='pointer-events:none; opacity:0; position:absolute;'>
                             <div id='prop-picker-swatch' style='width:100%;height:100%;border-radius:var(--radius);background:var(--c-fff);'></div>
                         </div>
                         <!-- 非表示のまま保持（JS参照用） -->
@@ -3630,7 +3642,7 @@
                                 <div style='display:flex; align-items:center; gap:4px;'>
                                     <span style='font-size:9px; color:var(--c-b5b);'>1</span>
                                     <input type='range' id='prop-width-slider' class='opacity-slider' min='1' max='20' value='2'
-                                        oninput='document.getElementById("prop-width").value=this.value; updateSelectedPropsLive(); updatePropSizeCard()' onchange='updateSelectedProps()'>
+                                        oninput='document.getElementById("prop-width").value=this.value; updateSelectedPropsLive("width"); updatePropSizeCard()' onchange='updateSelectedProps("width")'>
                                     <div class='size-max-wrap'>
                                         <button class='size-max-arrow' onclick='stepPropSizeMax(1)'>▲</button>
                                         <input type='number' id='propSizeMax' class='size-slider-minmax size-max-input' min='1' value='20'
@@ -3639,8 +3651,8 @@
                                     </div>
                                     <input type='number' id='prop-width' class='size-card-num' min='1' max='20' value='2'
                                         style='font-size:14px !important; width:2.2ch !important;'
-                                        onchange='document.getElementById("prop-width-slider").value=this.value; updateSelectedProps(); updatePropSizeCard()'
-                                        oninput='autoWidth(this)'>
+                                        onchange='document.getElementById("prop-width-slider").value=this.value; updateSelectedProps("width"); updatePropSizeCard()'
+                                        oninput='autoWidth(this); document.getElementById("prop-width-slider").value=this.value; updateSelectedPropsLive("width"); updatePropSizeCard()'>
                                 </div>
                             </div>
                             <div style='display:flex; flex-direction:column; gap:5px; align-items:center; justify-content:center; border-left:1px solid var(--c-141); padding-left:8px;'>
@@ -3665,14 +3677,16 @@
                 </div>
                 <div id='anim-props-section'>
                     <div class='input-grid'>
-                        <label>Z開始: <input type='number' id='prop-zOffset' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
-                        <label>Z到着: <input type='number' id='prop-zOffsetEnd' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
-                        <label>X開始: <input type='number' id='prop-xOffset' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
-                        <label>X到着: <input type='number' id='prop-xOffsetEnd' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
-                        <label>Y開始: <input type='number' id='prop-yOffset' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
-                        <label>Y到着: <input type='number' id='prop-yOffsetEnd' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
-                        <label>回転開始: <input type='number' id='prop-rOffset' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
-                        <label>回転到着: <input type='number' id='prop-rOffsetEnd' onchange='updateSelectedProps()' oninput='autoWidth(this)'></label>
+                        <label>Z開始: <input type='number' id='prop-zOffset' onchange='updateSelectedProps("zOffset")' oninput='autoWidth(this); updateSelectedPropsLive("zOffset")'></label>
+                        <label>Z到着: <input type='number' id='prop-zOffsetEnd' onchange='updateSelectedProps("zOffsetEnd")' oninput='autoWidth(this); updateSelectedPropsLive("zOffsetEnd")'></label>
+                        <label>X開始: <input type='number' id='prop-xOffset' onchange='updateSelectedProps("xOffset")' oninput='autoWidth(this); updateSelectedPropsLive("xOffset")'></label>
+                        <label>X到着: <input type='number' id='prop-xOffsetEnd' onchange='updateSelectedProps("xOffsetEnd")' oninput='autoWidth(this); updateSelectedPropsLive("xOffsetEnd")'></label>
+                        <label>Y開始: <input type='number' id='prop-yOffset' onchange='updateSelectedProps("yOffset")' oninput='autoWidth(this); updateSelectedPropsLive("yOffset")'></label>
+                        <label>Y到着: <input type='number' id='prop-yOffsetEnd' onchange='updateSelectedProps("yOffsetEnd")' oninput='autoWidth(this); updateSelectedPropsLive("yOffsetEnd")'></label>
+                        <label>回転開始: <input type='number' id='prop-rOffset' onchange='updateSelectedProps("rOffset")' oninput='autoWidth(this); updateSelectedPropsLive("rOffset")'></label>
+                        <label>回転到着: <input type='number' id='prop-rOffsetEnd' onchange='updateSelectedProps("rOffsetEnd")' oninput='autoWidth(this); updateSelectedPropsLive("rOffsetEnd")'></label>
+                        <label>フェード開始: <input type='number' min='0' max='100' id='prop-fOffset' onchange='updateSelectedProps("fOffset")' oninput='autoWidth(this); updateSelectedPropsLive("fOffset")'>%</label>
+                        <label>フェード到着: <input type='number' min='0' max='100' id='prop-fOffsetEnd' onchange='updateSelectedProps("fOffsetEnd")' oninput='autoWidth(this); updateSelectedPropsLive("fOffsetEnd")'>%</label>
                     </div>
                     <div style='margin-top:5px;'>
                         <div class='easing-label'>Zイージング</div>
@@ -3695,6 +3709,10 @@
                         <select id='prop-dEasing' class='easing-select' onchange='changePropEasing("d", this.value)'></select>
                         <div class='bezier-graph-wrap'><canvas class='bezier-graph-canvas' id='prop-dBezier-canvas' width='260' height='110'></canvas></div>
                         <div class='bezier-editor' id='prop-dBezier-editor'></div>
+                        <div class='easing-label'>フェードイージング</div>
+                        <select id='prop-fEasing' class='easing-select' onchange='changePropEasing("f", this.value)'></select>
+                        <div class='bezier-graph-wrap'><canvas class='bezier-graph-canvas' id='prop-fBezier-canvas' width='260' height='110'></canvas></div>
+                        <div class='bezier-editor' id='prop-fBezier-editor'></div>
                     </div>
                 </div>
             </div>
@@ -3718,6 +3736,7 @@
                 <button id='tl-track-x-btn' class='tl-track-btn' onclick="setTimelineTrack('x')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>X移動</button>
                 <button id='tl-track-y-btn' class='tl-track-btn' onclick="setTimelineTrack('y')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>Y移動</button>
                 <button id='tl-track-r-btn' class='tl-track-btn' onclick="setTimelineTrack('r')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>回転</button>
+                <button id='tl-track-f-btn' class='tl-track-btn' onclick="setTimelineTrack('f')" style='border:0; border-radius:var(--radius); padding:4px 8px; background:transparent; color:var(--c-b5b); font-size:10px; cursor:pointer;'>フェード</button>
             </div>
             <label style='margin-left:4px; display:flex; align-items:center; gap:5px; flex-shrink:0;'>
                 <span id='tl-zoom-label' style='font-size:10px; color:var(--c-9a9);'>縮尺</span>
@@ -3804,13 +3823,19 @@
     let mCtx = mCtxReal0;
     // レイヤー不透明度をレイヤー内の線の重なりに影響させず一括適用するためのオフスクリーンバッファ
     const layerCanvas = document.createElement('canvas'), layerCtx = layerCanvas.getContext('2d');
+    // アイテム（線）自体の不透明度を、本体とキャップの重なりに影響させず一括適用するための
+    // オフスクリーンバッファ。本体とキャップは別々の stroke() 呼び出しになるため、
+    // 同じ globalAlpha のまま両方描くと重なった部分だけ余分に濃く見えてしまう。
+    // これを防ぐため、不透明度<100%のときだけ一旦アルファ1で本バッファに描き、
+    // 最後に一度だけ目的の不透明度で合成する。
+    const itemCanvas = document.createElement('canvas'), itemCtx = itemCanvas.getContext('2d');
     const uiCanvas = document.getElementById('uiCanvas'), uiCtx = uiCanvas.getContext('2d');
     const stack = document.getElementById('canvas-stack'), zoomInput = document.getElementById('zoomScale');
     const sizeSlider = document.getElementById('sizeSlider'), sizeLabel = document.getElementById('sizeLabel'), sizeValDisp = document.getElementById('sizeVal');
     const playPauseBtn = document.getElementById('playPauseBtn');
 
     const EASING_PRESETS = { linear: [0, 0, 1, 1], easeIn: [0.42, 0, 1, 1], easeOut: [0, 0, 0.58, 1], easeInOut: [0.42, 0, 0.58, 1], sharp: [0.4, 0, 0.2, 1], smooth: [0.25, 0.1, 0.25, 1.0] };
-    const EASING_KEYS = ['z', 'x', 'y', 'r', 'd'];
+    const EASING_KEYS = ['z', 'x', 'y', 'r', 'd', 'f'];
     function easingPropertyKey(track) { return track + 'Easing'; }
     function easingBezierKey(track) { return track + 'Bezier'; }
     function clampBezierValue(value, index) {
@@ -3931,8 +3956,41 @@
                 if (arcCP) return arcCP;
             }
         }
-        const previous = (corners && corners[i]) ? current : (points[i - 1] || current);
-        const afterNext = (corners && corners[i + 1]) ? next : (points[i + 2] || next);
+        // 前後の点がない「端」の区間（線の始点側・終点側で、隣にもう1つ本物の点がある場合）は、
+        // 隣の点だけを基準にした単純な鏡映（2*current-next）だと先端の曲がりが弱く、
+        // 詰まったような見た目になってしまう。かといって円弧近似にすると、今度はその円弧が
+        // 隣の区間（曲げマーカー同士の区間）が同じマーカー位置で計算する接線と一致せず、
+        // マーカーのところで線がカクッと折れて（キンクして）見えてしまう。
+        // そこで、鏡映の基準を「隣の点」ではなく、もう一つ外側にある実点まで使った
+        // 二次外挿（3*current - 3*next + 外側の点）に変更する。これなら先端はしっかり
+        // 曲がりつつ、隣の区間が使う接線（実点同士から素直に計算したCatmull-Rom接線）と
+        // 完全に一致するため、マーカー位置でのキンクが起きない。
+        // ただし、この「もう一つ外側の実点」は、連結線の継ぎ目（corners）をまたいだ先に
+        // ある場合は使ってはいけない。継ぎ目の向こう側は別々の（元は独立していた）線であり、
+        // そちらの点を使って手前の直線の接線を決めてしまうと、変形（曲げ）を一切していない
+        // のに継ぎ目の手前の直線区間が勝手にカーブしてゆがんで見える原因になる。
+        const isCornerBefore = !!(corners && corners[i]);
+        const isCornerAfter = !!(corners && corners[i + 1]);
+        let previous;
+        if (isCornerBefore) {
+            previous = current;
+        } else if (points[i - 1]) {
+            previous = points[i - 1];
+        } else if (points[i + 2] && !isCornerAfter) {
+            previous = { x: 3 * current.x - 3 * next.x + points[i + 2].x, y: 3 * current.y - 3 * next.y + points[i + 2].y };
+        } else {
+            previous = { x: 2 * current.x - next.x, y: 2 * current.y - next.y };
+        }
+        let afterNext;
+        if (isCornerAfter) {
+            afterNext = next;
+        } else if (points[i + 2]) {
+            afterNext = points[i + 2];
+        } else if (points[i - 1] && !isCornerBefore) {
+            afterNext = { x: 3 * next.x - 3 * current.x + points[i - 1].x, y: 3 * next.y - 3 * current.y + points[i - 1].y };
+        } else {
+            afterNext = { x: 2 * next.x - current.x, y: 2 * next.y - current.y };
+        }
         const control1 = {
             x: current.x + (next.x - previous.x) / 6,
             y: current.y + (next.y - previous.y) / 6
@@ -3941,12 +3999,12 @@
             x: next.x - (afterNext.x - current.x) / 6,
             y: next.y - (afterNext.y - current.y) / 6
         };
-        const minX = Math.min(current.x, next.x), maxX = Math.max(current.x, next.x);
-        const minY = Math.min(current.y, next.y), maxY = Math.max(current.y, next.y);
-        control1.x = Math.max(minX, Math.min(maxX, control1.x));
-        control1.y = Math.max(minY, Math.min(maxY, control1.y));
-        control2.x = Math.max(minX, Math.min(maxX, control2.x));
-        control2.y = Math.max(minY, Math.min(maxY, control2.y));
+        // 注: 以前はここで制御点を「このセグメント自身の始点・終点だけで作った
+        // 矩形」の内側にクランプしていたが、その矩形はセグメントごとに形が違うため、
+        // 同じマーカー位置を挟む隣同士のセグメントがそれぞれ別の矩形でクランプされ、
+        // 結果として同じ点のはずの接線が食い違い、マーカー位置でキンクする原因に
+        // なっていた。クランプをやめることで、隣接セグメント同士の接線が常に
+        // 一致するようにする。
         return { control1, control2 };
     }
     function drawSmoothPath(ctx, points, close = false) {
@@ -4012,6 +4070,17 @@
             bends.push({ x: item.x1 + (item.x2 - item.x1) * tt, y: item.y1 + (item.y2 - item.y1) * tt });
         }
         item.bends = bends;
+    }
+    // 選択アイテムのドラッグ開始時に「元の状態」をスナップショットするヘルパー。
+    // 単純な {...it} だと bends（変形マーカー）配列は参照がそのままコピーされるため、
+    // ドラッグ中に item.bends を書き換えると同じ配列を指す originalSelectedState 側の
+    // bends まで一緒に変わってしまい、移動量(dx/dy)の計算基準がおかしくなる。
+    // ここでは bends も1階層分ディープコピーしておく。
+    function cloneSelStateItem(it) {
+        if (it.type === 'group') {
+            return { ...it, lines: it.lines.map(l => ({ ...l, bends: (l.bends || []).map(b => ({ ...b })) })) };
+        }
+        return { ...it, bends: (it.bends || []).map(b => ({ ...b })) };
     }
     function isNearLine(px, py, item) {
         if (item.type === 'group') return item.lines.some(l => isNearLine(px, py, l));
@@ -4079,11 +4148,11 @@
     // それらを一切変更せずに「入場用の値」と「退場用の値」を独立させるため、
     // 退場タブを表示している間だけ、退場用に退避してある値を一時的にトップレベルへ
     // 差し替え、退場タブを離れる際に入場用の値へ戻す、という単純なスワップ方式を取る。
-    const ANIM_SWAP_KEYS_COMMON = ['zOffset', 'xOffset', 'yOffset', 'rOffset', 'zOffsetEnd', 'xOffsetEnd', 'yOffsetEnd', 'rOffsetEnd',
-        'duration', 'drawDuration', 'xDuration', 'yDuration', 'rDuration',
-        'zEasing', 'xEasing', 'yEasing', 'rEasing', 'dEasing', 'zBezier', 'xBezier', 'yBezier', 'rBezier', 'dBezier',
+    const ANIM_SWAP_KEYS_COMMON = ['zOffset', 'xOffset', 'yOffset', 'rOffset', 'fOffset', 'zOffsetEnd', 'xOffsetEnd', 'yOffsetEnd', 'rOffsetEnd', 'fOffsetEnd',
+        'duration', 'drawDuration', 'xDuration', 'yDuration', 'rDuration', 'fDuration',
+        'zEasing', 'xEasing', 'yEasing', 'rEasing', 'dEasing', 'fEasing', 'zBezier', 'xBezier', 'yBezier', 'rBezier', 'dBezier', 'fBezier',
         'rCenterX', 'rCenterY'];
-    const ANIM_SWAP_KEYS_ITEM_ONLY = ['zMids', 'xMids', 'yMids', 'rMids', 'drawMids', 'zStartFrame', 'xStartFrame', 'yStartFrame', 'rStartFrame', 'drawStartFrame'];
+    const ANIM_SWAP_KEYS_ITEM_ONLY = ['zMids', 'xMids', 'yMids', 'rMids', 'drawMids', 'fMids', 'zStartFrame', 'xStartFrame', 'yStartFrame', 'rStartFrame', 'drawStartFrame', 'fStartFrame'];
     function _animSwapKeys(isItem) { return isItem ? ANIM_SWAP_KEYS_COMMON.concat(ANIM_SWAP_KEYS_ITEM_ONLY) : ANIM_SWAP_KEYS_COMMON; }
     function _cloneAnimVal(v) { return Array.isArray(v) ? v.map(x => (x && typeof x === 'object') ? Object.assign({}, x) : x) : v; }
     function _snapshotAnimKeys(obj, keys) {
@@ -4145,16 +4214,11 @@
         return { x: world.x + off.x, y: world.y + off.y };
     }
 
-    // ── 入場モード/退場モードでの「線の連結（連結して扱う／グループ解除）」の同期の仕組み ──
+    // ── 入場モード/退場モードで「線の連結（連結して扱う／グループ解除）」も独立させる仕組み ──
     // 「連結して扱う」は複数の線アイテムを1つの continuous なグループアイテムへ統合する“構造的な”
     // 操作で、上のアニメーション値スワップ（同じオブジェクトの一部プロパティだけを入れ替える方式）
     // では表現できない（アイテムの個数そのものが変わるため）。そのため連結状態については
     // レイヤーごとに layer.items 全体を丸ごと複製・退避し、タブ切替のたびに丸ごと差し替える。
-    // 連結状態は基本的に入場側と退場側で同期しており、入場側の連結・グループ解除がそのまま
-    // 退場側にも反映される。ただし退場タブ側で明示的に連結設定を変更した場合（connectSelectedLines /
-    // ungroupSelected / reverseSelectedContinuousLine）は、そのレイヤーの layer.__exitConnDesynced を
-    // 立てて以後の自動同期を止め、退場側で作った独自の連結構造を保持する（線の追加・削除のみ
-    // _syncLineExistence で引き続き同期する）。
     function _cloneLayerItems(items) {
         return JSON.parse(JSON.stringify(items || []));
     }
@@ -4215,21 +4279,13 @@
         });
         return kept;
     }
-    // 現在の連結状態（入場用）を保存し、退場用の連結状態を適用する。
-    // 退場側でユーザーが「連結して扱う／グループ解除」等を行って連結設定を独自に
-    // 変更していない限り（__exitConnDesynced が立っていない限り）、退場用の連結状態は
-    // 入場用にそのまま追従させる（基本的に同期）。一度でも退場側で変更されたら、
-    // 以後はその独自構造を保ちつつ線の追加・削除だけを同期する（従来の挙動）。
+    // 現在の連結状態（入場用）を保存し、退場用の連結状態（無ければ現在の状態を複製）を適用する
     function _activateExitLineConnections() {
         layers.forEach(layer => {
             const enterSnapshot = _cloneLayerItems(layer.items);
             layer.__enterItems = enterSnapshot;
-            if (layer.__exitConnDesynced) {
-                if (!layer.__exitItems) layer.__exitItems = _cloneLayerItems(layer.items);
-                else layer.__exitItems = _syncLineExistence(enterSnapshot, layer.__exitItems);
-            } else {
-                layer.__exitItems = _cloneLayerItems(enterSnapshot);
-            }
+            if (!layer.__exitItems) layer.__exitItems = _cloneLayerItems(layer.items);
+            else layer.__exitItems = _syncLineExistence(enterSnapshot, layer.__exitItems);
             layer.items = _cloneLayerItems(layer.__exitItems);
         });
         if (typeof selectedItems !== 'undefined') selectedItems = _remapItemsAfterLineConnectionSwap(selectedItems);
@@ -4518,7 +4574,7 @@
             document.getElementById('prop-colorAlphaNum').value = v;
             _updateAlphaDisp('prop', v);
             updateAlphaSliderTrack('prop-colorAlpha', document.getElementById('prop-color').value);
-            updateSelectedProps();
+            updateSelectedProps('color');
         }
     }
     function syncAlphaNum(type) {
@@ -4535,7 +4591,7 @@
             document.getElementById('prop-colorAlphaNum').value = v;
             _updateAlphaDisp('prop', v);
             updateAlphaSliderTrack('prop-colorAlpha', document.getElementById('prop-color').value);
-            updateSelectedProps();
+            updateSelectedProps('color');
         } else if (type === 'bg') {
             const v = Math.min(100, Math.max(0, parseInt(document.getElementById('bgColorAlphaNum').value)||0));
             document.getElementById('bgColorAlpha').value = v;
@@ -4561,7 +4617,7 @@
             if (swatch) swatch.style.background = color;
         }
     }
-    function syncPicker(type) { let hexInput = type === 'global' ? document.getElementById('lineColorHex') : document.getElementById('prop-colorHex'); let picker = type === 'global' ? document.getElementById('lineColor') : document.getElementById('prop-color'); let val = hexInput.value; if (!val.startsWith('#')) val = '#' + val; if (/^#[0-9A-F]{6}$/i.test(val)) { picker.value = val; if (type === 'global') { syncPickerBorder('lineColor', 'global-picker-outer'); updateAlphaSliderTrack('lineColorAlpha', val); if (typeof updateSizeCard === 'function') updateSizeCard(); } else { syncPickerBorder('prop-color', 'prop-picker-outer'); updateAlphaSliderTrack('prop-colorAlpha', val); updateSelectedProps(); } } }
+    function syncPicker(type) { let hexInput = type === 'global' ? document.getElementById('lineColorHex') : document.getElementById('prop-colorHex'); let picker = type === 'global' ? document.getElementById('lineColor') : document.getElementById('prop-color'); let val = hexInput.value; if (!val.startsWith('#')) val = '#' + val; if (/^#[0-9A-F]{6}$/i.test(val)) { picker.value = val; if (type === 'global') { syncPickerBorder('lineColor', 'global-picker-outer'); updateAlphaSliderTrack('lineColorAlpha', val); if (typeof updateSizeCard === 'function') updateSizeCard(); } else { syncPickerBorder('prop-color', 'prop-picker-outer'); updateAlphaSliderTrack('prop-colorAlpha', val); updateSelectedProps('color'); } } }
     function saveState() { undoStack.push(JSON.stringify(layers)); if (undoStack.length > 50) undoStack.shift(); redoStack = []; }
     function undo() { if (undoStack.length === 0) return; redoStack.push(JSON.stringify(layers)); layers = JSON.parse(undoStack.pop()); selectedItems = []; render(animT); }
     function redo() { if (redoStack.length === 0) return; undoStack.push(JSON.stringify(layers)); layers = JSON.parse(redoStack.pop()); selectedItems = []; render(animT); }
@@ -4641,7 +4697,7 @@
             pickerRedraw(); pickerEmit();
             return; // pickerEmit が lineColor を更新し addColorToHistory も呼ぶ
         }
-        const p = parseColorToHexAlpha(color); document.getElementById('lineColor').value = p.hex; document.getElementById('lineColorHex').value = p.hex; document.getElementById('lineColorAlpha').value = p.alpha; document.getElementById('lineColorAlphaNum').value = p.alpha; syncPickerBorder('lineColor', 'global-picker-outer'); updateAlphaSliderTrack('lineColorAlpha', p.hex); if (typeof updateSizeCard === 'function') updateSizeCard(); if (selectedItems.length > 0) { document.getElementById('prop-color').value = p.hex; document.getElementById('prop-colorHex').value = p.hex; document.getElementById('prop-colorAlpha').value = p.alpha; document.getElementById('prop-colorAlphaNum').value = p.alpha; syncPickerBorder('prop-color', 'prop-picker-outer'); updateAlphaSliderTrack('prop-colorAlpha', p.hex); updateSelectedProps(); }
+        const p = parseColorToHexAlpha(color); document.getElementById('lineColor').value = p.hex; document.getElementById('lineColorHex').value = p.hex; document.getElementById('lineColorAlpha').value = p.alpha; document.getElementById('lineColorAlphaNum').value = p.alpha; syncPickerBorder('lineColor', 'global-picker-outer'); updateAlphaSliderTrack('lineColorAlpha', p.hex); if (typeof updateSizeCard === 'function') updateSizeCard(); if (selectedItems.length > 0) { document.getElementById('prop-color').value = p.hex; document.getElementById('prop-colorHex').value = p.hex; document.getElementById('prop-colorAlpha').value = p.alpha; document.getElementById('prop-colorAlphaNum').value = p.alpha; syncPickerBorder('prop-color', 'prop-picker-outer'); updateAlphaSliderTrack('prop-colorAlpha', p.hex); updateSelectedProps('color'); }
     }
 
     // 既存レイヤー名と被らない "Layer N" を返す
@@ -4651,7 +4707,7 @@
         while (existing.has(`Layer ${n}`)) n++;
         return `Layer ${n}`;
     }
-    function addLayer() { saveState(); layers.push({ id: Date.now(), name: nextLayerName(), items: [], visible: true, angleStep: 45, angleOffset: 0, lengthStepX: 50, lengthStepY: 50, triSideA: 50, triSideB: 50, triSideC: 50, gridOffsetX: 0, gridOffsetY: 0, snapMode: 2, opacity: 100, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth' }); activeLayerIndex = layers.length - 1; render(); }
+    function addLayer() { saveState(); layers.push({ id: Date.now(), name: nextLayerName(), items: [], visible: true, angleStep: 45, angleOffset: 0, lengthStepX: 50, lengthStepY: 50, triSideA: 50, triSideB: 50, triSideC: 50, gridOffsetX: 0, gridOffsetY: 0, snapMode: 2, opacity: 100, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, fOffset: 100, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, fOffsetEnd: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, fDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth', fEasing: 'smooth' }); activeLayerIndex = layers.length - 1; render(); }
     function duplicateSelected() {
         if (selectedItems.length === 0) return;
         saveState();
@@ -4974,7 +5030,7 @@
         slider.max = maxVal; numEl.max = maxVal;
         const cur = Math.min(parseInt(numEl.value) || 1, maxVal);
         slider.value = cur; numEl.value = cur;
-        updateSelectedProps(); updatePropSizeCard();
+        updateSelectedProps('width'); updatePropSizeCard();
     }
     function updatePropSizeCard() {
         const cv = document.getElementById('propSizePreviewCanvas');
@@ -5006,7 +5062,7 @@
         const pcs = document.getElementById('prop-lineCapStart').value;
         const pce = document.getElementById('prop-lineCapEnd').value;
         drawPropLinecapPreviews(pcs, pce);
-        updateSelectedProps();
+        updateSelectedProps(side === 'start' ? ['lineCapStart', 'lineCap'] : ['lineCapEnd']);
     }
     function drawPropLinecapPreviews(capStart, capEnd) { setTimeout(updatePropSizeCard, 10);
         const col = document.getElementById('prop-color') ? document.getElementById('prop-color').value : 'var(--c-c5c)';
@@ -5107,19 +5163,71 @@
         // linecapプレビュー更新
         drawLinecapPreview(color);
     }
+    // ── 図形ツール（四角形/円/三角形/角丸四角形をまとめた「図形」ツール）──
+    // 内部的にはこれまで通り 'rect-shape' / 'circle-shape' / 'triangle-shape' / 'roundrect-shape' の
+    // 4つのtool値を使うが、UI上は1つの「図形」ボタンにまとめ、右下の小バッジで種類を順番に切り替える。
+    const SHAPE_KIND_ORDER = ['rect-shape', 'roundrect-shape', 'circle-shape', 'triangle-shape'];
+    function isShapeTool(toolValue) { return SHAPE_KIND_ORDER.includes(toolValue); }
+    const SHAPE_TOOL_ICONS = {
+        'rect-shape': '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="12" rx="1"/></svg>',
+        'circle-shape': '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/></svg>',
+        'triangle-shape': '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,4 21,20 3,20"/></svg>',
+        'roundrect-shape': '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="12" rx="5"/></svg>'
+    };
+    const SHAPE_TOOL_LABELS = { 'rect-shape': '四角形', 'circle-shape': '円', 'triangle-shape': '三角形', 'roundrect-shape': '角丸四角形' };
+    function currentShapeKind() {
+        const el = document.getElementById('shape-tool-kind');
+        const v = el ? el.value : 'rect-shape';
+        return isShapeTool(v) ? v : 'rect-shape';
+    }
+    function otherShapeKind() {
+        const idx = SHAPE_KIND_ORDER.indexOf(currentShapeKind());
+        return SHAPE_KIND_ORDER[(idx + 1) % SHAPE_KIND_ORDER.length];
+    }
+    function rememberShapeKind(toolValue) {
+        if (!isShapeTool(toolValue)) return;
+        const el = document.getElementById('shape-tool-kind');
+        if (el) el.value = toolValue;
+        updateShapeToolUI();
+    }
+    function updateShapeToolUI() {
+        const kind = currentShapeKind();
+        const icon = document.getElementById('shape-tool-icon');
+        const label = document.getElementById('shape-tool-label');
+        const badge = document.getElementById('shape-kind-btn');
+        if (icon) icon.innerHTML = SHAPE_TOOL_ICONS[kind];
+        if (label) label.textContent = '図形';
+        if (badge) badge.innerHTML = SHAPE_TOOL_ICONS[otherShapeKind()];
+        const btn = document.getElementById('shape-tool-btn');
+        if (btn) btn.title = 'ドラッグして' + SHAPE_TOOL_LABELS[kind] + 'を描く（現在: ' + SHAPE_TOOL_LABELS[kind] + '）';
+    }
+    function toggleShapeKind(event) {
+        if (event) event.stopPropagation();
+        rememberShapeKind(otherShapeKind());
+        selectTool(currentShapeKind());
+    }
     function selectTool(toolValue) {
         const radio = document.querySelector(`input[name="tool"][value="${toolValue}"]`);
         if (radio) { radio.checked = true; }
+        rememberShapeKind(toolValue);
         document.querySelectorAll('.seg-btn').forEach(btn => {
-            _cls(btn).toggle('active', btn.dataset.tool === toolValue);
+            const toolNames = (btn.dataset.tool || '').split(' ');
+            _cls(btn).toggle('active', toolNames.includes(toolValue));
         });
         const isSelect = toolValue === 'select';
         const isPen    = toolValue === 'pen';
+        const isShape  = isShapeTool(toolValue);
         document.querySelectorAll('.multi-badge').forEach(badge => {
             if (badge.id === 'pen-correct-btn') {
                 // 連結バッジ: active状態は維持、ペン時のみ操作可能
                 badge.style.opacity = isPen ? '1' : '0.25';
                 badge.style.pointerEvents = isPen ? 'auto' : 'none';
+                return;
+            }
+            if (badge.id === 'shape-kind-btn') {
+                // 図形種類バッジ: 図形ツール選択時のみ操作可能
+                badge.style.opacity = isShape ? '1' : '0.25';
+                badge.style.pointerEvents = isShape ? 'auto' : 'none';
                 return;
             }
             badge.style.opacity = isSelect ? '1' : '0.25';
@@ -5156,16 +5264,25 @@
     function syncSegButtons() {
         const checked = document.querySelector('input[name="tool"]:checked');
         if (!checked) return;
+        rememberShapeKind(checked.value);
         document.querySelectorAll('.seg-btn').forEach(btn => {
-            _cls(btn).toggle('active', btn.dataset.tool === checked.value);
+            const toolNames = (btn.dataset.tool || '').split(' ');
+            _cls(btn).toggle('active', toolNames.includes(checked.value));
         });
         const isSelect = checked && checked.value === 'select';
         const isPen    = checked && checked.value === 'pen';
+        const isShape  = checked && isShapeTool(checked.value);
         document.querySelectorAll('.multi-badge').forEach(btn => {
             if (btn.id === 'pen-correct-btn') {
                 // 連結バッジ: ペン選択時のみ有効（active状態は保持）
                 btn.style.opacity = isPen ? '1' : '0.25';
                 btn.style.pointerEvents = isPen ? 'auto' : 'none';
+                return;
+            }
+            if (btn.id === 'shape-kind-btn') {
+                // 図形種類バッジ: 図形ツール選択時のみ有効
+                btn.style.opacity = isShape ? '1' : '0.25';
+                btn.style.pointerEvents = isShape ? 'auto' : 'none';
                 return;
             }
             const group = btn.closest('.tool-group');
@@ -5197,30 +5314,36 @@
             xStartFrame: getTrackStartFrame(first, 'x'),
             yStartFrame: getTrackStartFrame(first, 'y'),
             rStartFrame: getTrackStartFrame(first, 'r'),
+            fStartFrame: getTrackStartFrame(first, 'f'),
             duration: first.duration !== undefined ? first.duration : layer.duration,
             drawDuration: first.drawDuration !== undefined ? first.drawDuration : layer.drawDuration,
             xDuration: first.xDuration !== undefined ? first.xDuration : (layer.xDuration || layer.duration),
             yDuration: first.yDuration !== undefined ? first.yDuration : (layer.yDuration || layer.duration),
             rDuration: first.rDuration !== undefined ? first.rDuration : (layer.rDuration || layer.duration),
+            fDuration: first.fDuration !== undefined ? first.fDuration : (layer.fDuration || layer.duration),
             zOffset: first.zOffset !== undefined ? first.zOffset : layer.zOffset,
             xOffset: first.xOffset !== undefined ? first.xOffset : (layer.xOffset || 0),
             yOffset: first.yOffset !== undefined ? first.yOffset : (layer.yOffset || 0),
             rOffset: first.rOffset !== undefined ? first.rOffset : (layer.rOffset || 0),
+            fOffset: first.fOffset !== undefined ? first.fOffset : (layer.fOffset !== undefined ? layer.fOffset : 100),
             zOffsetEnd: first.zOffsetEnd !== undefined ? first.zOffsetEnd : (layer.zOffsetEnd || 0),
             xOffsetEnd: first.xOffsetEnd !== undefined ? first.xOffsetEnd : (layer.xOffsetEnd || 0),
             yOffsetEnd: first.yOffsetEnd !== undefined ? first.yOffsetEnd : (layer.yOffsetEnd || 0),
             rOffsetEnd: first.rOffsetEnd !== undefined ? first.rOffsetEnd : (layer.rOffsetEnd || 0),
+            fOffsetEnd: first.fOffsetEnd !== undefined ? first.fOffsetEnd : (layer.fOffsetEnd !== undefined ? layer.fOffsetEnd : 100),
             opacity: first.opacity !== undefined ? first.opacity : 100,
             zEasing: first.zEasing || layer.zEasing || 'smooth',
             xEasing: first.xEasing || layer.xEasing || 'smooth',
             yEasing: first.yEasing || layer.yEasing || 'smooth',
             rEasing: first.rEasing || layer.rEasing || 'smooth',
             dEasing: first.dEasing || layer.dEasing || 'smooth',
+            fEasing: first.fEasing || layer.fEasing || 'smooth',
             zBezier: first.zBezier ? [...first.zBezier] : undefined,
             xBezier: first.xBezier ? [...first.xBezier] : undefined,
             yBezier: first.yBezier ? [...first.yBezier] : undefined,
             rBezier: first.rBezier ? [...first.rBezier] : undefined,
             dBezier: first.dBezier ? [...first.dBezier] : undefined,
+            fBezier: first.fBezier ? [...first.fBezier] : undefined,
             color: first.color, width: first.width,
             lineCapStart: first.lineCapStart || first.lineCap || 'round',
             lineCapEnd: orderedLines[orderedLines.length - 1].lineCapEnd || orderedLines[orderedLines.length - 1].lineCap || 'round',
@@ -5422,12 +5545,26 @@
         const tp = document.getElementById('timeline-panel');
         if (tp && tp.classList.contains('open') && typeof renderTimeline === 'function') renderTimeline();
     }
-    function _applySelectedProps() {
+    function _applySelectedProps(keys) {
         // saveState なしでプロパティだけ反映（スライダードラッグ中のリアルタイムプレビュー用）
+        // keys: 実際に変更されたプロパティ名（文字列 or 配列）。指定された場合はそのプロパティのみ
+        // 選択中の全アイテムへ適用し、それ以外のプロパティは各アイテムの元の値のまま保持する。
+        // 複数選択時、触っていない値までパネルの表示値で上書きしてしまわないようにするための仕組み。
         if (selectedItems.length === 0) return;
-        const props = { zOffset: parseFloat(document.getElementById('prop-zOffset').value), xOffset: parseFloat(document.getElementById('prop-xOffset').value), yOffset: parseFloat(document.getElementById('prop-yOffset').value), rOffset: parseFloat(document.getElementById('prop-rOffset').value), zOffsetEnd: parseFloat(document.getElementById('prop-zOffsetEnd').value), xOffsetEnd: parseFloat(document.getElementById('prop-xOffsetEnd').value), yOffsetEnd: parseFloat(document.getElementById('prop-yOffsetEnd').value), rOffsetEnd: parseFloat(document.getElementById('prop-rOffsetEnd').value), opacity: parseFloat(document.getElementById('prop-opacity').value), width: parseFloat(document.getElementById('prop-width').value), color: getPropColor(), zEasing: document.getElementById('prop-zEasing').value, xEasing: document.getElementById('prop-xEasing').value, yEasing: document.getElementById('prop-yEasing').value, rEasing: document.getElementById('prop-rEasing').value, dEasing: document.getElementById('prop-dEasing').value, lineCapStart: document.getElementById('prop-lineCapStart').value, lineCapEnd: document.getElementById('prop-lineCapEnd').value, lineCap: document.getElementById('prop-lineCapStart').value };
+        const allProps = { zOffset: parseFloat(document.getElementById('prop-zOffset').value), xOffset: parseFloat(document.getElementById('prop-xOffset').value), yOffset: parseFloat(document.getElementById('prop-yOffset').value), rOffset: parseFloat(document.getElementById('prop-rOffset').value), fOffset: parseFloat(document.getElementById('prop-fOffset').value), zOffsetEnd: parseFloat(document.getElementById('prop-zOffsetEnd').value), xOffsetEnd: parseFloat(document.getElementById('prop-xOffsetEnd').value), yOffsetEnd: parseFloat(document.getElementById('prop-yOffsetEnd').value), rOffsetEnd: parseFloat(document.getElementById('prop-rOffsetEnd').value), fOffsetEnd: parseFloat(document.getElementById('prop-fOffsetEnd').value), opacity: parseFloat(document.getElementById('prop-opacity').value), width: parseFloat(document.getElementById('prop-width').value), color: getPropColor(), zEasing: document.getElementById('prop-zEasing').value, xEasing: document.getElementById('prop-xEasing').value, yEasing: document.getElementById('prop-yEasing').value, rEasing: document.getElementById('prop-rEasing').value, dEasing: document.getElementById('prop-dEasing').value, fEasing: document.getElementById('prop-fEasing').value, lineCapStart: document.getElementById('prop-lineCapStart').value, lineCapEnd: document.getElementById('prop-lineCapEnd').value, lineCap: document.getElementById('prop-lineCapStart').value };
+        const applyKeys = keys == null ? Object.keys(allProps) : (Array.isArray(keys) ? keys : [keys]);
+        const props = {};
+        applyKeys.forEach(k => {
+            if (!(k in allProps)) return;
+            const v = allProps[k];
+            // 入力途中（空欄・"-"のみ等）でNaNになっている場合はまだ反映しない。
+            // フォーカスを外さず操作しても、確定済みの値を壊さないようにするためのガード。
+            if (typeof v === 'number' && isNaN(v)) return;
+            props[k] = v;
+        });
         EASING_KEYS.forEach(track => {
-            if (document.getElementById('prop-' + track + 'Easing').value === 'custom') props[easingBezierKey(track)] = getBezierEditorValues(track);
+            const eKey = track + 'Easing', bKey = easingBezierKey(track);
+            if (document.getElementById('prop-' + track + 'Easing').value === 'custom' && (applyKeys.includes(eKey) || applyKeys.includes(bKey))) props[bKey] = getBezierEditorValues(track);
         });
         selectedItems.forEach(item => {
             if (item.type === 'group') {
@@ -5458,16 +5595,16 @@
     }
     window.addEventListener('pointerup', endSelectedPropsEdit);
     window.addEventListener('focusout', endSelectedPropsEdit);
-    function updateSelectedProps() {
+    function updateSelectedProps(keys) {
         // saveState ありの確定版（onchange / ボタン操作時に呼ぶ）
         if (selectedItems.length === 0) return;
         beginSelectedPropsEdit();
-        _applySelectedProps();
+        _applySelectedProps(keys);
     }
-    function updateSelectedPropsLive() {
+    function updateSelectedPropsLive(keys) {
         // saveState なしのリアルタイム版（oninput で呼ぶ）
         beginSelectedPropsEdit();
-        _applySelectedProps();
+        _applySelectedProps(keys);
     }
     // ── ベジエ曲線グラフ（ドラッグ編集） ──
     const BEZIER_GRAPH_Y_MIN = -1, BEZIER_GRAPH_Y_MAX = 2; // 表示範囲（値自体のクランプ範囲は±2まで）
@@ -5627,7 +5764,7 @@
                 inputs[xIdx].value = clampBezierValue(graphPt.x, xIdx);
                 inputs[yIdx].value = clampBezierValue(graphPt.y, yIdx);
                 drawBezierGraph(track, getBezierEditorValues(track), true);
-                updateSelectedPropsLive();
+                updateSelectedPropsLive(track + 'Easing');
                 evt.preventDefault();
             });
             const endDrag = evt => {
@@ -5668,14 +5805,14 @@
                 updateCustomEasing(track);
             }
         }
-        updateSelectedProps();
+        updateSelectedProps(track + 'Easing');
     }
     function updateCustomEasing(track) {
         const select = document.getElementById('prop-' + track + 'Easing');
         if (!select) return;
         select.value = 'custom';
         renderBezierEditor(track, getBezierEditorValues(track), true);
-        updateSelectedProps();
+        updateSelectedProps(track + 'Easing');
     }
     function updateMarkerCount(delta) {
         if (selectedItems.length === 0) return;
@@ -5728,6 +5865,8 @@
         document.getElementById('prop-xOffsetEnd').value = firstLine.xOffsetEnd || 0;
         document.getElementById('prop-yOffsetEnd').value = firstLine.yOffsetEnd || 0;
         document.getElementById('prop-rOffsetEnd').value = firstLine.rOffsetEnd || 0;
+        document.getElementById('prop-fOffset').value = firstLine.fOffset !== undefined ? firstLine.fOffset : 100;
+        document.getElementById('prop-fOffsetEnd').value = firstLine.fOffsetEnd !== undefined ? firstLine.fOffsetEnd : 100;
         const opacityVal = firstLine.opacity !== undefined ? firstLine.opacity : 100;
         document.getElementById('prop-opacity').value = opacityVal;
         document.getElementById('prop-opacity-slider').value = opacityVal;
@@ -5751,8 +5890,8 @@
         drawPropLinecapPreviews(pcs, pce);
         const propMarkerCountEl = document.getElementById('prop-markerCount');
         if (propMarkerCountEl) propMarkerCountEl.value = firstLine.markerCount || 0;
-        const zSelect = document.getElementById('prop-zEasing'), xSelect = document.getElementById('prop-xEasing'), ySelect = document.getElementById('prop-yEasing'), rSelect = document.getElementById('prop-rEasing'), dSelect = document.getElementById('prop-dEasing');
-        [zSelect, xSelect, ySelect, rSelect, dSelect].forEach(select => { select.innerHTML = Object.keys(EASING_PRESETS).map(k => `<option value='${k}'>${k}</option>`).join('') + '<option value="custom">custom</option>'; });
+        const zSelect = document.getElementById('prop-zEasing'), xSelect = document.getElementById('prop-xEasing'), ySelect = document.getElementById('prop-yEasing'), rSelect = document.getElementById('prop-rEasing'), dSelect = document.getElementById('prop-dEasing'), fSelect = document.getElementById('prop-fEasing');
+        [zSelect, xSelect, ySelect, rSelect, dSelect, fSelect].forEach(select => { select.innerHTML = Object.keys(EASING_PRESETS).map(k => `<option value='${k}'>${k}</option>`).join('') + '<option value="custom">custom</option>'; });
         EASING_KEYS.forEach(track => {
             const select = document.getElementById('prop-' + track + 'Easing');
             const custom = firstLine[easingBezierKey(track)];
@@ -5878,13 +6017,24 @@
             const xOffsetEnd = item.xOffsetEnd !== undefined ? item.xOffsetEnd : (layer.xOffsetEnd || 0);
             const yOffsetEnd = item.yOffsetEnd !== undefined ? item.yOffsetEnd : (layer.yOffsetEnd || 0);
             const rOffsetEnd = item.rOffsetEnd !== undefined ? item.rOffsetEnd : (layer.rOffsetEnd || 0);
+            const fOffset = item.fOffset !== undefined ? item.fOffset : (layer.fOffset !== undefined ? layer.fOffset : 100);
+            const fOffsetEnd = item.fOffsetEnd !== undefined ? item.fOffsetEnd : (layer.fOffsetEnd !== undefined ? layer.fOffsetEnd : 100);
             const zCurve = getEasingCurve(item, layer, 'z');
             const xCurve = getEasingCurve(item, layer, 'x');
             const yCurve = getEasingCurve(item, layer, 'y');
             const rCurve = getEasingCurve(item, layer, 'r');
             const dCurve = getEasingCurve(item, layer, 'd');
+            const fCurve = getEasingCurve(item, layer, 'f');
             const itemOpacity = item.opacity !== undefined ? item.opacity : 100;
             const lineCapStart = item.lineCapStart || item.lineCap || 'round'; const lineCapEnd = item.lineCapEnd || item.lineCap || 'round';
+            // 線の色自体にalpha（半透明）が含まれる場合、本体とキャップを別々に stroke()
+            // すると重なった部分だけ余分に濃く見えてしまう。色のalpha成分を切り出して
+            // globalAlpha側に統合し、strokeStyleには常に不透明な色を使うことで、
+            // 既存のオフスクリーンバッファ合成ロジック（globalAlpha<1で自動的にバッファ経由になる）
+            // がこのケースにも正しく効くようにする。
+            const _colorInfo = parseColorToHexAlpha(item.color || '#ffffff');
+            const _opaqueItemColor = _colorInfo.hex;
+            const _itemColorAlphaFrac = _colorInfo.alpha / 100;
             const fps = getAnimationFPS();
             const tSec = t * totalDuration;
             const currentFrameNum = tSec * fps;
@@ -5892,16 +6042,19 @@
             const xStartFrame = getTrackStartFrame(item, 'x');
             const yStartFrame = getTrackStartFrame(item, 'y');
             const rStartFrame = getTrackStartFrame(item, 'r');
+            const fStartFrame = getTrackStartFrame(item, 'f');
             const zDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'z') * fps));
             const xDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'x') * fps));
             const yDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'y') * fps));
             const rDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'r') * fps));
+            const fDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'f') * fps));
             const drawStartFrame = getTrackStartFrame(item, 'draw');
             const drawDurFrames = Math.max(1, Math.round(drawDuration * fps));
             let currentZ = getPiecewiseValue(buildTrackKeyframes(item, 'z', zStartFrame, zStartFrame + zDurFrames, zOffset, zOffsetEnd), currentFrameNum, zCurve);
             const currentXOffset = getPiecewiseValue(buildTrackKeyframes(item, 'x', xStartFrame, xStartFrame + xDurFrames, xOffset, xOffsetEnd), currentFrameNum, xCurve);
             const currentYOffset = getPiecewiseValue(buildTrackKeyframes(item, 'y', yStartFrame, yStartFrame + yDurFrames, yOffset, yOffsetEnd), currentFrameNum, yCurve);
             let currentR = getPiecewiseValue(buildTrackKeyframes(item, 'r', rStartFrame, rStartFrame + rDurFrames, rOffset, rOffsetEnd), currentFrameNum, rCurve);
+            const currentFadePct = getPiecewiseValue(buildTrackKeyframes(item, 'f', fStartFrame, fStartFrame + fDurFrames, fOffset, fOffsetEnd), currentFrameNum, fCurve);
             // 描画トラックも中間点(drawMids)を挟めるよう、x/y/zと同じ区分的補間を使う。
             // 中間点が無ければ従来通り 0→1 の単純な2点補間と完全に一致する。
             let localTdAnim = getPiecewiseValue(buildTrackKeyframes(item, 'draw', drawStartFrame, drawStartFrame + drawDurFrames, 0, 1), currentFrameNum, dCurve);
@@ -5912,7 +6065,7 @@
             const pScale = 500 / Math.max(1, 500 + currentZ);
             // レイヤー不透明度はここでは掛けない（レイヤー全体をオフスクリーンでまとめて合成する際に一括適用するため）。
             // こうしないと同一レイヤー内で線が重なった部分だけ余分に濃くなってしまう。
-            mCtx.globalAlpha = (itemOpacity / 100);
+            mCtx.globalAlpha = (itemOpacity / 100) * Math.max(0, Math.min(1, currentFadePct / 100)) * _itemColorAlphaFrac;
             // サブピクセルにじみ防止: 座標をDPR単位で丸める
             const _snap = (v) => Math.round(v * _scaledDpr) / _scaledDpr;
             // 回転(currentR, 度)は中心(_rcX, _rcY)基準で、拡縮(pScale)後・平行移動前に適用する。
@@ -5966,7 +6119,7 @@
             const me = (_revealFrac >= 1) ? item.miterEnd : null;
             const needClip = ms || me;
 
-            mCtx.strokeStyle = item.color; mCtx.lineWidth = item.width * pScale;
+            mCtx.strokeStyle = _opaqueItemColor; mCtx.lineWidth = item.width * pScale;
             const dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx*dx+dy*dy);
             const ux = len > 0 ? dx/len : 1, uy = len > 0 ? dy/len : 0;
             const hw = (item.width * pScale) / 2;
@@ -5979,6 +6132,29 @@
             const ux1 = _rl1 > 0 ? _rd1x / _rl1 : ux, uy1 = _rl1 > 0 ? _rd1y / _rl1 : uy;
 
             if (!overlayOnly) {
+            // 本体とキャップは別々の stroke() 呼び出しになるため、不透明度<100%のまま両方描くと
+            // 重なった部分（キャップ付け根）だけ余分に濃く見えてしまう。これを防ぐため、
+            // 不透明度<100%のときは一旦アルファ1でオフスクリーンバッファに描き、
+            // 最後に一度だけ目的の不透明度で本キャンバスへ合成する。
+            const _itemDrawAlpha = mCtx.globalAlpha;
+            const _itemRealCtx = mCtx;
+            const _useItemBuf = _itemDrawAlpha < 1 && _itemDrawAlpha > 0;
+            if (_useItemBuf) {
+                if (itemCanvas.width !== mCanvas.width) itemCanvas.width = mCanvas.width;
+                if (itemCanvas.height !== mCanvas.height) itemCanvas.height = mCanvas.height;
+                itemCtx.setTransform(1, 0, 0, 1, 0, 0);
+                itemCtx.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
+                itemCtx.setTransform(_scaledDpr, 0, 0, _scaledDpr, 0, 0);
+                mCtx = itemCtx;
+                mCtx.globalAlpha = 1;
+                // strokeStyle/lineWidth は元のコンテキストに設定済みだったため、
+                // 切り替え後のバッファ側にも同じ値を再設定する
+                mCtx.strokeStyle = _opaqueItemColor; mCtx.lineWidth = item.width * pScale;
+            } else if (_itemDrawAlpha <= 0) {
+                // 完全透明なら描画不要
+                mCtx = _itemRealCtx;
+            }
+            if (_itemDrawAlpha > 0) {
             if (needClip) {
                 const toScreen = (wx, wy) => {
                     const p = _tfRaw(wx, wy);
@@ -6055,6 +6231,15 @@
                 } else {
                     mCtx.beginPath(); mCtx.moveTo(x1, y1); mCtx.lineTo(x2, y2); mCtx.lineCap = 'butt'; mCtx.stroke();
                 }
+            }
+            } // _itemDrawAlpha > 0
+            if (_useItemBuf) {
+                mCtx = _itemRealCtx;
+                mCtx.setTransform(1, 0, 0, 1, 0, 0);
+                mCtx.globalAlpha = _itemDrawAlpha;
+                mCtx.drawImage(itemCanvas, 0, 0);
+                mCtx.globalAlpha = 1;
+                mCtx.setTransform(_scaledDpr, 0, 0, _scaledDpr, 0, 0);
             }
             } // !overlayOnly
             // アニメ中も端点を操作できるよう、選択表示は再生位置に依存させない。
@@ -6174,19 +6359,24 @@
             const _gXOffsetEnd = item.xOffsetEnd !== undefined ? item.xOffsetEnd : (layer.xOffsetEnd || 0);
             const _gYOffsetEnd = item.yOffsetEnd !== undefined ? item.yOffsetEnd : (layer.yOffsetEnd || 0);
             const _gROffsetEnd = item.rOffsetEnd !== undefined ? item.rOffsetEnd : (layer.rOffsetEnd || 0);
+            const _gFOffset = item.fOffset !== undefined ? item.fOffset : (layer.fOffset !== undefined ? layer.fOffset : 100);
+            const _gFOffsetEnd = item.fOffsetEnd !== undefined ? item.fOffsetEnd : (layer.fOffsetEnd !== undefined ? layer.fOffsetEnd : 100);
             const _gCurrentFrameNum = t * totalDuration * fps;
             const _gZStartFrame = getTrackStartFrame(item, 'z');
             const _gXStartFrame = getTrackStartFrame(item, 'x');
             const _gYStartFrame = getTrackStartFrame(item, 'y');
             const _gRStartFrame = getTrackStartFrame(item, 'r');
+            const _gFStartFrame = getTrackStartFrame(item, 'f');
             const _gZDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'z') * fps));
             const _gXDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'x') * fps));
             const _gYDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'y') * fps));
             const _gRDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'r') * fps));
+            const _gFDurFrames = Math.max(1, Math.round(getTrackDuration(item, layer, 'f') * fps));
             const currentZ = getPiecewiseValue(buildTrackKeyframes(item, 'z', _gZStartFrame, _gZStartFrame + _gZDurFrames, _gZOffset, _gZOffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'z'));
             const currentXOffset = getPiecewiseValue(buildTrackKeyframes(item, 'x', _gXStartFrame, _gXStartFrame + _gXDurFrames, _gXOffset, _gXOffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'x'));
             const currentYOffset = getPiecewiseValue(buildTrackKeyframes(item, 'y', _gYStartFrame, _gYStartFrame + _gYDurFrames, _gYOffset, _gYOffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'y'));
             const currentR = getPiecewiseValue(buildTrackKeyframes(item, 'r', _gRStartFrame, _gRStartFrame + _gRDurFrames, _gROffset, _gROffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'r'));
+            const currentGroupFadePct = getPiecewiseValue(buildTrackKeyframes(item, 'f', _gFStartFrame, _gFStartFrame + _gFDurFrames, _gFOffset, _gFOffsetEnd), _gCurrentFrameNum, getEasingCurve(item, layer, 'f'));
             const pScale = 500 / Math.max(1, 500 + currentZ);
             // 回転中心: 既定はキャンバス中央(centerX, centerY)だが、グループ自身が
             // 独自の回転中心(rCenterX/rCenterY)を持つ場合はそちらを使う。
@@ -6239,12 +6429,18 @@
                 const lenN = Math.hypot(dxN, dyN);
                 if (lenN > 0) drawPts[n] = { x: drawPts[n].x + (dxN / lenN) * (endWidth / 2), y: drawPts[n].y + (dyN / lenN) * (endWidth / 2) };
             }
-            const curveDrawPts = sampleSmoothPath(drawPts, 16, corners);
+            const curveDrawPts = (item.shapeKind === 'circle') ? drawPts : sampleSmoothPath(drawPts, 16, corners);
             const totalLength = curveDrawPts.slice(1).reduce((sum, point, index) => sum + Math.hypot(point.x - curveDrawPts[index].x, point.y - curveDrawPts[index].y), 0);
+            // 退場モードで「一周する（閉じた）連結線」の場合、消えていく向きを
+            // 描画（入場）時とは逆向きにする。通常のままだと curveDrawPts の並び順どおり
+            // 終点側から消えていってしまうため、閉ループのときだけ traversal を反転し、
+            // 始点側から消えていくようにする。
+            const _reverseExitDraw = item.closed && currentMode === 'anim' && animSubMode === 'exit';
+            const traversalPts = _reverseExitDraw ? curveDrawPts.slice().reverse() : curveDrawPts;
             let remaining = totalLength * wholeRevealFrac;
-            const visiblePoints = [curveDrawPts[0]];
-            for (let i = 1; i < curveDrawPts.length && remaining > 0; i++) {
-                const from = curveDrawPts[i - 1], to = curveDrawPts[i];
+            const visiblePoints = [traversalPts[0]];
+            for (let i = 1; i < traversalPts.length && remaining > 0; i++) {
+                const from = traversalPts[i - 1], to = traversalPts[i];
                 const segmentLength = Math.hypot(to.x - from.x, to.y - from.y);
                 if (remaining >= segmentLength) {
                     visiblePoints.push(to);
@@ -6256,7 +6452,11 @@
             }
             if (visiblePoints.length > 1) {
                 // レイヤー不透明度はここでは掛けない（オフスクリーンでまとめて合成する際に一括適用）
-                const opacity = (item.opacity !== undefined ? item.opacity : 100) / 100;
+                // 色自体にalphaが含まれる場合も、本体とキャップの重なりが余分に濃くならないよう
+                // ここでopacityに統合し、strokeStyleには不透明色を使う。
+                const _grpColorInfo = parseColorToHexAlpha(item.color || '#ffffff');
+                const _grpOpaqueColor = _grpColorInfo.hex;
+                const opacity = ((item.opacity !== undefined ? item.opacity : 100) / 100) * Math.max(0, Math.min(1, currentGroupFadePct / 100)) * (_grpColorInfo.alpha / 100);
                 const drawPath = () => {
                     mCtx.beginPath();
                     drawSampledPath(mCtx, visiblePoints, item.closed && wholeRevealFrac >= 1);
@@ -6267,11 +6467,35 @@
                     drawPath(); mCtx.stroke();
                 }
                 if (!overlayOnly) {
-                    mCtx.globalAlpha = opacity; mCtx.strokeStyle = item.color; mCtx.lineWidth = item.width * pScale; mCtx.lineCap = 'butt'; mCtx.lineJoin = 'round';
-                    drawPath(); mCtx.stroke();
-                    const start = visiblePoints[0], next = visiblePoints[1], end = visiblePoints[visiblePoints.length - 1], previous = visiblePoints[visiblePoints.length - 2];
-                    if (!item.closed && capStart !== 'butt') { mCtx.lineWidth = startWidth; mCtx.beginPath(); mCtx.moveTo(start.x, start.y); mCtx.lineTo(start.x + (next.x - start.x) * 0.01, start.y + (next.y - start.y) * 0.01); mCtx.lineCap = capStart; mCtx.stroke(); }
-                    if (!item.closed && capEnd !== 'butt') { mCtx.lineWidth = endWidth; mCtx.beginPath(); mCtx.moveTo(previous.x, previous.y); mCtx.lineTo(end.x, end.y); mCtx.lineCap = capEnd; mCtx.stroke(); }
+                    // 本体とキャップを別々の stroke() で描くと、不透明度<100%のまま両方描いた場合に
+                    // 重なった部分（キャップ付け根）だけ余分に濃く見える。不透明度<100%のときは
+                    // 一旦アルファ1でオフスクリーンバッファに描き、最後に一度だけ合成する。
+                    const _grpUseBuf = opacity < 1 && opacity > 0;
+                    const _grpRealCtx = mCtx;
+                    if (_grpUseBuf) {
+                        if (itemCanvas.width !== mCanvas.width) itemCanvas.width = mCanvas.width;
+                        if (itemCanvas.height !== mCanvas.height) itemCanvas.height = mCanvas.height;
+                        itemCtx.setTransform(1, 0, 0, 1, 0, 0);
+                        itemCtx.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
+                        itemCtx.setTransform(_scaledDpr, 0, 0, _scaledDpr, 0, 0);
+                        mCtx = itemCtx;
+                    }
+                    if (opacity > 0) {
+                        mCtx.globalAlpha = _grpUseBuf ? 1 : opacity;
+                        mCtx.strokeStyle = _grpOpaqueColor; mCtx.lineWidth = item.width * pScale; mCtx.lineCap = 'butt'; mCtx.lineJoin = 'round';
+                        drawPath(); mCtx.stroke();
+                        const start = visiblePoints[0], next = visiblePoints[1], end = visiblePoints[visiblePoints.length - 1], previous = visiblePoints[visiblePoints.length - 2];
+                        if (!item.closed && capStart !== 'butt') { mCtx.lineWidth = startWidth; mCtx.beginPath(); mCtx.moveTo(start.x, start.y); mCtx.lineTo(start.x + (next.x - start.x) * 0.01, start.y + (next.y - start.y) * 0.01); mCtx.lineCap = capStart; mCtx.stroke(); }
+                        if (!item.closed && capEnd !== 'butt') { mCtx.lineWidth = endWidth; mCtx.beginPath(); mCtx.moveTo(previous.x, previous.y); mCtx.lineTo(end.x, end.y); mCtx.lineCap = capEnd; mCtx.stroke(); }
+                    }
+                    if (_grpUseBuf) {
+                        mCtx = _grpRealCtx;
+                        mCtx.setTransform(1, 0, 0, 1, 0, 0);
+                        mCtx.globalAlpha = opacity;
+                        mCtx.drawImage(itemCanvas, 0, 0);
+                        mCtx.globalAlpha = 1;
+                        mCtx.setTransform(_scaledDpr, 0, 0, _scaledDpr, 0, 0);
+                    }
                 }
                 if (!contentOnly && t === 1 && currentTool === 'select' && isSelected) {
                     mCtx.globalAlpha = 1; mCtx.fillStyle = DIM_HEX; mCtx.strokeStyle = LINE_HEX; mCtx.lineWidth = 1.5;
@@ -6769,7 +6993,16 @@
         // タイムラインが開いていて再生中でもドラッグ中でもない場合は軽量同期
         if (!animReq && !tl.dragging) {
             const tp = document.getElementById('timeline-panel');
-            if (tp && tp.classList.contains('open')) updateTimelineSelection();
+            if (tp && tp.classList.contains('open')) {
+                // フォーカス（アクティブ）レイヤーが前回のタイムライン描画時から変わっている場合、
+                // 選択状態の軽量同期(updateTimelineSelection)だけでは古いレイヤーのバーが
+                // 残ってしまうため、タイムライン全体を再構築する。
+                if (tl.renderedLayerIndex !== activeLayerIndex) {
+                    renderTimeline();
+                } else {
+                    updateTimelineSelection();
+                }
+            }
         }
 
         // サムネイル自動保存（デバウンス）
@@ -7037,11 +7270,49 @@
     }
     // ─────────────────────────────────────────────────────
 
+    // ── 図形ツール用の頂点計算ヘルパー ──
+    // 円・角丸四角形の曲線部分は「多数の短い直線」で近似しているため、分割数が少ないと
+    // 特に大きく描いた場合や拡大表示した際に角張って見えてしまう。図形のサイズ（半径）に応じて
+    // 分割数を増やし、どのサイズでも滑らかな曲線に見えるようにする。
+    function arcSegmentCount(radius, minSegs, maxSegs) {
+        const segs = Math.round(Math.sqrt(Math.max(radius, 1)) * 6);
+        return Math.max(minSegs, Math.min(maxSegs, segs));
+    }
+    function getTriangleVertices(x0, y0, x1, y1) {
+        // 頂点が上・底辺が下の二等辺三角形（バウンディングボックスに内接）
+        return [
+            { x: (x0 + x1) / 2, y: y0 },
+            { x: x1, y: y1 },
+            { x: x0, y: y1 }
+        ];
+    }
+    function getRoundRectRadius(w, h) {
+        return Math.max(2, Math.min(w, h) * 0.25);
+    }
+    function getRoundRectVertices(x0, y0, x1, y1, segsPerCorner) {
+        const w = x1 - x0, h = y1 - y0;
+        const r = Math.min(getRoundRectRadius(w, h), w / 2, h / 2);
+        if (!segsPerCorner) segsPerCorner = arcSegmentCount(r, 14, 48);
+        const corners = [
+            { cx: x1 - r, cy: y0 + r, start: -Math.PI / 2, end: 0 },        // 右上
+            { cx: x1 - r, cy: y1 - r, start: 0, end: Math.PI / 2 },         // 右下
+            { cx: x0 + r, cy: y1 - r, start: Math.PI / 2, end: Math.PI },   // 左下
+            { cx: x0 + r, cy: y0 + r, start: Math.PI, end: Math.PI * 1.5 } // 左上
+        ];
+        const pts = [];
+        corners.forEach(c => {
+            for (let i = 0; i <= segsPerCorner; i++) {
+                const t = c.start + (c.end - c.start) * (i / segsPerCorner);
+                pts.push({ x: c.cx + Math.cos(t) * r, y: c.cy + Math.sin(t) * r });
+            }
+        });
+        return pts;
+    }
     function canvasDown(clientX, clientY) {
         drawing = true; const rect = uiCanvas.getBoundingClientRect(), pos = { x: (clientX - rect.left) / scale, y: (clientY - rect.top) / scale };
         const layer = layers[activeLayerIndex], tool = (document.querySelector('input[name="tool"]:checked') || {value:'pen'}).value;
         if (!layer) { drawing = false; return; }
-        if (tool === 'pen') {
+        if (tool === 'pen' || isShapeTool(tool)) {
             if (layer.snapMode == 3) {
                 // 三角形グリッド: 始点は最も近い三角形格子の頂点へスナップする
                 // （従来はここで矩形グリッド用の lengthStepX/Y が使われており、
@@ -7194,7 +7465,7 @@
                     const multiB = (isMultiSelectMode());
                     if (inBBox && !multiB) {
                         isDraggingItems = { hasSaved: false, pendingSelection: null };
-                        originalSelectedState = selectedItems.map(it => it.type === 'group' ? {...it, lines: it.lines.map(l => ({...l}))} : {...it});
+                        originalSelectedState = selectedItems.map(cloneSelStateItem);
                         render(animT); return;
                     }
                 }
@@ -7204,7 +7475,7 @@
                 const multi = (isMultiSelectMode());
                 if (!multi && selectedItems.some(item => isNearLine(pos.x, pos.y, item))) {
                     isDraggingItems = { hasSaved: false, pendingSelection: null };
-                    originalSelectedState = selectedItems.map(it => it.type === 'group' ? {...it, lines: it.lines.map(l => ({...l}))} : {...it});
+                    originalSelectedState = selectedItems.map(cloneSelStateItem);
                     render(animT); return;
                 }
             }
@@ -7215,7 +7486,7 @@
                 else if (tool === 'select') {
                     const multi = (isMultiSelectMode());
                     if (multi) { if (hits.every(h => selectedItems.includes(h))) selectedItems = selectedItems.filter(i => !hits.includes(i)); else hits.forEach(h => { if (!selectedItems.includes(h)) selectedItems.push(h); }); drawing = false; }
-                    else { isDraggingItems = { hasSaved: false, pendingSelection: hits }; originalSelectedState = selectedItems.map(it => it.type === 'group' ? {...it, lines: it.lines.map(l => ({...l}))} : {...it}); }
+                    else { isDraggingItems = { hasSaved: false, pendingSelection: hits }; originalSelectedState = selectedItems.map(cloneSelStateItem); }
                 }
             } else if (tool === 'select') {
                 const multi = (isMultiSelectMode());
@@ -7449,13 +7720,34 @@
         }
         if (tool === 'pen') {
             const sn = snap(pos.x, pos.y, startX, startY, layer); currentX = sn.x; currentY = sn.y;
-            uiCtx.setTransform(scale*(window.devicePixelRatio||1),0,0,scale*(window.devicePixelRatio||1),0,0); uiCtx.clearRect(0, 0, uiCanvas.width/(scale*(window.devicePixelRatio||1)), uiCanvas.height/(scale*(window.devicePixelRatio||1))); const _cs = document.getElementById('lineCapStart') ? document.getElementById('lineCapStart').value : 'round'; const _ce = document.getElementById('lineCapEnd') ? document.getElementById('lineCapEnd').value : 'round'; const _dx=currentX-startX,_dy=currentY-startY,_len=Math.sqrt(_dx*_dx+_dy*_dy); uiCtx.strokeStyle=getLineColor(); uiCtx.lineWidth=penWidth; if(_len>0){const _ux=_dx/_len,_uy=_dy/_len; const _hw=penWidth/2; const _ex1=_cs==='butt'?startX-_ux*_hw:startX; const _ey1=_cs==='butt'?startY-_uy*_hw:startY; const _ex2=_ce==='butt'?currentX+_ux*_hw:currentX; const _ey2=_ce==='butt'?currentY+_uy*_hw:currentY; uiCtx.beginPath(); uiCtx.moveTo(_ex1,_ey1); uiCtx.lineTo(_ex2,_ey2); uiCtx.lineCap='butt'; uiCtx.stroke(); if(_cs!=='butt'){uiCtx.beginPath(); uiCtx.moveTo(startX,startY); uiCtx.lineTo(startX-_ux*0.01,startY-_uy*0.01); uiCtx.lineCap=_cs; uiCtx.stroke();} if(_ce!=='butt'){uiCtx.beginPath(); uiCtx.moveTo(currentX,currentY); uiCtx.lineTo(currentX+_ux*0.01,currentY+_uy*0.01); uiCtx.lineCap=_ce; uiCtx.stroke();}} render(animT, true);
+            const _uiDpr = scale*(window.devicePixelRatio||1);
+            uiCtx.setTransform(_uiDpr,0,0,_uiDpr,0,0); uiCtx.clearRect(0, 0, uiCanvas.width/_uiDpr, uiCanvas.height/_uiDpr);
+            const _cs = document.getElementById('lineCapStart') ? document.getElementById('lineCapStart').value : 'round'; const _ce = document.getElementById('lineCapEnd') ? document.getElementById('lineCapEnd').value : 'round'; const _dx=currentX-startX,_dy=currentY-startY,_len=Math.sqrt(_dx*_dx+_dy*_dy);
+            // 本体とキャップは別々の stroke() 呼び出しになるため、線の色に不透明度(alpha)が
+            // 含まれている場合、そのまま両方描くと重なった部分（キャップ付け根）だけ余分に
+            // 濃く見えてしまう。これを防ぐため、不透明度<100%のときは一旦不透明色で
+            // オフスクリーンバッファ(itemCanvas)に描き、最後に一度だけ目的の不透明度で
+            // uiCanvas へ合成する。
+            const _penAlpha = parseInt(document.getElementById('lineColorAlpha').value);
+            const _useBuf = _penAlpha < 100 && _penAlpha > 0;
+            let _drawCtx = uiCtx;
+            if (_useBuf) {
+                if (itemCanvas.width !== uiCanvas.width) itemCanvas.width = uiCanvas.width;
+                if (itemCanvas.height !== uiCanvas.height) itemCanvas.height = uiCanvas.height;
+                itemCtx.setTransform(1,0,0,1,0,0); itemCtx.clearRect(0,0,itemCanvas.width,itemCanvas.height);
+                itemCtx.setTransform(_uiDpr,0,0,_uiDpr,0,0);
+                _drawCtx = itemCtx;
+            }
+            _drawCtx.strokeStyle = _useBuf ? document.getElementById('lineColor').value : getLineColor(); _drawCtx.lineWidth=penWidth;
+            if(_len>0){const _ux=_dx/_len,_uy=_dy/_len; const _hw=penWidth/2; const _ex1=_cs==='butt'?startX-_ux*_hw:startX; const _ey1=_cs==='butt'?startY-_uy*_hw:startY; const _ex2=_ce==='butt'?currentX+_ux*_hw:currentX; const _ey2=_ce==='butt'?currentY+_uy*_hw:currentY; _drawCtx.beginPath(); _drawCtx.moveTo(_ex1,_ey1); _drawCtx.lineTo(_ex2,_ey2); _drawCtx.lineCap='butt'; _drawCtx.stroke(); if(_cs!=='butt'){_drawCtx.beginPath(); _drawCtx.moveTo(startX,startY); _drawCtx.lineTo(startX-_ux*0.01,startY-_uy*0.01); _drawCtx.lineCap=_cs; _drawCtx.stroke();} if(_ce!=='butt'){_drawCtx.beginPath(); _drawCtx.moveTo(currentX,currentY); _drawCtx.lineTo(currentX+_ux*0.01,currentY+_uy*0.01); _drawCtx.lineCap=_ce; _drawCtx.stroke();}}
+            if (_useBuf) { uiCtx.setTransform(1,0,0,1,0,0); uiCtx.globalAlpha = _penAlpha/100; uiCtx.drawImage(itemCanvas, 0, 0); uiCtx.globalAlpha = 1; uiCtx.setTransform(_uiDpr,0,0,_uiDpr,0,0); }
+            render(animT, true);
         } else if (tool === 'select') {
             if (isDraggingItems) {
                 // アニメーションモードでは移動を禁止
                 if (currentMode === 'anim') return;
                 // pendingSelectionがある場合、実際に動き始めたタイミングで選択を確定
-                if (isDraggingItems.pendingSelection) { selectedItems = isDraggingItems.pendingSelection; bboxRotation = 0; isDraggingItems.pendingSelection = null; originalSelectedState = selectedItems.map(it => it.type === 'group' ? {...it, lines: it.lines.map(l => ({...l}))} : {...it}); }
+                if (isDraggingItems.pendingSelection) { selectedItems = isDraggingItems.pendingSelection; bboxRotation = 0; isDraggingItems.pendingSelection = null; originalSelectedState = selectedItems.map(cloneSelStateItem); }
                 pendingClear = false;
                 if (!isDraggingItems.hasSaved) { saveState(); isDraggingItems.hasSaved = true; } let dx = pos.x - startX, dy = pos.y - startY;
                 if (layer.snapMode == 3) {
@@ -7473,8 +7765,8 @@
                     if (layer.lengthStepY > 0) dy = Math.round(dy / layer.lengthStepY) * layer.lengthStepY;
                 }
                 selectedItems.forEach((item, i) => { const orig = originalSelectedState[i]; if (!orig) return;
-                    if (item.type === 'group') { item.lines.forEach((line, j) => { const ol = orig.lines[j]; if (ol) { line.x1 = ol.x1 + dx; line.y1 = ol.y1 + dy; line.x2 = ol.x2 + dx; line.y2 = ol.y2 + dy; } }); }
-                    else { item.x1 = orig.x1 + dx; item.y1 = orig.y1 + dy; item.x2 = orig.x2 + dx; item.y2 = orig.y2 + dy; }
+                    if (item.type === 'group') { item.lines.forEach((line, j) => { const ol = orig.lines[j]; if (ol) { line.x1 = ol.x1 + dx; line.y1 = ol.y1 + dy; line.x2 = ol.x2 + dx; line.y2 = ol.y2 + dy; if (line.bends && line.bends.length && ol.bends) { line.bends.forEach((b, k) => { const ob = ol.bends[k]; if (ob) { b.x = ob.x + dx; b.y = ob.y + dy; } }); } } }); }
+                    else { item.x1 = orig.x1 + dx; item.y1 = orig.y1 + dy; item.x2 = orig.x2 + dx; item.y2 = orig.y2 + dy; if (item.bends && item.bends.length && orig.bends) { item.bends.forEach((b, k) => { const ob = orig.bends[k]; if (ob) { b.x = ob.x + dx; b.y = ob.y + dy; } }); } }
                 });
                 clearAllMiters(); // Fix-C: 移動後に全マイターデータをクリア（相手線も含む）
                 render(animT, true);
@@ -7482,6 +7774,46 @@
                 pendingClear = false; // 矩形ドラッグが始まったので選択解除はキャンセル
                 currentX = pos.x; currentY = pos.y; uiCtx.setTransform(scale*(window.devicePixelRatio||1),0,0,scale*(window.devicePixelRatio||1),0,0); uiCtx.clearRect(0, 0, uiCanvas.width/(scale*(window.devicePixelRatio||1)), uiCanvas.height/(scale*(window.devicePixelRatio||1))); uiCtx.setLineDash([5, 5]); uiCtx.lineWidth = 1.5; uiCtx.strokeStyle = SELECT_BOX_HEX; uiCtx.strokeRect(startX, startY, currentX - startX, currentY - startY); uiCtx.setLineDash([]);
             }
+        } else if (isShapeTool(tool)) {
+            // 図形ツール（四角形/円/三角形/角丸四角形）: ドラッグでバウンディングボックスを決め、プレビューを表示する。
+            // 始点はcanvasDownで既にグリッドスナップ済みなので、終点側も同じグリッドへスナップする
+            // （ペンツールのsnap()は角度スナップ用のため、軸ごとに独立してスナップするここでは使わない）。
+            let nx = pos.x, ny = pos.y;
+            if (layer.snapMode == 3) {
+                const tp = nearestTriGridPoint(nx, ny, layer);
+                if (tp) { nx = tp.x; ny = tp.y; }
+            } else {
+                const ox = layer.gridOffsetX || 0, oy = layer.gridOffsetY || 0;
+                if (layer.lengthStepX > 0) nx = Math.round((nx - ox) / layer.lengthStepX) * layer.lengthStepX + ox;
+                if (layer.lengthStepY > 0) ny = Math.round((ny - oy) / layer.lengthStepY) * layer.lengthStepY + oy;
+            }
+            currentX = nx; currentY = ny;
+            uiCtx.setTransform(scale*(window.devicePixelRatio||1),0,0,scale*(window.devicePixelRatio||1),0,0); uiCtx.clearRect(0, 0, uiCanvas.width/(scale*(window.devicePixelRatio||1)), uiCanvas.height/(scale*(window.devicePixelRatio||1)));
+            const sx0 = Math.min(startX, currentX), sy0 = Math.min(startY, currentY);
+            const sw = Math.abs(currentX - startX), sh = Math.abs(currentY - startY);
+            uiCtx.strokeStyle = getLineColor(); uiCtx.lineWidth = penWidth; uiCtx.lineCap = 'round'; uiCtx.lineJoin = 'round';
+            if (tool === 'rect-shape') {
+                uiCtx.strokeRect(sx0, sy0, sw, sh);
+            } else if (tool === 'circle-shape') {
+                uiCtx.beginPath();
+                uiCtx.ellipse(sx0 + sw / 2, sy0 + sh / 2, sw / 2, sh / 2, 0, 0, Math.PI * 2);
+                uiCtx.stroke();
+            } else if (tool === 'triangle-shape') {
+                const pts = getTriangleVertices(sx0, sy0, sx0 + sw, sy0 + sh);
+                uiCtx.beginPath();
+                uiCtx.moveTo(pts[0].x, pts[0].y);
+                for (let i = 1; i < pts.length; i++) uiCtx.lineTo(pts[i].x, pts[i].y);
+                uiCtx.closePath();
+                uiCtx.stroke();
+            } else if (tool === 'roundrect-shape') {
+                const pts = getRoundRectVertices(sx0, sy0, sx0 + sw, sy0 + sh);
+                uiCtx.beginPath();
+                uiCtx.moveTo(pts[0].x, pts[0].y);
+                for (let i = 1; i < pts.length; i++) uiCtx.lineTo(pts[i].x, pts[i].y);
+                uiCtx.closePath();
+                uiCtx.stroke();
+            }
+            render(animT, true);
         }
     }
 
@@ -7505,7 +7837,7 @@
             const drawnColor = getLineColor();
             const capStart = document.getElementById('lineCapStart') ? document.getElementById('lineCapStart').value : 'round';
             const capEnd = document.getElementById('lineCapEnd') ? document.getElementById('lineCapEnd').value : 'round';
-            const newLine = { id: genItemId(), x1: startX, y1: startY, x2: currentX, y2: currentY, color: drawnColor, width: penWidth, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, opacity: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth', lineCap: capStart, lineCapStart: capStart, lineCapEnd: capEnd };
+            const newLine = { id: genItemId(), x1: startX, y1: startY, x2: currentX, y2: currentY, color: drawnColor, width: penWidth, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, fOffset: 100, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, fOffsetEnd: 100, opacity: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, fDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth', fEasing: 'smooth', lineCap: capStart, lineCapStart: capStart, lineCapEnd: capEnd };
             // 連結モード: ON の場合、新しく描いた線の端点が既存線（または連結線）の
             // 自由端と重なっていれば、アニメーションモードの「連結して扱う」ボタンと
             // 同じ効果で自動的に1本の連結線として統合する。
@@ -7518,6 +7850,63 @@
             if (!_penConnected) {
                 layers[activeLayerIndex].items.push(newLine);
             }
+            addColorToHistory(drawnColor);
+        }
+        else if (isShapeTool(tool)) {
+            // 図形ツール: ドラッグしたバウンディングボックスから四角形/円/三角形/角丸四角形を組み立て、
+            // 「連結して扱う」機能（buildConnectedItem）と同じ閉じたループの連結線として1つのアイテムにまとめる。
+            // こうすることで選択・移動・アニメーション（描画/z/x/y/回転）が既存の連結線と全く同じ仕組みで動く。
+            const shapeW = Math.abs(currentX - startX), shapeH = Math.abs(currentY - startY);
+            // 3px未満（タップ誤操作）は保存しない
+            if (shapeW < 3 || shapeH < 3) { render(animT); return; }
+            const sx0 = Math.min(startX, currentX), sy0 = Math.min(startY, currentY);
+            const sx1 = sx0 + shapeW, sy1 = sy0 + shapeH;
+            const drawnColor = getLineColor();
+            const makeShapeSeg = (ax, ay, bx, by) => ({
+                id: genItemId(), x1: ax, y1: ay, x2: bx, y2: by, color: drawnColor, width: penWidth,
+                zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, fOffset: 100, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, fOffsetEnd: 100,
+                opacity: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, fDuration: 1.0,
+                zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth', fEasing: 'smooth',
+                lineCap: 'round', lineCapStart: 'round', lineCapEnd: 'round'
+            });
+            const buildLoopFromVerts = (verts) => {
+                const lines = [];
+                for (let i = 0; i < verts.length; i++) {
+                    const a = verts[i], b = verts[(i + 1) % verts.length];
+                    lines.push(makeShapeSeg(a.x, a.y, b.x, b.y));
+                }
+                return lines;
+            };
+            let orderedLines = [];
+            if (tool === 'rect-shape') {
+                orderedLines = buildLoopFromVerts([{ x: sx0, y: sy0 }, { x: sx1, y: sy0 }, { x: sx1, y: sy1 }, { x: sx0, y: sy1 }]);
+            } else if (tool === 'triangle-shape') {
+                orderedLines = buildLoopFromVerts(getTriangleVertices(sx0, sy0, sx1, sy1));
+            } else if (tool === 'roundrect-shape') {
+                // 角丸四角形: 4つの角を小さな線分の集まり（円弧近似）で表現し、円と同様に
+                // スムージングをかけずそのまま多角形として描画する（下記のshapeKind参照）。
+                orderedLines = buildLoopFromVerts(getRoundRectVertices(sx0, sy0, sx1, sy1));
+            } else {
+                const cx = (sx0 + sx1) / 2, cy = (sy0 + sy1) / 2, rx = shapeW / 2, ry = shapeH / 2;
+                // 直線の継ぎ目をスムージングせずそのまま多角形として描画するため（下記のshapeKind参照）、
+                // 円らしく見えるよう半径に応じて分割数を増やしておく（大きく描くほど滑らかにする）。
+                const segs = arcSegmentCount(Math.max(rx, ry), 64, 220);
+                const verts = [];
+                for (let i = 0; i < segs; i++) {
+                    const ang = (i / segs) * Math.PI * 2;
+                    verts.push({ x: cx + Math.cos(ang) * rx, y: cy + Math.sin(ang) * ry });
+                }
+                orderedLines = buildLoopFromVerts(verts);
+            }
+            saveState();
+            const shapeItem = buildConnectedItem(orderedLines, layers[activeLayerIndex], true);
+            // 円・角丸四角形は多角形の頂点間を滑らかな曲線で結ぶ必要がない（既に十分細かい多角形の
+            // ため）ので、四角形/三角形とは区別するフラグを立てる
+            // （drawContinuousGroup 側で、直線の継ぎ目として角を立てるスムージングを行わないようにする）。
+            if (tool === 'circle-shape' || tool === 'roundrect-shape') shapeItem.shapeKind = 'circle';
+            layers[activeLayerIndex].items.push(shapeItem);
+            selectedItems = [shapeItem];
+            bboxRotation = 0;
             addColorToHistory(drawnColor);
         }
         else if (tool === 'select') {
@@ -7995,8 +8384,6 @@
         const connected = buildConnectedItem(orderedLines, layer, isClosed);
         layer.items = layer.items.filter(item => !selectedItems.includes(item));
         layer.items.push(connected);
-        // 退場モード側で連結設定を変更した場合は、以後この線について入場側との自動同期を止める
-        if (layer && currentMode === 'anim' && animSubMode === 'exit') layer.__exitConnDesynced = true;
         selectedItems = [connected];
         bboxRotation = 0;
         render(animT);
@@ -8071,9 +8458,6 @@
         if (!item) { alert('連結した線を1つ選択してください'); return; }
         saveState();
         reverseContinuousLine(item);
-        // 退場モード側で連結線の向きを変更した場合は、以後この線について入場側との自動同期を止める
-        const layer = layers[activeLayerIndex];
-        if (layer && currentMode === 'anim' && animSubMode === 'exit') layer.__exitConnDesynced = true;
         render(animT);
         renderTimeline();
     }
@@ -8081,18 +8465,14 @@
         saveState();
         const layer = layers[activeLayerIndex];
         const newSelected = [];
-        let ungroupedAny = false;
         selectedItems.forEach(item => {
             if (item.type === 'group') {
                 layer.items = layer.items.filter(it => it !== item);
                 item.lines.forEach(line => { layer.items.push(line); newSelected.push(line); });
-                ungroupedAny = true;
             } else {
                 newSelected.push(item);
             }
         });
-        // 退場モード側でグループ解除した場合は、以後この線について入場側との自動同期を止める
-        if (ungroupedAny && layer && currentMode === 'anim' && animSubMode === 'exit') layer.__exitConnDesynced = true;
         selectedItems = newSelected;
         bboxRotation = 0;
         render(animT);
@@ -8580,17 +8960,22 @@
             const ey1 = (capS === 'butt' ? (y1 - uy0*hw) : y1).toFixed(3);
             const ex2 = (capE === 'butt' ? (x2 + ux1*hw) : x2).toFixed(3);
             const ey2 = (capE === 'butt' ? (y2 + uy1*hw) : y2).toFixed(3);
-            // 本体 (butt) : 始点/終点をキャップ延長込みの座標に差し替え、中間のマーカーはそのまま通す
+            // 本体とキャップは別々の <path>/<line> 要素になるため、それぞれに同じ
+            // opacity を個別に付けると重なった部分（キャップ付け根）だけSVG側でも
+            // 二重に合成されて余分に濃く見えてしまう。これを防ぐため、要素自体には
+            // opacity を付けず、外側の <g opacity="..."> でまとめて一度だけ適用する。
             const bodyPoints = [{ x: Number(ex1), y: Number(ey1) }, ...wpts.slice(1, -1), { x: Number(ex2), y: Number(ey2) }];
-            lines.push(`<path d="${smoothPathToSVG(bodyPoints)}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="butt" stroke-linejoin="round" opacity="${alpha.toFixed(3)}"/>`);
+            const capParts = [];
+            capParts.push(`<path d="${smoothPathToSVG(bodyPoints)}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="butt" stroke-linejoin="round"/>`);
             // 開始キャップ（butt以外）
             if (capS !== 'butt') {
-                lines.push(`<line x1="${x1}" y1="${y1}" x2="${(x1 - ux0*0.5).toFixed(3)}" y2="${(y1 - uy0*0.5).toFixed(3)}" stroke="${color}" stroke-width="${w}" stroke-linecap="${capS}" opacity="${alpha.toFixed(3)}"/>`);
+                capParts.push(`<line x1="${x1}" y1="${y1}" x2="${(x1 - ux0*0.5).toFixed(3)}" y2="${(y1 - uy0*0.5).toFixed(3)}" stroke="${color}" stroke-width="${w}" stroke-linecap="${capS}"/>`);
             }
             // 終了キャップ（butt以外）
             if (capE !== 'butt') {
-                lines.push(`<line x1="${x2}" y1="${y2}" x2="${(x2 + ux1*0.5).toFixed(3)}" y2="${(y2 + uy1*0.5).toFixed(3)}" stroke="${color}" stroke-width="${w}" stroke-linecap="${capE}" opacity="${alpha.toFixed(3)}"/>`);
+                capParts.push(`<line x1="${x2}" y1="${y2}" x2="${(x2 + ux1*0.5).toFixed(3)}" y2="${(y2 + uy1*0.5).toFixed(3)}" stroke="${color}" stroke-width="${w}" stroke-linecap="${capE}"/>`);
             }
+            lines.push(`<g opacity="${alpha.toFixed(3)}">\n${capParts.join('\n')}\n</g>`);
         } else {
             lines.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}" stroke-linecap="butt" opacity="${alpha.toFixed(3)}"/>`);
         }
@@ -8643,6 +9028,12 @@ ${layersSVG}
         layerBuf.width = offscreen.width;
         layerBuf.height = offscreen.height;
         const layerBufCtx = layerBuf.getContext('2d');
+        // アイテム自身の不透明度<100%のとき、本体とキャップ（別々のstroke）が重なる部分だけ
+        // 余分に濃くならないよう、一旦アルファ1でこのバッファに描いてから1回だけ合成する。
+        const itemBuf = document.createElement('canvas');
+        itemBuf.width = offscreen.width;
+        itemBuf.height = offscreen.height;
+        const itemBufCtx = itemBuf.getContext('2d');
         layers.forEach(layer => {
             if (!layer.visible) return;
             layerBufCtx.setTransform(1, 0, 0, 1, 0, 0);
@@ -8651,12 +9042,23 @@ ${layersSVG}
             layer.items.forEach(item => {
                 function drawItem(it) {
                     if (it.type === 'group') { it.lines.forEach(drawItem); return; }
-                    const alpha = (it.opacity !== undefined ? it.opacity : 100) / 100;
+                    // 色自体にalphaが含まれる場合も重なり部分が濃くならないよう、
+                    // 不透明色を切り出してalphaはopacityへ統合する。
+                    const _colorInfo = parseColorToHexAlpha(it.color || '#ffffff');
+                    const alpha = ((it.opacity !== undefined ? it.opacity : 100) / 100) * (_colorInfo.alpha / 100);
                     const capS = it.lineCapStart || it.lineCap || 'round';
                     const capE = it.lineCapEnd   || it.lineCap || 'round';
-                    layerBufCtx.globalAlpha = alpha;
-                    layerBufCtx.strokeStyle = it.color || 'var(--c-fff)';
-                    layerBufCtx.lineWidth = it.width || 2;
+                    const useBuf = alpha < 1 && alpha > 0;
+                    const targetCtx = useBuf ? itemBufCtx : layerBufCtx;
+                    if (useBuf) {
+                        itemBufCtx.setTransform(1, 0, 0, 1, 0, 0);
+                        itemBufCtx.clearRect(0, 0, itemBuf.width, itemBuf.height);
+                        itemBufCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    }
+                    if (alpha <= 0) return;
+                    targetCtx.globalAlpha = useBuf ? 1 : alpha;
+                    targetCtx.strokeStyle = _colorInfo.hex;
+                    targetCtx.lineWidth = it.width || 2;
                     const wpts = getLineWaypoints(it);
                     const ddx = it.x2-it.x1, ddy = it.y2-it.y1, len = Math.sqrt(ddx*ddx+ddy*ddy);
                     if (len > 0) {
@@ -8671,13 +9073,20 @@ ${layersSVG}
                         const ey1 = capS === 'butt' ? it.y1 - uy0 * hw : it.y1;
                         const ex2 = capE === 'butt' ? it.x2 + ux1 * hw : it.x2;
                         const ey2 = capE === 'butt' ? it.y2 + uy1 * hw : it.y2;
-                        layerBufCtx.lineCap = 'butt'; layerBufCtx.beginPath();
-                        drawSmoothPath(layerBufCtx, [{ x: ex1, y: ey1 }, ...wpts.slice(1, -1), { x: ex2, y: ey2 }]);
-                        layerBufCtx.stroke();
-                        if (capS !== 'butt') { layerBufCtx.lineCap = capS; layerBufCtx.beginPath(); layerBufCtx.moveTo(it.x1, it.y1); layerBufCtx.lineTo(it.x1-ux0*0.01, it.y1-uy0*0.01); layerBufCtx.stroke(); }
-                        if (capE !== 'butt') { layerBufCtx.lineCap = capE; layerBufCtx.beginPath(); layerBufCtx.moveTo(it.x2, it.y2); layerBufCtx.lineTo(it.x2+ux1*0.01, it.y2+uy1*0.01); layerBufCtx.stroke(); }
+                        targetCtx.lineCap = 'butt'; targetCtx.beginPath();
+                        drawSmoothPath(targetCtx, [{ x: ex1, y: ey1 }, ...wpts.slice(1, -1), { x: ex2, y: ey2 }]);
+                        targetCtx.stroke();
+                        if (capS !== 'butt') { targetCtx.lineCap = capS; targetCtx.beginPath(); targetCtx.moveTo(it.x1, it.y1); targetCtx.lineTo(it.x1-ux0*0.01, it.y1-uy0*0.01); targetCtx.stroke(); }
+                        if (capE !== 'butt') { targetCtx.lineCap = capE; targetCtx.beginPath(); targetCtx.moveTo(it.x2, it.y2); targetCtx.lineTo(it.x2+ux1*0.01, it.y2+uy1*0.01); targetCtx.stroke(); }
                     } else {
-                        layerBufCtx.lineCap = 'butt'; layerBufCtx.beginPath(); layerBufCtx.moveTo(it.x1, it.y1); layerBufCtx.lineTo(it.x2, it.y2); layerBufCtx.stroke();
+                        targetCtx.lineCap = 'butt'; targetCtx.beginPath(); targetCtx.moveTo(it.x1, it.y1); targetCtx.lineTo(it.x2, it.y2); targetCtx.stroke();
+                    }
+                    if (useBuf) {
+                        layerBufCtx.setTransform(1, 0, 0, 1, 0, 0);
+                        layerBufCtx.globalAlpha = alpha;
+                        layerBufCtx.drawImage(itemBuf, 0, 0);
+                        layerBufCtx.globalAlpha = 1;
+                        layerBufCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
                     }
                 }
                 drawItem(item);
@@ -8716,14 +9125,30 @@ ${layersSVG}
             layerBuf.width = W; layerBuf.height = H;
             const lbCtx = layerBuf.getContext('2d');
             lbCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            // アイテム自身の不透明度<100%のとき、本体とキャップ（別々のstroke）が重なる部分だけ
+            // 余分に濃くならないよう、一旦アルファ1でこのバッファに描いてから1回だけ合成する。
+            const itemBuf = document.createElement('canvas');
+            itemBuf.width = W; itemBuf.height = H;
+            const ibCtx = itemBuf.getContext('2d');
             function drawItemToCtx(item) {
                 if (item.type === 'group') { item.lines.forEach(drawItemToCtx); return; }
-                const alpha = (item.opacity !== undefined ? item.opacity : 100) / 100;
+                // 色自体にalphaが含まれる場合も重なり部分が濃くならないよう、
+                // 不透明色を切り出してalphaはopacityへ統合する。
+                const _colorInfo = parseColorToHexAlpha(item.color || '#ffffff');
+                const alpha = ((item.opacity !== undefined ? item.opacity : 100) / 100) * (_colorInfo.alpha / 100);
                 const capS = item.lineCapStart || item.lineCap || 'round';
                 const capE = item.lineCapEnd   || item.lineCap || 'round';
-                lbCtx.globalAlpha = alpha;
-                lbCtx.strokeStyle = item.color || 'var(--c-fff)';
-                lbCtx.lineWidth = item.width || 2;
+                const useBuf = alpha < 1 && alpha > 0;
+                const targetCtx = useBuf ? ibCtx : lbCtx;
+                if (useBuf) {
+                    ibCtx.setTransform(1, 0, 0, 1, 0, 0);
+                    ibCtx.clearRect(0, 0, itemBuf.width, itemBuf.height);
+                    ibCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                }
+                if (alpha <= 0) return;
+                targetCtx.globalAlpha = useBuf ? 1 : alpha;
+                targetCtx.strokeStyle = _colorInfo.hex;
+                targetCtx.lineWidth = item.width || 2;
                 const wpts = getLineWaypoints(item);
                 const ddx = item.x2-item.x1, ddy = item.y2-item.y1, len = Math.sqrt(ddx*ddx+ddy*ddy);
                 if (len > 0) {
@@ -8738,13 +9163,20 @@ ${layersSVG}
                     const ey1 = capS === 'butt' ? item.y1 - uy0 * hw : item.y1;
                     const ex2 = capE === 'butt' ? item.x2 + ux1 * hw : item.x2;
                     const ey2 = capE === 'butt' ? item.y2 + uy1 * hw : item.y2;
-                    lbCtx.lineCap = 'butt'; lbCtx.beginPath();
-                    drawSmoothPath(lbCtx, [{ x: ex1, y: ey1 }, ...wpts.slice(1, -1), { x: ex2, y: ey2 }]);
-                    lbCtx.stroke();
-                    if (capS !== 'butt') { lbCtx.lineCap = capS; lbCtx.beginPath(); lbCtx.moveTo(item.x1, item.y1); lbCtx.lineTo(item.x1-ux0*0.01, item.y1-uy0*0.01); lbCtx.stroke(); }
-                    if (capE !== 'butt') { lbCtx.lineCap = capE; lbCtx.beginPath(); lbCtx.moveTo(item.x2, item.y2); lbCtx.lineTo(item.x2+ux1*0.01, item.y2+uy1*0.01); lbCtx.stroke(); }
+                    targetCtx.lineCap = 'butt'; targetCtx.beginPath();
+                    drawSmoothPath(targetCtx, [{ x: ex1, y: ey1 }, ...wpts.slice(1, -1), { x: ex2, y: ey2 }]);
+                    targetCtx.stroke();
+                    if (capS !== 'butt') { targetCtx.lineCap = capS; targetCtx.beginPath(); targetCtx.moveTo(item.x1, item.y1); targetCtx.lineTo(item.x1-ux0*0.01, item.y1-uy0*0.01); targetCtx.stroke(); }
+                    if (capE !== 'butt') { targetCtx.lineCap = capE; targetCtx.beginPath(); targetCtx.moveTo(item.x2, item.y2); targetCtx.lineTo(item.x2+ux1*0.01, item.y2+uy1*0.01); targetCtx.stroke(); }
                 } else {
-                    lbCtx.lineCap = 'butt'; lbCtx.beginPath(); lbCtx.moveTo(item.x1, item.y1); lbCtx.lineTo(item.x2, item.y2); lbCtx.stroke();
+                    targetCtx.lineCap = 'butt'; targetCtx.beginPath(); targetCtx.moveTo(item.x1, item.y1); targetCtx.lineTo(item.x2, item.y2); targetCtx.stroke();
+                }
+                if (useBuf) {
+                    lbCtx.setTransform(1, 0, 0, 1, 0, 0);
+                    lbCtx.globalAlpha = alpha;
+                    lbCtx.drawImage(itemBuf, 0, 0);
+                    lbCtx.globalAlpha = 1;
+                    lbCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 }
             }
             layer.items.forEach(drawItemToCtx);
@@ -8898,14 +9330,18 @@ ${layersSVG}
                     if (layer.zOffsetEnd   === undefined) layer.zOffsetEnd   = 0;
                     if (layer.xOffsetEnd   === undefined) layer.xOffsetEnd   = 0;
                     if (layer.yOffsetEnd   === undefined) layer.yOffsetEnd   = 0;
+                    if (layer.fOffset      === undefined) layer.fOffset      = 100;
+                    if (layer.fOffsetEnd   === undefined) layer.fOffsetEnd   = 100;
                     if (layer.duration     === undefined) layer.duration     = 1.0;
                     if (layer.drawDuration === undefined) layer.drawDuration = 1.0;
                     if (layer.xDuration    === undefined) layer.xDuration    = layer.duration;
                     if (layer.yDuration    === undefined) layer.yDuration    = layer.duration;
+                    if (layer.fDuration    === undefined) layer.fDuration    = layer.duration;
                     if (layer.zEasing      === undefined) layer.zEasing      = 'smooth';
                     if (layer.xEasing      === undefined) layer.xEasing      = 'smooth';
                     if (layer.yEasing      === undefined) layer.yEasing      = 'smooth';
                     if (layer.dEasing      === undefined) layer.dEasing      = 'smooth';
+                    if (layer.fEasing      === undefined) layer.fEasing      = 'smooth';
                     if (layer.visible      === undefined) layer.visible      = true;
                 });
                 activeLayerIndex = Math.min(project.activeLayerIndex || 0, layers.length - 1);
@@ -9335,7 +9771,7 @@ ${layersSVG}
             updateAlphaSliderTrack('prop-colorAlpha', hex);
             const ps = document.getElementById('prop-picker-swatch');
             if (ps) ps.style.background = rgbaStr;
-            updateSelectedProps();
+            updateSelectedProps('color');
         } else {
             document.getElementById('bgColor').value = hex;
             document.getElementById('bgColorAlpha').value = alpha;
@@ -9395,10 +9831,14 @@ ${layersSVG}
         viewFrames: 90,
         track: 'draw',
         dragging: null,
+        // renderTimeline() が最後に描画した時点の activeLayerIndex。
+        // フォーカスレイヤーが切り替わったのにタイムラインの表示（バーの位置・ラベル等）が
+        // 古いレイヤーのまま残ってしまうのを防ぐための追跡用。
+        renderedLayerIndex: null,
     };
 
     function getTrackStartFrame(item, track = tl.track) {
-        const key = track === 'z' ? 'zStartFrame' : track === 'x' ? 'xStartFrame' : track === 'y' ? 'yStartFrame' : track === 'r' ? 'rStartFrame' : 'drawStartFrame';
+        const key = track === 'z' ? 'zStartFrame' : track === 'x' ? 'xStartFrame' : track === 'y' ? 'yStartFrame' : track === 'r' ? 'rStartFrame' : track === 'f' ? 'fStartFrame' : 'drawStartFrame';
         return Math.max(0, parseInt(item[key] !== undefined ? item[key] : item.startFrame, 10) || 0);
     }
     function getTrackDuration(item, layer, track = tl.track) {
@@ -9406,6 +9846,7 @@ ${layersSVG}
             : track === 'x' ? (item.xDuration !== undefined ? item.xDuration : (layer.xDuration || layer.duration))
             : track === 'y' ? (item.yDuration !== undefined ? item.yDuration : (layer.yDuration || layer.duration))
             : track === 'r' ? (item.rDuration !== undefined ? item.rDuration : (layer.rDuration || layer.duration))
+            : track === 'f' ? (item.fDuration !== undefined ? item.fDuration : (layer.fDuration || layer.duration))
             : (item.drawDuration !== undefined ? item.drawDuration : layer.drawDuration);
         return Math.max(1 / tl.fps, parseFloat(value) || 1 / tl.fps);
     }
@@ -9426,8 +9867,8 @@ ${layersSVG}
             endVal = 1;
             easingTrack = 'd';
         } else {
-            const startKey = track === 'z' ? 'zOffset' : track === 'x' ? 'xOffset' : track === 'r' ? 'rOffset' : 'yOffset';
-            const endKey = track === 'z' ? 'zOffsetEnd' : track === 'x' ? 'xOffsetEnd' : track === 'r' ? 'rOffsetEnd' : 'yOffsetEnd';
+            const startKey = track === 'z' ? 'zOffset' : track === 'x' ? 'xOffset' : track === 'r' ? 'rOffset' : track === 'f' ? 'fOffset' : 'yOffset';
+            const endKey = track === 'z' ? 'zOffsetEnd' : track === 'x' ? 'xOffsetEnd' : track === 'r' ? 'rOffsetEnd' : track === 'f' ? 'fOffsetEnd' : 'yOffsetEnd';
             startVal = item[startKey] !== undefined ? item[startKey] : (layer[startKey] || 0);
             endVal = item[endKey] !== undefined ? item[endKey] : (layer[endKey] || 0);
             easingTrack = track;
@@ -9451,8 +9892,15 @@ ${layersSVG}
     // 右クリック＝即追加ではなく、ポップアップ内のボタンを押した時にだけ
     // addTimelineMidpoint を実行する。
     let tlMarkerPopupData = null;
+    // 「長さを揃える/開始地点を揃える/終了地点を揃える」のサブメニューは
+    // ホバーではなくクリックで開閉する。開いているサブメニューを閉じる際、
+    // それを開いたトリガーボタン（直前の兄弟要素）の強調表示（active）も同時に解除する。
     function closeAllTlPopupSubmenus() {
-        document.querySelectorAll('.tl-popup-submenu.open').forEach(s => s.classList.remove('open'));
+        document.querySelectorAll('.tl-popup-submenu.open').forEach(s => {
+            s.classList.remove('open');
+            const trigger = s.previousElementSibling;
+            if (trigger && trigger.classList) trigger.classList.remove('active');
+        });
     }
     function openTlMarkerPopup(clientX, clientY, item, track, frame, startFrame, endFrame) {
         tlMarkerPopupData = { item, track, frame, startFrame, endFrame };
@@ -9507,13 +9955,6 @@ ${layersSVG}
         else if (rect.bottom > window.innerHeight - margin) dy = (window.innerHeight - margin) - rect.bottom;
         if (dy) submenu.style.top = dy + 'px';
     }
-    function openTlSubmenu(id) {
-        closeAllTlPopupSubmenus();
-        const submenu = document.getElementById(id);
-        if (!submenu) return;
-        submenu.classList.add('open');
-        positionTlSubmenu(submenu);
-    }
     function closeTlMarkerPopup() {
         const popup = document.getElementById('tl-marker-popup');
         if (popup) popup.style.display = 'none';
@@ -9526,16 +9967,19 @@ ${layersSVG}
         addTimelineMidpoint(d.item, d.track, d.frame, d.startFrame, d.endFrame);
         closeTlMarkerPopup();
     }
-    // タップ操作（ホバー不可の端末）向け: 「揃える」系の項目を押した時にサブメニューを開閉する。
-    // 開く際は他の開いているサブメニューを閉じ、同時に複数開かないようにする。
+    // 「揃える」系の項目（長さを揃える/開始地点を揃える/終了地点を揃える）を
+    // クリックした時にサブメニューを開閉する。開く際は他の開いているサブメニューを
+    // 閉じ、同時に複数開かないようにする。開いた項目自身は active クラスで強調表示する。
     function toggleTlSubmenu(submenuId, e) {
         if (e) e.stopPropagation();
         const submenu = document.getElementById(submenuId);
         if (!submenu) return;
         const wasOpen = submenu.classList.contains('open');
+        const trigger = e && e.currentTarget ? e.currentTarget : submenu.previousElementSibling;
         closeAllTlPopupSubmenus();
         if (!wasOpen) {
             submenu.classList.add('open');
+            if (trigger && trigger.classList) trigger.classList.add('active');
             positionTlSubmenu(submenu);
         }
     }
@@ -9555,7 +9999,7 @@ ${layersSVG}
         const d = tlMarkerPopupData;
         const track = d.track;
         const layer = layers[activeLayerIndex];
-        const durationField = { z: 'duration', x: 'xDuration', y: 'yDuration', r: 'rDuration', draw: 'drawDuration' }[track];
+        const durationField = { z: 'duration', x: 'xDuration', y: 'yDuration', r: 'rDuration', f: 'fDuration', draw: 'drawDuration' }[track];
         if (!layer || !durationField) { closeTlMarkerPopup(); return; }
         const items = getTlPopupTargetItems(d.item, layer);
         saveState();
@@ -9574,7 +10018,7 @@ ${layersSVG}
         const d = tlMarkerPopupData;
         const track = d.track;
         const layer = layers[activeLayerIndex];
-        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', r: 'rStartFrame', draw: 'drawStartFrame' }[track];
+        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', r: 'rStartFrame', f: 'fStartFrame', draw: 'drawStartFrame' }[track];
         if (!startField) { closeTlMarkerPopup(); return; }
         const items = getTlPopupTargetItems(d.item, layer);
         saveState();
@@ -9593,7 +10037,7 @@ ${layersSVG}
         const d = tlMarkerPopupData;
         const track = d.track;
         const layer = layers[activeLayerIndex];
-        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', r: 'rStartFrame', draw: 'drawStartFrame' }[track];
+        const startField = { z: 'zStartFrame', x: 'xStartFrame', y: 'yStartFrame', r: 'rStartFrame', f: 'fStartFrame', draw: 'drawStartFrame' }[track];
         if (!layer || !startField) { closeTlMarkerPopup(); return; }
         const fps = tl.fps;
         const items = getTlPopupTargetItems(d.item, layer);
@@ -9626,20 +10070,22 @@ ${layersSVG}
 
     function setTimelineTrack(track) {
         const prevTrack = tl.track;
-        tl.track = ['draw', 'z', 'x', 'y', 'r'].includes(track) ? track : 'draw';
+        tl.track = ['draw', 'z', 'x', 'y', 'r', 'f'].includes(track) ? track : 'draw';
         const drawBtn = document.getElementById('tl-track-draw-btn');
         const zBtn = document.getElementById('tl-track-z-btn');
         const xBtn = document.getElementById('tl-track-x-btn');
         const yBtn = document.getElementById('tl-track-y-btn');
         const rBtn = document.getElementById('tl-track-r-btn');
-        if (drawBtn && zBtn && xBtn && yBtn && rBtn) {
+        const fBtn = document.getElementById('tl-track-f-btn');
+        if (drawBtn && zBtn && xBtn && yBtn && rBtn && fBtn) {
             Object.assign(drawBtn.style, tl.track === 'draw' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(zBtn.style, tl.track === 'z' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(xBtn.style, tl.track === 'x' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(yBtn.style, tl.track === 'y' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(rBtn.style, tl.track === 'r' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
+            Object.assign(fBtn.style, tl.track === 'f' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             if (prevTrack !== tl.track) {
-                const activeBtn = { draw: drawBtn, z: zBtn, x: xBtn, y: yBtn, r: rBtn }[tl.track];
+                const activeBtn = { draw: drawBtn, z: zBtn, x: xBtn, y: yBtn, r: rBtn, f: fBtn }[tl.track];
                 if (activeBtn) {
                     activeBtn.classList.remove('tl-track-btn-activate');
                     // リフローを挟んでクラスを再付与し、アニメーションを確実に再生させる
@@ -9666,7 +10112,7 @@ ${layersSVG}
                 if (!item) return;
                 if (item.type === 'group') {
                     if (item.continuous) {
-                        ['draw', 'z', 'x', 'y', 'r'].forEach(track => {
+                        ['draw', 'z', 'x', 'y', 'r', 'f'].forEach(track => {
                             maxEndFrame = Math.max(maxEndFrame, getTrackStartFrame(item, track) + Math.max(1, Math.round(getTrackDuration(item, layer, track) * fps)));
                         });
                         return;
@@ -9674,7 +10120,7 @@ ${layersSVG}
                     (item.lines || []).forEach(scanItem);
                     return;
                 }
-                ['draw', 'z', 'x', 'y', 'r'].forEach(track => {
+                ['draw', 'z', 'x', 'y', 'r', 'f'].forEach(track => {
                     maxEndFrame = Math.max(maxEndFrame, getTrackStartFrame(item, track) + Math.max(1, Math.round(getTrackDuration(item, layer, track) * fps)));
                 });
             };
@@ -9822,6 +10268,7 @@ ${layersSVG}
         const labelInner = document.getElementById('tl-label-inner');
         const ruler = document.getElementById('tl-ruler');
         if (!inner || !ruler) return;
+        tl.renderedLayerIndex = activeLayerIndex;
         // スクロール位置を記録
         const _tlSa = document.getElementById('timeline-scroll-area');
         const _savedTop  = _tlSa ? _tlSa.scrollTop  : 0;
@@ -9829,18 +10276,20 @@ ${layersSVG}
         // DOM再構築中にscrollイベントが飛ばないようロック
         tl._scrollLocked = true;
         const fps = tl.fps;
-        const trackLabel = ({ draw: '描画', z: 'Z移動', x: 'X移動', y: 'Y移動', r: '回転' })[tl.track] || '描画';
+        const trackLabel = ({ draw: '描画', z: 'Z移動', x: 'X移動', y: 'Y移動', r: '回転', f: 'フェード' })[tl.track] || '描画';
         const drawTrackBtn = document.getElementById('tl-track-draw-btn');
         const zTrackBtn = document.getElementById('tl-track-z-btn');
         const xTrackBtn = document.getElementById('tl-track-x-btn');
         const yTrackBtn = document.getElementById('tl-track-y-btn');
         const rTrackBtn = document.getElementById('tl-track-r-btn');
-        if (drawTrackBtn && zTrackBtn && xTrackBtn && yTrackBtn && rTrackBtn) {
+        const fTrackBtn = document.getElementById('tl-track-f-btn');
+        if (drawTrackBtn && zTrackBtn && xTrackBtn && yTrackBtn && rTrackBtn && fTrackBtn) {
             Object.assign(drawTrackBtn.style, tl.track === 'draw' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(zTrackBtn.style, tl.track === 'z' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(xTrackBtn.style, tl.track === 'x' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(yTrackBtn.style, tl.track === 'y' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
             Object.assign(rTrackBtn.style, tl.track === 'r' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
+            Object.assign(fTrackBtn.style, tl.track === 'f' ? { background: 'var(--accent)', color: '#000000' } : { background: 'transparent', color: 'var(--c-b5b)' });
         }
         const vf = parseInt(document.getElementById('timeline-view-frames').value) || 90;
         tl.viewFrames = vf;
@@ -9947,7 +10396,7 @@ ${layersSVG}
 
                 // 中間点マーカー（X/Y/Z移動トラックのみ）: 既存の中間点を描画し、
                 // ドラッグでフレーム移動、クリックで値編集、右クリックで削除できるようにする
-                if (['x', 'y', 'z', 'r', 'draw'].includes(tl.track) && Array.isArray(item[tl.track + 'Mids'])) {
+                if (['x', 'y', 'z', 'r', 'draw', 'f'].includes(tl.track) && Array.isArray(item[tl.track + 'Mids'])) {
                     const midKey = tl.track + 'Mids';
                     const midsArr = item[midKey];
                     midsArr.forEach((mid, midIdx) => {
@@ -10012,7 +10461,7 @@ ${layersSVG}
                     // 右クリックしてもブラウザ標準メニューが出る/中間点が置かれない
                     // という不具合があった。
                     e.preventDefault(); e.stopPropagation();
-                    if (!['x', 'y', 'z', 'r', 'draw'].includes(tl.track)) return;
+                    if (!['x', 'y', 'z', 'r', 'draw', 'f'].includes(tl.track)) return;
                     const rect = bar.getBoundingClientRect();
                     const clickFrame = Math.round(startFrame + (e.clientX - rect.left) / ppf);
                     // 右クリック＝即マーカー追加ではなく、ポップアップを表示して
@@ -10218,8 +10667,8 @@ ${layersSVG}
         const d = tl.dragging;
         const dx = e.clientX - d.startX;
         const dFrames = Math.round(dx / d.ppf);
-        const startKey = d.track === 'z' ? 'zStartFrame' : d.track === 'x' ? 'xStartFrame' : d.track === 'y' ? 'yStartFrame' : d.track === 'r' ? 'rStartFrame' : 'drawStartFrame';
-        const durationKey = d.track === 'z' ? 'duration' : d.track === 'x' ? 'xDuration' : d.track === 'y' ? 'yDuration' : d.track === 'r' ? 'rDuration' : 'drawDuration';
+        const startKey = d.track === 'z' ? 'zStartFrame' : d.track === 'x' ? 'xStartFrame' : d.track === 'y' ? 'yStartFrame' : d.track === 'r' ? 'rStartFrame' : d.track === 'f' ? 'fStartFrame' : 'drawStartFrame';
+        const durationKey = d.track === 'z' ? 'duration' : d.track === 'x' ? 'xDuration' : d.track === 'y' ? 'yDuration' : d.track === 'r' ? 'rDuration' : d.track === 'f' ? 'fDuration' : 'drawDuration';
 
         // 複数選択中は選択中の全アイテムを同量操作する
         // origMulti: ドラッグ開始時に記録した各アイテムの初期値
@@ -10451,7 +10900,9 @@ ${layersSVG}
         };
         const checked = document.querySelector('input[name="tool"]:checked');
         if (checked) {
-            const t = toolMap[checked.value] || [`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`, 'ペン'];
+            const t = isShapeTool(checked.value)
+                ? [SHAPE_TOOL_ICONS[checked.value], '図形(' + SHAPE_TOOL_LABELS[checked.value] + ')']
+                : (toolMap[checked.value] || [`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`, 'ペン']);
             const icon = document.getElementById('mobile-tool-icon');
             const label = document.getElementById('mobile-tool-label');
             if (icon) icon.innerHTML = t[0];
@@ -10621,6 +11072,25 @@ ${layersSVG}
                 btn.onclick = () => { selectTool(t.value); updateMobileChips(); closeMiniDrawer(); };
                 content.appendChild(btn);
             });
+            // 図形ツール（四角形/円をまとめたタイル）: タップで選択、右下の小バッジで種類を切り替え
+            const shapeTile = document.createElement('div');
+            shapeTile.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--c-141);border:1px solid var(--c-fff);border-radius:var(--radius);padding:12px 16px;cursor:pointer;font-size:22px;min-width:60px;position:relative;';
+            const shapeTileMain = document.createElement('div');
+            shapeTileMain.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:5px;';
+            const shapeTileBadge = document.createElement('span');
+            shapeTileBadge.style.cssText = 'position:absolute; bottom:4px; right:4px; width:18px;height:18px;border-radius:var(--radius);background:var(--c-050);border:1px solid var(--c-fff);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--c-9a9);';
+            shapeTileBadge.title = '図形の種類を切り替え';
+            const renderShapeTile = () => {
+                const kind = currentShapeKind();
+                shapeTileMain.innerHTML = SHAPE_TOOL_ICONS[kind] + '<span style="font-size:12px;color:var(--c-d5d);">図形(' + SHAPE_TOOL_LABELS[kind] + ')</span>';
+                shapeTileBadge.innerHTML = SHAPE_TOOL_ICONS[otherShapeKind()];
+            };
+            renderShapeTile();
+            shapeTile.appendChild(shapeTileMain);
+            shapeTile.appendChild(shapeTileBadge);
+            shapeTile.onclick = () => { selectTool(currentShapeKind()); updateMobileChips(); closeMiniDrawer(); };
+            shapeTileBadge.onclick = (ev) => { ev.stopPropagation(); toggleShapeKind(ev); renderShapeTile(); };
+            content.appendChild(shapeTile);
         } else if (type === 'color') {
             title.textContent = 'カラー設定';
             const colorCard = document.querySelector('#draw-tools .color-card');
@@ -11115,14 +11585,14 @@ ${layersSVG}
         document.getElementById('mp-color-hex').value = hex;
         document.getElementById('prop-color').value = hex;
         document.getElementById('prop-colorHex').value = hex;
-        updateSelectedProps();
+        updateSelectedProps('color');
     }
     function mpSyncColorFromHex() {
         const hex = document.getElementById('mp-color-hex').value;
         document.getElementById('mp-color-swatch').style.background = hex;
         document.getElementById('prop-color').value = hex;
         document.getElementById('prop-colorHex').value = hex;
-        updateSelectedProps();
+        updateSelectedProps('color');
     }
     function openCustomPickerMobileProp() {
         const outer = document.getElementById('prop-picker-outer');
@@ -11133,14 +11603,14 @@ ${layersSVG}
         document.getElementById('mp-opacity-val').textContent = val + '%';
         document.getElementById('prop-opacity').value = val;
         document.getElementById('prop-opacity-slider').value = val;
-        updateSelectedProps();
+        updateSelectedProps('opacity');
     }
     function mpSyncWidth() {
         const val = document.getElementById('mp-width-slider').value;
         document.getElementById('mp-width-val').textContent = val;
         document.getElementById('prop-width').value = val;
         document.getElementById('prop-width-slider').value = val;
-        updateSelectedProps();
+        updateSelectedProps('width');
     }
     let _mpWidthTimer = null;
     function mpWidthRepeat(dir) {
@@ -11164,7 +11634,7 @@ ${layersSVG}
         const btnEl = document.getElementById(btnId);
         if (btnEl) btnEl.classList.toggle('active', next === 'round');
         mpDrawCapPreviews();
-        updateSelectedProps();
+        updateSelectedProps(side === 'start' ? ['lineCapStart', 'lineCap'] : ['lineCapEnd']);
     }
     function mpDrawCapPreviews() {
         if (!document.getElementById('mp-cap-canvas-start')) return;
@@ -11339,14 +11809,18 @@ ${layersSVG}
             if (layer.zOffsetEnd   === undefined) layer.zOffsetEnd   = 0;
             if (layer.xOffsetEnd   === undefined) layer.xOffsetEnd   = 0;
             if (layer.yOffsetEnd   === undefined) layer.yOffsetEnd   = 0;
+            if (layer.fOffset      === undefined) layer.fOffset      = 100;
+            if (layer.fOffsetEnd   === undefined) layer.fOffsetEnd   = 100;
             if (layer.duration     === undefined) layer.duration     = 1.0;
             if (layer.drawDuration === undefined) layer.drawDuration = 1.0;
             if (layer.xDuration    === undefined) layer.xDuration    = layer.duration;
             if (layer.yDuration    === undefined) layer.yDuration    = layer.duration;
+            if (layer.fDuration    === undefined) layer.fDuration    = layer.duration;
             if (layer.zEasing      === undefined) layer.zEasing      = 'smooth';
             if (layer.xEasing      === undefined) layer.xEasing      = 'smooth';
             if (layer.yEasing      === undefined) layer.yEasing      = 'smooth';
             if (layer.dEasing      === undefined) layer.dEasing      = 'smooth';
+            if (layer.fEasing      === undefined) layer.fEasing      = 'smooth';
             if (layer.visible      === undefined) layer.visible      = true;
         });
         activeLayerIndex = Math.min(data.activeLayerIndex || 0, layers.length - 1);
@@ -11488,6 +11962,12 @@ ${layersSVG}
     // id は既読判定に使うので、追加のたびに必ずユニークな値にすること。
     const NOTICE_DATA = [
         {
+            id: 'notice-6',
+            date: '2026.08.28',
+            title: 'Ver.4.4.8 新機能のお知らせ',
+            text: 'アニメーションにフェードを追加しました。また、描画ツールに図形を追加し、四角形、角丸四角形、円、三角形を描画できるようにしました。'
+        },
+        {
             id: 'notice-5',
             date: '2026.08.27',
             title: 'Ver.3.4.7 新機能のお知らせ',
@@ -11613,6 +12093,15 @@ ${layersSVG}
     // ── アップデートログ ──
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
+        {
+            version: 'Ver.4.4.8',
+            items: [
+                'アニメーションにフェードを追加',
+                '描画モードに図形ツールを追加',
+                '変形ツールの挙動を見直した',
+                'その他使いやすさの向上、バグの修正'
+            ]
+        },
         {
             version: 'Ver.3.4.7',
             items: [
@@ -11742,15 +12231,13 @@ ${layersSVG}
     // level: 1=すぐ直せそう 2=近いうちに直せそう 3=時間がかかりそう 4=未定・時間がかかりそう
     const BUGS_DATA = [
         { text: 'ライトモード時、線を選択したときの表示が変（仕様の可能性があるので直せないかも）', level: 4 },
-        { text: '変形ツールの挙動が想像と違うと思う（違うと思うんだけどどう？）', level: 4 },
         { text: '線の連結と変形が組み合わさった時変な挙動が起きやすい', level: 3 },
         { text: 'スマホ版のUIは多分使いにくいだろうと思うが、そういうフィードバックも来ていないので多分スマホでこのツール使う人って存在しない　もしくはあまりにもUIがひどすぎて既に使うのやめてる　もしそうだったらかなしい', level: 4 }
     ];
     // ── 追加したい要素 ──
     // level: 1=すぐ追加できそう 2=近いうちに追加できそう 3=時間がかかりそう 4=未定・時間がかかりそう
     const CUSTOM_ELEMENTS_DATA = [
-        { text: '線の端の形に平行四辺形、四角形（ずっと同じ向きモード）などを追加する　実装が難しそう', level: 3 },
-        { text: '図形ツールの追加（とりあえず四角形、角だけ四角形、角丸四角形、円あたりを追加したい）', level: 3 }
+        { text: '線の端の形に平行四辺形、四角形（ずっと同じ向きモード）などを追加する　実装が難しそう', level: 3 }
     ];
     // 1〜4段階の目安メーター（塗りつぶし数が多いほど早く対応できそう）
     const FIX_LEVEL_META = {
@@ -12060,7 +12547,7 @@ ${layersSVG}
         document.querySelectorAll('.bg-preset-btn').forEach(b =>
             b.classList.toggle('active', b.dataset.color === '#000000'));
         // addLayer()はsaveState()を含むためここでは直接pushする
-        layers.push({ id: Date.now(), name: 'Layer 1', items: [], visible: true, angleStep: 45, angleOffset: 0, lengthStepX: 50, lengthStepY: 50, triSideA: 50, triSideB: 50, triSideC: 50, gridOffsetX: 0, gridOffsetY: 0, snapMode: 2, opacity: 100, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth' });
+        layers.push({ id: Date.now(), name: 'Layer 1', items: [], visible: true, angleStep: 45, angleOffset: 0, lengthStepX: 50, lengthStepY: 50, triSideA: 50, triSideB: 50, triSideC: 50, gridOffsetX: 0, gridOffsetY: 0, snapMode: 2, opacity: 100, zOffset: 0, xOffset: 0, yOffset: 0, rOffset: 0, fOffset: 100, zOffsetEnd: 0, xOffsetEnd: 0, yOffsetEnd: 0, rOffsetEnd: 0, fOffsetEnd: 100, duration: 1.0, drawDuration: 1.0, xDuration: 1.0, yDuration: 1.0, rDuration: 1.0, fDuration: 1.0, zEasing: 'smooth', xEasing: 'smooth', yEasing: 'smooth', rEasing: 'smooth', dEasing: 'smooth', fEasing: 'smooth' });
         activeLayerIndex = 0;
         render();
         saveState(); // アンドゥスタックに初期状態を積む
@@ -12504,9 +12991,7 @@ ${layersSVG}
      stacking context を作る親要素の外＝body直下に配置している） -->
 <div id='tl-marker-popup' style='display:none; flex-direction:column; gap:4px; position:fixed; z-index:2000000; transform:translate(-50%, -100%); margin-top:-10px; padding:6px; background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); box-shadow:0 8px 24px rgba(0,0,0,0.6); white-space:nowrap;'>
     <button onclick='confirmAddTlMarker()' class='tl-popup-item'>◆ マーカーを追加</button>
-    <div class='tl-popup-submenu-wrap'
-         onmouseenter="openTlSubmenu('tl-match-length-submenu')"
-         onmouseleave="document.getElementById('tl-match-length-submenu').classList.remove('open')">
+    <div class='tl-popup-submenu-wrap'>
         <button onclick="toggleTlSubmenu('tl-match-length-submenu', event)" class='tl-popup-item'><span>⇔ 長さを揃える</span><span>▶</span></button>
         <div id='tl-match-length-submenu' class='tl-popup-submenu'>
             <button onclick="confirmMatchTlLength('draw')" class='tl-popup-item'>描画</button>
@@ -12514,11 +12999,10 @@ ${layersSVG}
             <button onclick="confirmMatchTlLength('x')" class='tl-popup-item'>x移動</button>
             <button onclick="confirmMatchTlLength('y')" class='tl-popup-item'>y移動</button>
             <button onclick="confirmMatchTlLength('r')" class='tl-popup-item'>回転</button>
+            <button onclick="confirmMatchTlLength('f')" class='tl-popup-item'>フェード</button>
         </div>
     </div>
-    <div class='tl-popup-submenu-wrap'
-         onmouseenter="openTlSubmenu('tl-match-start-submenu')"
-         onmouseleave="document.getElementById('tl-match-start-submenu').classList.remove('open')">
+    <div class='tl-popup-submenu-wrap'>
         <button onclick="toggleTlSubmenu('tl-match-start-submenu', event)" class='tl-popup-item'><span>⏮ 開始地点を揃える</span><span>▶</span></button>
         <div id='tl-match-start-submenu' class='tl-popup-submenu'>
             <button onclick="confirmMatchTlStart('draw')" class='tl-popup-item'>描画</button>
@@ -12526,11 +13010,10 @@ ${layersSVG}
             <button onclick="confirmMatchTlStart('x')" class='tl-popup-item'>x移動</button>
             <button onclick="confirmMatchTlStart('y')" class='tl-popup-item'>y移動</button>
             <button onclick="confirmMatchTlStart('r')" class='tl-popup-item'>回転</button>
+            <button onclick="confirmMatchTlStart('f')" class='tl-popup-item'>フェード</button>
         </div>
     </div>
-    <div class='tl-popup-submenu-wrap'
-         onmouseenter="openTlSubmenu('tl-match-end-submenu')"
-         onmouseleave="document.getElementById('tl-match-end-submenu').classList.remove('open')">
+    <div class='tl-popup-submenu-wrap'>
         <button onclick="toggleTlSubmenu('tl-match-end-submenu', event)" class='tl-popup-item'><span>⏭ 終了地点を揃える</span><span>▶</span></button>
         <div id='tl-match-end-submenu' class='tl-popup-submenu'>
             <button onclick="confirmMatchTlEnd('draw')" class='tl-popup-item'>描画</button>
@@ -12538,6 +13021,7 @@ ${layersSVG}
             <button onclick="confirmMatchTlEnd('x')" class='tl-popup-item'>x移動</button>
             <button onclick="confirmMatchTlEnd('y')" class='tl-popup-item'>y移動</button>
             <button onclick="confirmMatchTlEnd('r')" class='tl-popup-item'>回転</button>
+            <button onclick="confirmMatchTlEnd('f')" class='tl-popup-item'>フェード</button>
         </div>
     </div>
     <div style='position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid var(--c-fff);'></div>
