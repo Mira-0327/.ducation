@@ -147,11 +147,25 @@
         </div>
     </div>
     <div class="home-grid-area">
-        <div class="home-section-title">作品一覧</div>
+        <div class="home-toolbar">
+            <div class="home-section-title">作品一覧</div>
+            <div class="home-sort-wrap">
+                <label for="home-sort-select" class="home-sort-label">並び替え</label>
+                <select id="home-sort-select" class="home-sort-select" onchange="homeSetSortOrder(this.value)">
+                    <option value="updatedAt-desc">更新日が新しい順</option>
+                    <option value="updatedAt-asc">更新日が古い順</option>
+                    <option value="createdAt-desc">作成日が新しい順</option>
+                    <option value="createdAt-asc">作成日が古い順</option>
+                    <option value="name-asc">名前順（A→Z）</option>
+                    <option value="name-desc">名前順（Z→A）</option>
+                </select>
+            </div>
+        </div>
+        <div class="home-tag-filter" id="home-tag-filter" style="display:none;"></div>
         <div class="home-grid" id="home-grid"></div>
     </div>
     <div style="position:fixed; left:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">このツールはバイブコーディングによって作られています</div>
-    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.4.4.8</div>
+    <div style="position:fixed; right:14px; bottom:10px; font-size:11px; color:var(--c-9a9); letter-spacing:0.5px; font-family:'JetBrains Mono', monospace; pointer-events:none; z-index:10;">Ver.4.5.8</div>
 </div>
 <!-- 新規作成モーダル -->
 <div id="new-project-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)homeCloseNewProjectModal()">
@@ -179,6 +193,22 @@
         <div style="display:flex; gap:10px; justify-content:flex-end;">
             <button onclick="homeCloseNewProjectModal()" style="background:transparent; border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; padding:9px 20px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='var(--c-141)'" onmouseout="this.style.background='transparent'">キャンセル</button>
             <button onclick="homeNewProject()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">作成</button>
+        </div>
+    </div>
+</div>
+
+<!-- タグ編集モーダル -->
+<div id="tag-editor-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;" onclick="if(event.target===this)closeTagEditorModal()">
+    <div style="background:var(--c-0a0); border:1px solid var(--c-fff); border-radius:var(--radius); padding:28px 32px; min-width:300px; max-width:380px; width:90%; box-shadow:0 12px 48px rgba(0,0,0,0.6); color:var(--c-fff); font-family:sans-serif;">
+        <div style="font-size:16px; font-weight:bold; margin-bottom:16px; background:var(--accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">タグを編集</div>
+        <div id="tag-editor-chips" class="tag-editor-chips"></div>
+        <div style="display:flex; gap:8px; margin-bottom:14px;">
+            <input id="tag-editor-input" type="text" maxlength="20" placeholder="タグを入力してEnter" style="flex:1; box-sizing:border-box; background:var(--c-050); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-fff); font-size:13px; padding:8px 12px; outline:none; transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--c-fff)'" onkeydown="if(event.key==='Enter'){event.preventDefault();tagEditorAddFromInput();}">
+            <button onclick="tagEditorAddFromInput()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:0 16px; cursor:pointer;">追加</button>
+        </div>
+        <div id="tag-editor-suggestions" class="tag-editor-suggestions"></div>
+        <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+            <button onclick="closeTagEditorModal()" style="background:var(--accent); border:none; border-radius:var(--radius); color:#000000; font-size:13px; font-weight:bold; padding:9px 24px; cursor:pointer; box-shadow:0 4px 16px rgba(var(--accent-rgb),0.4); transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">完了</button>
         </div>
     </div>
 </div>
@@ -277,17 +307,15 @@
             <button id="changelog-prev-btn" onclick="changelogNav(1)" title="前のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver.4.4.8</span>
+            <span id="changelog-version-label" style="font-size:12px; font-weight:bold; color:var(--accent); letter-spacing:0.5px; text-align:center;">Ver4.5.8</span>
             <button id="changelog-next-btn" onclick="changelogNav(-1)" title="次のバージョン" style="width:28px; height:28px; flex-shrink:0; background:var(--c-141); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-b5b); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s, color 0.15s, opacity 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--c-1c1)'" onmouseout="this.style.background='var(--c-141)'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
         </div>
 
         <ul id="changelog-items-list" style="margin:0 0 20px; padding-left:18px; font-size:12px; color:var(--c-c5c); line-height:1.8; flex:1; overflow-y:auto; min-height:0;">
-            <li>アニメーションにフェードを追加</li>
-            <li>描画モードに図形ツールを追加</li>
-            <li>変形ツールの挙動を見直した</li>
-            <li>その他使いやすさの向上、バグの修正</li>
+            <li>Xに投稿ボタンを追加</li>
+            <li>ホームのプロジェクトにタグ編集機能、ソート機能を追加</li>
         </ul>
 
         <div style="display:flex; justify-content:flex-end; flex-shrink:0;">
@@ -341,6 +369,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                     <span>通知</span>
                 </button>
+                <button class="settings-nav-item" data-target="settings-cat-share" onclick="scrollToSettingsCategory('settings-cat-share')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    <span>共有</span>
+                </button>
                 <button class="settings-nav-item" data-target="settings-cat-appearance" onclick="scrollToSettingsCategory('settings-cat-appearance')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C22 6.012 17.461 2 12 2z"/></svg>
                     <span>外観</span>
@@ -369,6 +401,21 @@
                     <input type="checkbox" id="changelog-notif-toggle" onchange="setChangelogNotifEnabled(this.checked)">
                     <span class="settings-switch-track"><span class="settings-switch-thumb"></span></span>
                 </label>
+            </div>
+        </div>
+
+        <!-- カテゴリ：共有 -->
+        <div class="settings-category" id="settings-cat-share">
+            <div class="settings-category-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                共有
+            </div>
+            <div>
+                <div style="font-size:12px; color:var(--c-fff); margin-bottom:3px;">Xに投稿する文言</div>
+                <div style="font-size:10px; color:var(--c-9a9); line-height:1.6; margin-bottom:10px;">
+                    ホーム画面の「Xに投稿」ボタンを押したときに、投稿画面へ渡される本文です。「#p」と入力した箇所は開いているプロジェクトの名前に置き換わります。
+                </div>
+                <textarea id="x-post-text-input" oninput="setXPostText(this.value)" rows="3" placeholder=".ducationで制作中！" style="width:100%; box-sizing:border-box; background:var(--c-050); border:1px solid var(--c-fff); border-radius:var(--radius); color:var(--c-fff); font-size:13px; padding:10px 12px; outline:none; font-family:'Noto Sans JP', sans-serif; resize:vertical;"></textarea>
             </div>
         </div>
 
@@ -528,6 +575,10 @@
     <div class="proj-popover-item" onclick="projPopoverExport()">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         .kyk でエクスポート
+    </div>
+    <div class="proj-popover-item" onclick="projPopoverEditTags()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41L13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        タグを編集
     </div>
     <div class="proj-popover-item danger" onclick="projPopoverDelete()">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
@@ -3094,6 +3145,43 @@
         text-transform: uppercase;
         margin-bottom: 14px;
     }
+    .home-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+    .home-toolbar .home-section-title {
+        margin-bottom: 0;
+    }
+    .home-sort-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    .home-sort-label {
+        font-size: 11px;
+        color: var(--c-8a8);
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+    .home-sort-select {
+        background: var(--c-141);
+        border: 1px solid var(--c-fff);
+        border-radius: var(--radius);
+        color: var(--c-e5e);
+        font-size: 12px;
+        padding: 6px 10px;
+        cursor: pointer;
+        outline: none;
+        font-family: 'Noto Sans JP', sans-serif;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .home-sort-select:hover { background: var(--c-1c1); }
+    .home-sort-select:focus { border-color: var(--accent); }
     .home-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -3156,6 +3244,99 @@
         font-size: 10px;
         color:var(--c-8a8);
     }
+
+    /* プロジェクトカードのタグ */
+    .proj-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 6px;
+    }
+    .proj-tag-chip {
+        font-size: 9px;
+        line-height: 1.6;
+        padding: 1px 7px;
+        border-radius: 999px;
+        background: rgba(var(--accent-rgb), 0.12);
+        border: 1px solid var(--tag-c, var(--accent));
+        color: var(--tag-c, var(--accent));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .proj-tag-chip:hover { background: rgba(var(--accent-rgb), 0.25); }
+
+    /* ホーム画面：タグ絞り込みバー */
+    .home-tag-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .home-tag-filter-chip {
+        font-size: 11px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--c-fff);
+        color: var(--c-b5b);
+        background: var(--c-141);
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+    .home-tag-filter-chip:hover { background: var(--c-1c1); }
+    .home-tag-filter-chip.active {
+        background: var(--tag-c, var(--accent));
+        border-color: var(--tag-c, var(--accent));
+        color: #000000;
+        font-weight: bold;
+    }
+
+    /* タグ編集モーダル */
+    .tag-editor-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 14px;
+        min-height: 10px;
+    }
+    .tag-editor-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        padding: 4px 6px 4px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--tag-c, var(--accent));
+        color: var(--tag-c, var(--accent));
+        background: rgba(var(--accent-rgb), 0.1);
+    }
+    .tag-editor-chip-remove {
+        cursor: pointer;
+        font-size: 13px;
+        line-height: 1;
+        padding: 0 3px;
+        color: var(--c-b5b);
+    }
+    .tag-editor-chip-remove:hover { color: #f87171; }
+    .tag-editor-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .tag-editor-suggestion-chip {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        border: 1px dashed var(--tag-c, var(--c-fff));
+        color: var(--tag-c, var(--c-b5b));
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .tag-editor-suggestion-chip:hover { background: rgba(var(--accent-rgb), 0.15); }
 
     /* カードのメニューボタン */
     .proj-menu-btn {
@@ -3357,6 +3538,9 @@
                 <button class='update-btn'><span class='btn-icon'><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V8"/><polyline points="7 13 12 8 17 13"/><line x1="4" y1="21" x2="20" y2="21"/></svg></span><span class='btn-label'>プロジェクト読込</span></button>
             </div>
             <input type='file' id='loadProjectInput' accept='.kyk' style='display:none' onchange='loadProject(event)'>
+            <button class='home-menu-btn' onclick='homePostToX()' title='Xに投稿' aria-label='Xに投稿' style='width:36px; height:36px; flex-shrink:0;'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </button>
             <button class='home-menu-btn' onclick='projectShowSettingsModal()' title='設定' aria-label='設定' style='width:36px; height:36px; flex-shrink:0;'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>
@@ -9306,6 +9490,7 @@ ${layersSVG}
                     createdAt: Date.now(),
                     updatedAt: Date.now(),
                     thumbnail: null,
+                    tags: [],
                     projectData: project
                 });
                 // layers をディープコピーして代入（参照問題を防ぐ）
@@ -11258,6 +11443,19 @@ ${layersSVG}
         }, 260);
     }
 
+    // ── ホーム画面：並び替え（定数は renderHomeGrid() より前で初期化する必要がある） ──
+    const HOME_SORT_KEY = 'ducation-home-sort';
+    const HOME_SORT_DEFAULT = 'updatedAt-desc';
+    // ── ホーム画面：タグ絞り込み ──
+    let _homeTagFilter = null; // null = すべて表示
+    // タグ関連ヘルパー（renderHomeGrid() より前で初期化する必要がある）
+    const TAG_COLOR_PALETTE = ['#d4ff3d','#3dd4ff','#ff6b6b','#a78bfa','#ffb03d','#4ade80','#f472b6','#38bdf8'];
+    function tagColor(tag) {
+        let h = 0;
+        for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
+        return TAG_COLOR_PALETTE[h % TAG_COLOR_PALETTE.length];
+    }
+
     // 起動時はホーム画面を表示（まだ addLayer しない）
     renderHomeGrid();
     _initSidebarDrawer();
@@ -11685,6 +11883,33 @@ ${layersSVG}
         lsSaveProjects(list);
     }
 
+    // ── タグ関連ヘルパー ──
+    function normalizeTagName(raw) {
+        return String(raw || '').trim().replace(/\s+/g, ' ').slice(0, 20);
+    }
+    function homeGetAllTags() {
+        const set = new Set();
+        lsGetProjects().forEach(p => (p.tags || []).forEach(t => set.add(t)));
+        return Array.from(set).sort((a, b) => a.localeCompare(b, 'ja'));
+    }
+    function homeAddTagToProject(id, rawTag) {
+        const tag = normalizeTagName(rawTag);
+        if (!tag) return;
+        const list = lsGetProjects();
+        const proj = list.find(p => p.id === id);
+        if (!proj) return;
+        if (!proj.tags) proj.tags = [];
+        if (!proj.tags.includes(tag)) proj.tags.push(tag);
+        lsSaveProjects(list);
+    }
+    function homeRemoveTagFromProject(id, tag) {
+        const list = lsGetProjects();
+        const proj = list.find(p => p.id === id);
+        if (!proj) return;
+        proj.tags = (proj.tags || []).filter(t => t !== tag);
+        lsSaveProjects(list);
+    }
+
     // ── サムネイル生成（描画後にデバウンスで自動保存） ──
     function scheduleThumbSave() {
         if (!_currentProjectId) return;
@@ -11962,6 +12187,12 @@ ${layersSVG}
     // id は既読判定に使うので、追加のたびに必ずユニークな値にすること。
     const NOTICE_DATA = [
         {
+            id: 'notice-7',
+            date: '2026.08.29',
+            title: 'Xに投稿ボタンを追加～～～～～',
+            text: 'プロジェクト画面内の右上にXに投稿ボタンを追加しました。本文を設定から編集でき、「#p」の部分に開いているプロジェクトの名前を代入することができます。'
+        },
+        {
             id: 'notice-6',
             date: '2026.08.28',
             title: 'Ver.4.4.8 新機能のお知らせ',
@@ -12093,6 +12324,13 @@ ${layersSVG}
     // ── アップデートログ ──
     // 配列の先頭が最新バージョン。新しいバージョンを追加する際はこの配列の先頭に追記する。
     const CHANGELOG_DATA = [
+        {
+            version: 'Ver4.5.8',
+            items: [
+                'Xに投稿ボタンを追加',
+                'ホームのプロジェクトにタグ編集機能、ソート機能を追加'
+            ]
+        },
         {
             version: 'Ver.4.4.8',
             items: [
@@ -12309,6 +12547,35 @@ ${layersSVG}
         }
     }
 
+    // ── Xに投稿 ──
+    const DUCATION_X_POST_DEFAULT_TEXT = '.ducationで制作中！';
+    const DUCATION_X_POST_SUFFIX = '\n\n#ducation ';
+    function getXPostText() {
+        try {
+            const v = localStorage.getItem('ducation-x-post-text');
+            return v === null ? DUCATION_X_POST_DEFAULT_TEXT : v;
+        } catch (e) { return DUCATION_X_POST_DEFAULT_TEXT; }
+    }
+    function setXPostText(text) {
+        try { localStorage.setItem('ducation-x-post-text', text); } catch (e) {}
+    }
+    function syncXPostTextArea() {
+        const el = document.getElementById('x-post-text-input');
+        if (el) el.value = getXPostText();
+    }
+    function getCurrentProjectNameForPost() {
+        const input = document.getElementById('project-name-input');
+        const name = input ? String(input.value || '').trim() : '';
+        return name || '新規プロジェクト';
+    }
+    function homePostToX() {
+        const projectName = getCurrentProjectNameForPost();
+        const bodyText = getXPostText().split('#p').join(projectName);
+        const fullText = bodyText + DUCATION_X_POST_SUFFIX;
+        const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(fullText);
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
     // ── カスタムテーマ ──
     const CUSTOM_THEME_PRESETS = ['#d4ff3d', '#38bdf8', '#f472b6', '#fb923c', '#a78bfa', '#4ade80', '#f87171', '#fbbf24'];
     function _customThemeHexToRgb(hex) {
@@ -12390,6 +12657,7 @@ ${layersSVG}
         if (navBtn) navBtn.style.display = visible ? '' : 'none';
     }
     function _syncSettingsAppearanceLayout() {
+        syncXPostTextArea();
         _buildCustomThemePresets();
         syncCustomThemeModeSwitch();
         syncCustomThemeRadiusSwitch();
@@ -12526,6 +12794,7 @@ ${layersSVG}
             createdAt: Date.now(),
             updatedAt: Date.now(),
             thumbnail: null,
+            tags: [],
             projectData: null
         };
         lsUpsertProject(proj);
@@ -12585,6 +12854,7 @@ ${layersSVG}
                     createdAt: Date.now(),
                     updatedAt: Date.now(),
                     thumbnail: null,
+                    tags: [],
                     projectData: data
                 };
                 lsUpsertProject(proj);
@@ -12597,18 +12867,65 @@ ${layersSVG}
         reader.readAsText(file);
     }
 
+    // ── ホーム画面：並び替え ──
+    function homeGetSortOrder() {
+        try {
+            const v = localStorage.getItem(HOME_SORT_KEY);
+            return v || HOME_SORT_DEFAULT;
+        } catch(e) { return HOME_SORT_DEFAULT; }
+    }
+    function homeSetSortOrder(value) {
+        try { localStorage.setItem(HOME_SORT_KEY, value); } catch(e) {}
+        renderHomeGrid();
+    }
+    function homeSortProjects(projects) {
+        const order = homeGetSortOrder();
+        const [key, dir] = order.split('-');
+        const sorted = projects.slice();
+        sorted.sort((a, b) => {
+            let result;
+            if (key === 'name') {
+                result = String(a.name || '').localeCompare(String(b.name || ''), 'ja');
+            } else {
+                // updatedAt / createdAt: 未設定は0扱いにして安全に比較する
+                const av = Number(a[key]) || 0;
+                const bv = Number(b[key]) || 0;
+                result = av - bv;
+            }
+            return dir === 'desc' ? -result : result;
+        });
+        return sorted;
+    }
+
     // ── ホームグリッドを描画 ──
     function renderHomeGrid() {
         const grid = document.getElementById('home-grid');
         if (!grid) return;
-        const projects = lsGetProjects();
+        const sortSelect = document.getElementById('home-sort-select');
+        if (sortSelect) sortSelect.value = homeGetSortOrder();
+
+        renderHomeTagFilter();
+
+        const allProjects = lsGetProjects();
+        let projects = homeSortProjects(allProjects);
+        if (_homeTagFilter) {
+            projects = projects.filter(p => (p.tags || []).includes(_homeTagFilter));
+        }
         grid.innerHTML = '';
 
-        if (projects.length === 0) {
+        if (allProjects.length === 0) {
             grid.innerHTML = `
                 <div class="home-empty">
                     <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8m-4-4h8"/></svg>
                     <p>まだ作品がありません<br>「新規作成」から始めましょう</p>
+                </div>`;
+            return;
+        }
+        if (projects.length === 0) {
+            grid.innerHTML = `
+                <div class="home-empty">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41L13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    <p>このタグの作品はありません</p>
                 </div>`;
             return;
         }
@@ -12626,22 +12943,48 @@ ${layersSVG}
                 ? `<img src="${proj.thumbnail}" alt="">`
                 : `<svg class="proj-thumb-empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`;
 
+            const tags = proj.tags || [];
+            const tagsHtml = tags.length
+                ? `<div class="proj-tags">${tags.map(t => `<span class="proj-tag-chip" style="--tag-c:${tagColor(t)}" onclick="homeFilterByTagFromChip(event,'${escAttr(t)}')">${escHtml(t)}</span>`).join('')}</div>`
+                : '';
+
             card.innerHTML = `
                 <div class="proj-thumb">${thumbHtml}</div>
                 <div class="proj-info">
                     <div class="proj-name" id="proj-name-${proj.id}">${escHtml(proj.name)}</div>
                     <div class="proj-date">${dateStr}</div>
+                    ${tagsHtml}
                 </div>
                 <button class="proj-menu-btn" onclick="openProjPopover(event,'${proj.id}')" title="メニュー">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
                 </button>`;
 
             card.addEventListener('click', (e) => {
-                if (e.target.closest('.proj-menu-btn')) return;
+                if (e.target.closest('.proj-menu-btn') || e.target.closest('.proj-tag-chip')) return;
                 openProject(proj.id);
             });
             grid.appendChild(card);
         });
+    }
+
+    // ── ホーム画面：タグ絞り込みチップを描画 ──
+    function renderHomeTagFilter() {
+        const wrap = document.getElementById('home-tag-filter');
+        if (!wrap) return;
+        const tags = homeGetAllTags();
+        wrap.style.display = 'flex';
+        if (_homeTagFilter && !tags.includes(_homeTagFilter)) _homeTagFilter = null;
+        const allChip = `<span class="home-tag-filter-chip${_homeTagFilter ? '' : ' active'}" onclick="homeSetTagFilter(null)">すべて</span>`;
+        const chips = tags.map(t => `<span class="home-tag-filter-chip${_homeTagFilter === t ? ' active' : ''}" style="--tag-c:${tagColor(t)}" onclick="homeSetTagFilter('${escAttr(t)}')">${escHtml(t)}</span>`).join('');
+        wrap.innerHTML = allChip + chips;
+    }
+    function homeSetTagFilter(tag) {
+        _homeTagFilter = tag;
+        renderHomeGrid();
+    }
+    function homeFilterByTagFromChip(e, tag) {
+        e.stopPropagation();
+        homeSetTagFilter(tag);
     }
 
     function escHtml(s) {
@@ -12760,6 +13103,69 @@ ${layersSVG}
         a.href = URL.createObjectURL(blob);
         a.click();
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    // ── タグ編集モーダル ──
+    let _tagEditorTargetId = null;
+    function projPopoverEditTags() {
+        const id = _popoverTargetId;
+        closeProjPopover();
+        if (!id) return;
+        openTagEditorModal(id);
+    }
+    function openTagEditorModal(id) {
+        _tagEditorTargetId = id;
+        const modal = document.getElementById('tag-editor-modal');
+        if (!modal) return;
+        modal.style.display = 'flex';
+        renderTagEditorChips();
+        const input = document.getElementById('tag-editor-input');
+        if (input) { input.value = ''; setTimeout(() => input.focus(), 50); }
+    }
+    function closeTagEditorModal() {
+        const modal = document.getElementById('tag-editor-modal');
+        if (modal) modal.style.display = 'none';
+        _tagEditorTargetId = null;
+        renderHomeGrid();
+    }
+    function renderTagEditorChips() {
+        const wrap = document.getElementById('tag-editor-chips');
+        const sugWrap = document.getElementById('tag-editor-suggestions');
+        if (!wrap || !_tagEditorTargetId) return;
+        const proj = lsGetProject(_tagEditorTargetId);
+        const tags = (proj && proj.tags) || [];
+        wrap.innerHTML = tags.length
+            ? tags.map(t => `
+                <span class="tag-editor-chip" style="--tag-c:${tagColor(t)}">
+                    ${escHtml(t)}
+                    <span class="tag-editor-chip-remove" onclick="tagEditorRemoveTag('${escAttr(t)}')">×</span>
+                </span>`).join('')
+            : `<div style="font-size:11px; color:var(--c-8a8); margin-bottom:10px;">タグはまだありません</div>`;
+
+        if (sugWrap) {
+            const others = homeGetAllTags().filter(t => !tags.includes(t));
+            sugWrap.innerHTML = others.length
+                ? `<div style="font-size:10px; color:var(--c-8a8); margin-bottom:6px; letter-spacing:0.5px;">既存のタグから追加</div>` +
+                  others.map(t => `<span class="tag-editor-suggestion-chip" style="--tag-c:${tagColor(t)}" onclick="tagEditorAddTag('${escAttr(t)}')">${escHtml(t)}</span>`).join('')
+                : '';
+        }
+    }
+    function tagEditorAddFromInput() {
+        const input = document.getElementById('tag-editor-input');
+        if (!input) return;
+        const val = input.value;
+        input.value = '';
+        tagEditorAddTag(val);
+    }
+    function tagEditorAddTag(rawTag) {
+        if (!_tagEditorTargetId) return;
+        homeAddTagToProject(_tagEditorTargetId, rawTag);
+        renderTagEditorChips();
+    }
+    function tagEditorRemoveTag(tag) {
+        if (!_tagEditorTargetId) return;
+        homeRemoveTagFromProject(_tagEditorTargetId, tag);
+        renderTagEditorChips();
     }
 
     let _deleteTargetId = null;
